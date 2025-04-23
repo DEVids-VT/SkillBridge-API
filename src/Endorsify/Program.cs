@@ -1,15 +1,22 @@
+using Endorsify.Infrastructure.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Add services to the container
 builder.Services.AddControllers();
+
+// Add custom services using extension methods
+builder.Services.AddAuth0(builder.Configuration);
+builder.Services.AddPostgres(builder.Configuration);
+builder.Services.AddStripe(builder.Configuration); // Optional, can be removed if not needed yet
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -18,6 +25,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Add authentication middleware before authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
