@@ -1,4 +1,4 @@
-namespace Endorsify.Infrastructure.Configuration;
+namespace SkillBridge.Infrastructure.Configuration;
 
 /// <summary>
 /// Represents Auth0 configuration settings for authentication and authorization.

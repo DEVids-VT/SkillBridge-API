@@ -1,4 +1,4 @@
-namespace Endorsify.Infrastructure.Configuration;
+namespace SkillBridge.Infrastructure.Configuration;
 
 /// <summary>
 /// Represents PostgreSQL configuration settings for database connections.

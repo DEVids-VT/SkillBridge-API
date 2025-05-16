@@ -1,11 +1,20 @@
-using Endorsify.Data;
-using Endorsify.Infrastructure.Configuration;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using SkillBridge.Data;
+using SkillBridge.Infrastructure.Configuration;
+using SkillBridge.Infrastructure.Mapping;
+using SkillBridge.Infrastructure.Validation;
+using SkillBridge.Services;
+using System.Reflection;
 
-namespace Endorsify.Infrastructure.Extensions;
+namespace SkillBridge.Infrastructure.Extensions;
 
 /// <summary>
 /// Extension methods for configuring services in the application.
@@ -99,6 +108,35 @@ public static class ServiceCollectionExtensions
         // Register any Stripe-related services
         // Example: services.AddScoped<IPaymentService, StripePaymentService>();
 
+        return services;
+    }    /// <summary>
+    /// Adds Web-related services to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddWeb(this IServiceCollection services)
+    {
+        services.AddMvc(o =>
+        {
+            o.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser()
+                .Build()));
+        });
+        
+        // Add validation
+        services.AddFluentValidationAutoValidation();
+        services.AddValidatorsFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
+        
+        // Add Mapster for object mapping
+        var config = TypeAdapterConfig.GlobalSettings;
+        config.Scan(typeof(ServiceCollectionExtensions).Assembly);
+        services.AddSingleton(config);
+        services.AddScoped<IMapper, ServiceMapper>();
+        
+        // Register application services
+        services.AddScoped<ICompanyService, CompanyService>();
+        services.AddScoped<ISkillService, SkillService>();
+        services.AddScoped<IProjectAssignmentService, ProjectAssignmentService>();
+        
         return services;
     }
 }

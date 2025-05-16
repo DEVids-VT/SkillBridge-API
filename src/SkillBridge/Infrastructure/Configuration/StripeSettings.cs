@@ -1,4 +1,4 @@
-namespace Endorsify.Infrastructure.Configuration;
+namespace SkillBridge.Infrastructure.Configuration;
 
 /// <summary>
 /// Represents Stripe configuration settings for payment processing.

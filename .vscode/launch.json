@@ -1,0 +1,55 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SkillBridge API",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/SkillBridge/bin/Debug/net8.0/SkillBridge.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/SkillBridge",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      },
+      "logging": {
+        "moduleLoad": false
+      }
+    },
+    {
+      "name": "SkillBridge API (no build)",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/SkillBridge/bin/Debug/net8.0/SkillBridge.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/SkillBridge",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      },
+      "logging": {
+        "moduleLoad": false
+      }
+    },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach"
+    }
+  ]
+}
