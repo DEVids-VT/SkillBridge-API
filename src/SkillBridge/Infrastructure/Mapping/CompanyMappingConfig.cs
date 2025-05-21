@@ -20,11 +20,16 @@ public class CompanyMappingConfig : IRegister
         config.NewConfig<Company, CompanyResponse>();
             
         // Request to Entity
-        config.NewConfig<CreateCompanyRequest, Company>();
+        config.NewConfig<CreateCompanyRequest, Company>()
+            .Map(dest => dest.CreatedAt, _ => DateTime.UtcNow)
+            .Map(dest => dest.UpdatedAt, _ => (DateTime?)null);
             
         // Update Request to Entity
         config.NewConfig<UpdateCompanyRequest, Company>()
             .IgnoreNonMapped(true)
-            .IgnoreNullValues(true);
+            .IgnoreNullValues(true)
+            .Map(dest => dest.UpdatedAt, _ => DateTime.UtcNow)
+            .Ignore(dest => dest.Auth0UserId)
+            .Ignore(dest => dest.CreatedAt);
     }
 }

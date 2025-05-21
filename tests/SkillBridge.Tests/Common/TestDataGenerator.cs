@@ -83,13 +83,45 @@ public static class TestDataGenerator
     /// <summary>
     /// Creates a test company entity
     /// </summary>
-    public static Company CreateTestCompany(Guid? id = null, string? name = null, string? description = null, string? auth0UserId = null)
+    public static Company CreateTestCompany(
+        Guid? id = null, 
+        string? name = null, 
+        string? about = null,
+        string? logoUrl = null,
+        string? bannerUrl = null,
+        string? activities = null,
+        string? sector = null,
+        string? headOfficeLocation = null,
+        string? technologies = null,
+        int? yearEstablished = null,
+        bool? hasOfficesInBulgaria = null,
+        string? bulgarianOfficeLocations = null,
+        int? employeesInBulgaria = null,
+        int? employeesWorldwide = null,
+        string? whyWorkWithUs = null,
+        string? websiteUrl = null,
+        string? contactInfo = null,
+        string? auth0UserId = null)
     {
         return new Company
         {
             Id = id ?? Guid.NewGuid(),
             Name = name ?? "Test Company",
-            Description = description ?? "Test Description",
+            About = about ?? "Test About Text",
+            LogoUrl = logoUrl ?? "https://example.com/logo.png",
+            BannerUrl = bannerUrl ?? "https://example.com/banner.png",
+            Activities = activities ?? "Product company",
+            Sector = sector ?? "IoT",
+            HeadOfficeLocation = headOfficeLocation ?? "Sofia, Bulgaria",
+            Technologies = technologies ?? "C#, .NET, React",
+            YearEstablished = yearEstablished ?? 2020,
+            HasOfficesInBulgaria = hasOfficesInBulgaria ?? true,
+            BulgarianOfficeLocations = bulgarianOfficeLocations ?? "Sofia",
+            EmployeesInBulgaria = employeesInBulgaria ?? 50,
+            EmployeesWorldwide = employeesWorldwide ?? 200,
+            WhyWorkWithUs = whyWorkWithUs ?? "Great culture and benefits",
+            WebsiteUrl = websiteUrl ?? "https://example.com",
+            ContactInfo = contactInfo ?? "contact@example.com",
             Auth0UserId = auth0UserId ?? "auth0|12345678",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = null
@@ -109,7 +141,21 @@ public static class TestDataGenerator
             {
                 Id = Guid.NewGuid(),
                 Name = $"Company {i}",
-                Description = $"Description {i}",
+                About = $"About text for company {i}",
+                LogoUrl = $"https://example.com/company{i}/logo.png",
+                BannerUrl = $"https://example.com/company{i}/banner.png",
+                Activities = "Product company",
+                Sector = "IoT",
+                HeadOfficeLocation = "Sofia, Bulgaria",
+                Technologies = "C#, .NET, React",
+                YearEstablished = 2020,
+                HasOfficesInBulgaria = true,
+                BulgarianOfficeLocations = "Sofia",
+                EmployeesInBulgaria = 50,
+                EmployeesWorldwide = 200,
+                WhyWorkWithUs = "Great culture and benefits",
+                WebsiteUrl = $"https://company{i}.example.com",
+                ContactInfo = $"contact@company{i}.example.com",
                 Auth0UserId = $"auth0|{i}",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = null
@@ -122,12 +168,43 @@ public static class TestDataGenerator
     /// <summary>
     /// Creates a test create company request
     /// </summary>
-    public static CreateCompanyRequest CreateTestCreateCompanyRequest(string? name = null, string? description = null, string? auth0UserId = null)
+    public static CreateCompanyRequest CreateTestCreateCompanyRequest(
+        string? name = null, 
+        string? about = null,
+        string? logoUrl = null,
+        string? bannerUrl = null,
+        string? activities = null,
+        string? sector = null,
+        string? headOfficeLocation = null,
+        string? technologies = null,
+        int? yearEstablished = null,
+        bool? hasOfficesInBulgaria = null,
+        string? bulgarianOfficeLocations = null,
+        int? employeesInBulgaria = null,
+        int? employeesWorldwide = null,
+        string? whyWorkWithUs = null,
+        string? websiteUrl = null,
+        string? contactInfo = null,
+        string? auth0UserId = null)
     {
         return new CreateCompanyRequest
         {
             Name = name ?? "Test Company",
-            Description = description ?? "Test Description",
+            About = about ?? "Test About Text",
+            LogoUrl = logoUrl ?? "https://example.com/logo.png",
+            BannerUrl = bannerUrl ?? "https://example.com/banner.png",
+            Activities = activities ?? "Product company",
+            Sector = sector ?? "IoT",
+            HeadOfficeLocation = headOfficeLocation ?? "Sofia, Bulgaria",
+            Technologies = technologies ?? "C#, .NET, React",
+            YearEstablished = yearEstablished ?? 2020,
+            HasOfficesInBulgaria = hasOfficesInBulgaria ?? true,
+            BulgarianOfficeLocations = bulgarianOfficeLocations ?? "Sofia",
+            EmployeesInBulgaria = employeesInBulgaria ?? 50,
+            EmployeesWorldwide = employeesWorldwide ?? 200,
+            WhyWorkWithUs = whyWorkWithUs ?? "Great culture and benefits",
+            WebsiteUrl = websiteUrl ?? "https://example.com",
+            ContactInfo = contactInfo ?? "contact@example.com",
             Auth0UserId = auth0UserId ?? "auth0|12345678"
         };
     }
@@ -135,25 +212,87 @@ public static class TestDataGenerator
     /// <summary>
     /// Creates a test update company request
     /// </summary>
-    public static UpdateCompanyRequest CreateTestUpdateCompanyRequest(string? name = null, string? description = null)
+    public static UpdateCompanyRequest CreateTestUpdateCompanyRequest(
+        string? name = null,
+        string? about = null,
+        string? logoUrl = null,
+        string? bannerUrl = null,
+        string? activities = null,
+        string? sector = null,
+        string? headOfficeLocation = null,
+        string? technologies = null,
+        int? yearEstablished = null,
+        bool? hasOfficesInBulgaria = null,
+        string? bulgarianOfficeLocations = null,
+        int? employeesInBulgaria = null,
+        int? employeesWorldwide = null,
+        string? whyWorkWithUs = null,
+        string? websiteUrl = null,
+        string? contactInfo = null)
     {
         return new UpdateCompanyRequest
         {
             Name = name ?? "Updated Company",
-            Description = description ?? "Updated Description"
+            About = about ?? "Updated About Text",
+            LogoUrl = logoUrl ?? "https://example.com/updated-logo.png",
+            BannerUrl = bannerUrl ?? "https://example.com/updated-banner.png",
+            Activities = activities ?? "Updated Product company",
+            Sector = sector ?? "Updated IoT",
+            HeadOfficeLocation = headOfficeLocation ?? "Updated Sofia, Bulgaria",
+            Technologies = technologies ?? "Updated C#, .NET, React",
+            YearEstablished = yearEstablished ?? 2020,
+            HasOfficesInBulgaria = hasOfficesInBulgaria ?? true,
+            BulgarianOfficeLocations = bulgarianOfficeLocations ?? "Updated Sofia",
+            EmployeesInBulgaria = employeesInBulgaria ?? 60,
+            EmployeesWorldwide = employeesWorldwide ?? 250,
+            WhyWorkWithUs = whyWorkWithUs ?? "Updated culture and benefits",
+            WebsiteUrl = websiteUrl ?? "https://updated-example.com",
+            ContactInfo = contactInfo ?? "updated-contact@example.com"
         };
     }
     
     /// <summary>
     /// Creates a test company response
     /// </summary>
-    public static CompanyResponse CreateTestCompanyResponse(Guid? id = null, string? name = null, string? description = null, string? auth0UserId = null)
+    public static CompanyResponse CreateTestCompanyResponse(
+        Guid? id = null,
+        string? name = null,
+        string? about = null,
+        string? logoUrl = null,
+        string? bannerUrl = null,
+        string? activities = null,
+        string? sector = null,
+        string? headOfficeLocation = null,
+        string? technologies = null,
+        int? yearEstablished = null,
+        bool? hasOfficesInBulgaria = null,
+        string? bulgarianOfficeLocations = null,
+        int? employeesInBulgaria = null,
+        int? employeesWorldwide = null,
+        string? whyWorkWithUs = null,
+        string? websiteUrl = null,
+        string? contactInfo = null,
+        string? auth0UserId = null)
     {
         return new CompanyResponse
         {
             Id = id ?? Guid.NewGuid(),
             Name = name ?? "Test Company",
-            Description = description ?? "Test Description",
+            About = about ?? "Test About Text",
+            LogoUrl = logoUrl ?? "https://example.com/logo.png",
+            BannerUrl = bannerUrl ?? "https://example.com/banner.png",
+            Activities = activities ?? "Product company",
+            Sector = sector ?? "IoT",
+            HeadOfficeLocation = headOfficeLocation ?? "Sofia, Bulgaria",
+            Technologies = technologies ?? "C#, .NET, React",
+            YearEstablished = yearEstablished ?? 2020,
+            HasOfficesInBulgaria = hasOfficesInBulgaria ?? true,
+            BulgarianOfficeLocations = bulgarianOfficeLocations ?? "Sofia",
+            EmployeesInBulgaria = employeesInBulgaria ?? 50,
+            EmployeesWorldwide = employeesWorldwide ?? 200,
+            WhyWorkWithUs = whyWorkWithUs ?? "Great culture and benefits",
+            WebsiteUrl = websiteUrl ?? "https://example.com",
+            ContactInfo = contactInfo ?? "contact@example.com",
             Auth0UserId = auth0UserId ?? "auth0|12345678",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = null
