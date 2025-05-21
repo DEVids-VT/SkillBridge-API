@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Mapster;
@@ -13,27 +14,32 @@ using SkillBridge.Infrastructure.Mapping;
 using SkillBridge.Infrastructure.Validation;
 using SkillBridge.Services;
 using System.Reflection;
+using Auth0.ManagementApi;
 
 namespace SkillBridge.Infrastructure.Extensions;
 
 /// <summary>
 /// Extension methods for configuring services in the application.
 /// </summary>
+
+[ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds Auth0 authentication services to the service collection.
+    /// Adds Auth0 authentication and management API services to the service collection.
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">The application configuration.</param>
     /// <returns>The service collection.</returns>
     public static IServiceCollection AddAuth0(this IServiceCollection services, IConfiguration configuration)
     {
-        var settings = configuration.GetSection("Auth0").Get<Auth0Settings>()
+        var auth0Section = configuration.GetSection("Auth0");
+        var settings = auth0Section.Get<Auth0Settings>()
             ?? throw new InvalidOperationException("Auth0 settings are not configured");
-        
-        services.Configure<Auth0Settings>(configuration.GetSection("Auth0"));
 
+        services.Configure<Auth0Settings>(auth0Section);
+
+        // --- JWT Authentication Setup ---
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -46,20 +52,53 @@ public static class ServiceCollectionExtensions
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
+                ValidIssuer = $"https://{settings.Domain}/",
                 ValidateAudience = true,
+                ValidAudience = settings.Audience,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true
             };
         });
-        
-        // Add authorization policies if needed
+
+        // --- Authorization Policies (Optional) ---
         services.AddAuthorization(options =>
         {
-            // Example: options.AddPolicy("read:data", policy => policy.RequireClaim("scope", "read:data"));
+            options.AddPolicy("CompanyScope", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.HasClaim(c =>
+                        c.Type == "scope" &&
+                        c.Value.Split(' ').Contains("default:company")
+                    )
+                ));
+
+
+            options.AddPolicy("CandidateScope", policy =>
+                policy.RequireAssertion(context =>
+                    context.User.HasClaim(c =>
+                        c.Type == "scope" &&
+                        c.Value.Split(' ').Contains("default:candidate")
+                    )
+                ));
+
+        });
+
+        // --- Auth0 Management API Setup (M2M) ---
+        if (string.IsNullOrWhiteSpace(settings.ClientId) || string.IsNullOrWhiteSpace(settings.ClientSecret))
+            throw new InvalidOperationException("Auth0 M2M ClientId or ClientSecret is not configured.");
+
+        services.AddHttpClient<ITokenProvider, Auth0TokenProvider>();
+        services.AddSingleton<ITokenProvider, Auth0TokenProvider>();
+
+        services.AddTransient<ManagementApiClient>(provider =>
+        {
+            var tokenProvider = provider.GetRequiredService<ITokenProvider>();
+            var token = tokenProvider.GetTokenAsync().GetAwaiter().GetResult();
+            return new ManagementApiClient(token, new Uri($"https://{settings.Domain}/api/v2/"));
         });
 
         return services;
     }
+
 
     /// <summary>
     /// Adds PostgreSQL database services to the service collection.
