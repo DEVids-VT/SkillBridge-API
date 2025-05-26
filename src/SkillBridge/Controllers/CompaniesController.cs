@@ -14,18 +14,21 @@ namespace SkillBridge.Controllers;
 public class CompaniesController : ControllerBase
 {
     private readonly ICompanyService _companyService;
+    private readonly ICurrentUser _currentUser;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CompaniesController"/> class.
     /// </summary>
     /// <param name="companyService">The company service</param>
-    public CompaniesController(ICompanyService companyService)
+    /// <param name="currentUser">The current user service</param>
+    public CompaniesController(ICompanyService companyService, ICurrentUser currentUser)
     {
         _companyService = companyService;
+        _currentUser = currentUser;
     }
-
+    
     /// <summary>
-    /// Creates a new company
+    /// Creates a new company for the current user
     /// </summary>
     /// <param name="request">The company creation request</param>
     /// <returns>The created company</returns>
@@ -44,7 +47,7 @@ public class CompaniesController : ControllerBase
     /// </summary>
     /// <param name="id">The company ID</param>
     /// <returns>The company if found</returns>
-    [HttpGet("{id}")]
+    [HttpGet("id/{id:guid}")]
     [ProducesResponseType(typeof(CompanyResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id)
@@ -58,18 +61,19 @@ public class CompaniesController : ControllerBase
         
         return Ok(company);
     }
-
+    
     /// <summary>
-    /// Gets a company by Auth0 user ID
+    /// Gets the company of the current user or the specified user
     /// </summary>
-    /// <param name="userId">The Auth0 user ID</param>
+    /// <param name="userId">Optional user ID (if not provided, uses the current user)</param>
     /// <returns>The company if found</returns>
-    [HttpGet("{userId}")]
+    [HttpGet("my")]
+    [Authorize]
     [ProducesResponseType(typeof(CompanyResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByAuth0UserId(string userId)
+    public async Task<IActionResult> GetMyCompany([FromQuery] string? userId = null)
     {
-        var company = await _companyService.GetByAuth0UserIdAsync(userId);
+        var company = await _companyService.GetMyCompanyAsync(userId);
         
         if (company == null)
         {

@@ -84,9 +84,4 @@ public class CreateCompanyRequest
     /// Gets or sets the contacts information
     /// </summary>
     public string? ContactInfo { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the Auth0 user ID of the company owner
-    /// </summary>
-    public string Auth0UserId { get; set; } = string.Empty;
 }

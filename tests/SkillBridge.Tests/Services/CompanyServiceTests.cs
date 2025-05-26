@@ -15,6 +15,8 @@ public class CompanyServiceTests : ServiceTestBase
 {
     private readonly CompanyService _companyService;
     private readonly Mock<ILogger<CompanyService>> _loggerMock;
+    private readonly Mock<ICurrentUser> _currentUserMock;
+    private const string TestUserId = "auth0|12345678";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CompanyServiceTests"/> class
@@ -22,14 +24,18 @@ public class CompanyServiceTests : ServiceTestBase
     public CompanyServiceTests()
     {
         _loggerMock = MockLoggerFactory.CreateLogger<CompanyService>();
-        _companyService = new CompanyService(DbContext, Mapper, _loggerMock.Object);
-    }
-    
-    [Fact]
+        _currentUserMock = new Mock<ICurrentUser>();
+        _currentUserMock.Setup(u => u.GetUserId()).Returns(TestUserId);
+        
+        _companyService = new CompanyService(DbContext, Mapper, _loggerMock.Object, _currentUserMock.Object);
+    }    [Fact]
     public async Task CreateAsync_ValidRequest_ReturnsCompanyResponse()
     {
         // Arrange
         var request = TestDataGenerator.CreateTestCreateCompanyRequest();
+        
+        // Setup current user mock to return test user ID
+        _currentUserMock.Setup(u => u.GetUserId()).Returns(TestUserId);
         
         // Act
         var result = await _companyService.CreateAsync(request);
@@ -52,10 +58,9 @@ public class CompanyServiceTests : ServiceTestBase
         Assert.Equal(request.WhyWorkWithUs, result.WhyWorkWithUs);
         Assert.Equal(request.WebsiteUrl, result.WebsiteUrl);
         Assert.Equal(request.ContactInfo, result.ContactInfo);
-        Assert.Equal(request.Auth0UserId, result.Auth0UserId);
+        Assert.Equal(TestUserId, result.Auth0UserId); // Auth0UserId is now set from current user
         Assert.NotEqual(Guid.Empty, result.Id);
-        
-        // Verify it was added to database
+          // Verify it was added to database
         var dbCompany = await DbContext.Companies.FindAsync(result.Id);
         Assert.NotNull(dbCompany);
         Assert.Equal(request.Name, dbCompany.Name);
@@ -74,7 +79,7 @@ public class CompanyServiceTests : ServiceTestBase
         Assert.Equal(request.WhyWorkWithUs, dbCompany.WhyWorkWithUs);
         Assert.Equal(request.WebsiteUrl, dbCompany.WebsiteUrl);
         Assert.Equal(request.ContactInfo, dbCompany.ContactInfo);
-        Assert.Equal(request.Auth0UserId, dbCompany.Auth0UserId);
+        Assert.Equal(TestUserId, dbCompany.Auth0UserId); // Auth0UserId is set from current user
         
         // Verify logging
         MockLoggerFactory.VerifyLog(_loggerMock, LogLevel.Information, 
@@ -140,9 +145,8 @@ public class CompanyServiceTests : ServiceTestBase
         MockLoggerFactory.VerifyLog(_loggerMock, LogLevel.Warning, 
             $"Company with ID {id} not found", Times.Once());
     }
-    
-    [Fact]
-    public async Task GetByAuth0UserIdAsync_ExistingUserId_ReturnsCompanyResponse()
+      [Fact]
+    public async Task GetMyCompanyAsync_ExistingUserId_ReturnsCompanyResponse()
     {
         // Arrange
         var auth0UserId = "auth0|testuser";
@@ -151,7 +155,7 @@ public class CompanyServiceTests : ServiceTestBase
         await DbContext.SaveChangesAsync();
         
         // Act
-        var result = await _companyService.GetByAuth0UserIdAsync(auth0UserId);
+        var result = await _companyService.GetMyCompanyAsync(auth0UserId);
         
         // Assert
         Assert.NotNull(result);
@@ -161,28 +165,55 @@ public class CompanyServiceTests : ServiceTestBase
         
         // Verify logging
         MockLoggerFactory.VerifyLog(_loggerMock, LogLevel.Information, 
-            $"Retrieving company with Auth0 user ID: {auth0UserId}", Times.Once());
+            $"Retrieving company for user ID: {auth0UserId}", Times.Once());
         MockLoggerFactory.VerifyLog(_loggerMock, LogLevel.Information, 
             $"Company found: {company.Name}", Times.Once());
     }
     
     [Fact]
-    public async Task GetByAuth0UserIdAsync_NonExistingUserId_ReturnsNull()
+    public async Task GetMyCompanyAsync_NonExistingUserId_ReturnsNull()
     {
         // Arrange
         var auth0UserId = "auth0|nonexistinguser";
         
         // Act
-        var result = await _companyService.GetByAuth0UserIdAsync(auth0UserId);
+        var result = await _companyService.GetMyCompanyAsync(auth0UserId);
         
         // Assert
         Assert.Null(result);
         
         // Verify logging
         MockLoggerFactory.VerifyLog(_loggerMock, LogLevel.Information, 
-            $"Retrieving company with Auth0 user ID: {auth0UserId}", Times.Once());
+            $"Retrieving company for user ID: {auth0UserId}", Times.Once());
         MockLoggerFactory.VerifyLog(_loggerMock, LogLevel.Warning, 
-            $"Company with Auth0 user ID {auth0UserId} not found", Times.Once());
+            $"Company for user ID {auth0UserId} not found", Times.Once());
+    }
+    
+    [Fact]
+    public async Task GetMyCompanyAsync_CurrentUser_ReturnsCompanyResponse()
+    {
+        // Arrange
+        var company = TestDataGenerator.CreateTestCompany(auth0UserId: TestUserId);
+        await DbContext.Companies.AddAsync(company);
+        await DbContext.SaveChangesAsync();
+        
+        // Setup current user mock to return test user ID
+        _currentUserMock.Setup(u => u.GetUserId()).Returns(TestUserId);
+        
+        // Act - Don't provide a user ID, so it uses the current user
+        var result = await _companyService.GetMyCompanyAsync();
+        
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(company.Id, result.Id);
+        Assert.Equal(company.Name, result.Name);
+        Assert.Equal(company.Auth0UserId, result.Auth0UserId);
+        
+        // Verify logging
+        MockLoggerFactory.VerifyLog(_loggerMock, LogLevel.Information, 
+            $"Retrieving company for user ID: {TestUserId}", Times.Once());
+        MockLoggerFactory.VerifyLog(_loggerMock, LogLevel.Information, 
+            $"Company found: {company.Name}", Times.Once());
     }
     
     [Fact]

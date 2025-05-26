@@ -76,9 +76,6 @@ public class CreateCompanyRequestValidator : AbstractValidator<CreateCompanyRequ
         RuleFor(x => x.ContactInfo)
             .MaximumLength(500).WithMessage("Contact information cannot exceed 500 characters");
 
-        RuleFor(x => x.Auth0UserId)
-            .NotEmpty().WithMessage("Auth0 user ID is required")
-            .MaximumLength(50).WithMessage("Auth0 user ID cannot exceed 50 characters");
     }
 
     private static bool BeAValidUrl(string? url)

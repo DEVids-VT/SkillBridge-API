@@ -34,6 +34,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseCors(opts =>
+{
+    opts.WithOrigins("http://localhost:5173").AllowCredentials();
+    opts.AllowAnyHeader();
+    opts.AllowAnyMethod();
+    opts.WithExposedHeaders("X-Pagination");
+});
 app.UseAuthentication();
 app.UseAuthorization();
 

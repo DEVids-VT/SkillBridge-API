@@ -16,25 +16,32 @@ public class CompanyService : ICompanyService
     private readonly AppDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly ILogger<CompanyService> _logger;
+    private readonly ICurrentUser _currentUser;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CompanyService"/> class.
     /// </summary>
-    public CompanyService(AppDbContext dbContext, IMapper mapper, ILogger<CompanyService> logger)
+    public CompanyService(
+        AppDbContext dbContext, 
+        IMapper mapper, 
+        ILogger<CompanyService> logger,
+        ICurrentUser currentUser)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _logger = logger;
-    }
-
-    /// <summary>
-    /// Creates a new company
+        _currentUser = currentUser;
+    }    /// <summary>
+    /// Creates a new company for the current user
     /// </summary>
     public async Task<CompanyResponse> CreateAsync(CreateCompanyRequest request)
     {
         _logger.LogInformation("Creating new company with name: {CompanyName}", request.Name);
         
         var company = _mapper.Map<Company>(request);
+        
+        // Set the Auth0 user ID from the current user instead of from request
+        company.Auth0UserId = _currentUser.GetUserId();
         
         await _dbContext.Companies.AddAsync(company);
         await _dbContext.SaveChangesAsync();
@@ -62,21 +69,22 @@ public class CompanyService : ICompanyService
         _logger.LogInformation("Company found: {CompanyName}", company.Name);
         
         return _mapper.Map<CompanyResponse>(company);
-    }
-
-    /// <summary>
-    /// Gets a company by Auth0 user ID
+    }    /// <summary>
+    /// Gets the company of the currently logged in user
     /// </summary>
-    public async Task<CompanyResponse?> GetByAuth0UserIdAsync(string auth0UserId)
+    public async Task<CompanyResponse?> GetMyCompanyAsync(string? userId = null)
     {
-        _logger.LogInformation("Retrieving company with Auth0 user ID: {Auth0UserId}", auth0UserId);
+        // If userId is not provided, use the current user's ID
+        var auth0UserId = userId ?? _currentUser.GetUserId();
+        
+        _logger.LogInformation("Retrieving company for user ID: {Auth0UserId}", auth0UserId);
         
         var company = await _dbContext.Companies
             .FirstOrDefaultAsync(c => c.Auth0UserId == auth0UserId);
         
         if (company == null)
         {
-            _logger.LogWarning("Company with Auth0 user ID {Auth0UserId} not found", auth0UserId);
+            _logger.LogWarning("Company for user ID {Auth0UserId} not found", auth0UserId);
             return null;
         }
         

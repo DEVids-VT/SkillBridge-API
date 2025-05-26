@@ -9,7 +9,7 @@ namespace SkillBridge.Services;
 public interface ICompanyService
 {
     /// <summary>
-    /// Creates a new company
+    /// Creates a new company for the current user
     /// </summary>
     /// <param name="request">The company creation request</param>
     /// <returns>The created company</returns>
@@ -23,11 +23,11 @@ public interface ICompanyService
     Task<CompanyResponse?> GetByIdAsync(Guid id);
     
     /// <summary>
-    /// Gets a company by Auth0 user ID
+    /// Gets the company of the currently logged in user
     /// </summary>
-    /// <param name="auth0UserId">The Auth0 user ID</param>
+    /// <param name="userId">Optional user ID to get company for, defaults to current user</param>
     /// <returns>The company if found</returns>
-    Task<CompanyResponse?> GetByAuth0UserIdAsync(string auth0UserId);
+    Task<CompanyResponse?> GetMyCompanyAsync(string? userId = null);
     
     /// <summary>
     /// Gets all companies

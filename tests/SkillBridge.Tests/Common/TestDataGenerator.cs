@@ -163,9 +163,7 @@ public static class TestDataGenerator
         }
         
         return companies;
-    }
-    
-    /// <summary>
+    }    /// <summary>
     /// Creates a test create company request
     /// </summary>
     public static CreateCompanyRequest CreateTestCreateCompanyRequest(
@@ -184,8 +182,7 @@ public static class TestDataGenerator
         int? employeesWorldwide = null,
         string? whyWorkWithUs = null,
         string? websiteUrl = null,
-        string? contactInfo = null,
-        string? auth0UserId = null)
+        string? contactInfo = null)
     {
         return new CreateCompanyRequest
         {
@@ -204,8 +201,7 @@ public static class TestDataGenerator
             EmployeesWorldwide = employeesWorldwide ?? 200,
             WhyWorkWithUs = whyWorkWithUs ?? "Great culture and benefits",
             WebsiteUrl = websiteUrl ?? "https://example.com",
-            ContactInfo = contactInfo ?? "contact@example.com",
-            Auth0UserId = auth0UserId ?? "auth0|12345678"
+            ContactInfo = contactInfo ?? "contact@example.com"
         };
     }
     

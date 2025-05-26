@@ -80,14 +80,22 @@ public static class ServiceCollectionExtensions
                     )
                 ));
 
-        });
-
-        // --- Auth0 Management API Setup (M2M) ---
+        });        // --- Auth0 Management API Setup (M2M) ---
         if (string.IsNullOrWhiteSpace(settings.ClientId) || string.IsNullOrWhiteSpace(settings.ClientSecret))
             throw new InvalidOperationException("Auth0 M2M ClientId or ClientSecret is not configured.");
 
         services.AddHttpClient<ITokenProvider, Auth0TokenProvider>();
         services.AddSingleton<ITokenProvider, Auth0TokenProvider>();
+        
+        // Add HTTP context accessor
+        services.AddHttpContextAccessor();
+        
+        // Add current user service
+        services.AddScoped<ICurrentUser, CurrentUserService>();
+        
+        // Add user role service with HttpClient
+        services.AddHttpClient<IUserRoleService, UserRoleService>();
+        services.AddScoped<IUserRoleService, UserRoleService>();
 
         services.AddTransient<ManagementApiClient>(provider =>
         {
