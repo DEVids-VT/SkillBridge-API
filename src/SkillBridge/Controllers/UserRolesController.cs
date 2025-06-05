@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SkillBridge.Services;
+using SkillBridge.Services.UserRole;
 
 namespace SkillBridge.Controllers;
 

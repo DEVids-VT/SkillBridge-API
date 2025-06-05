@@ -2,11 +2,12 @@ using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SkillBridge.Data;
+using SkillBridge.Infrastructure.Exceptions;
 using SkillBridge.Models.Entities;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 
-namespace SkillBridge.Services;
+namespace SkillBridge.Services.Skill;
 
 /// <summary>
 /// Implementation of the skill service
@@ -34,7 +35,7 @@ public class SkillService : ISkillService
     {
         _logger.LogInformation("Creating new skill with name: {SkillName}", request.Name);
         
-        var skill = _mapper.Map<Skill>(request);
+        var skill = _mapper.Map<Models.Entities.Skill>(request);
         
         await _dbContext.Skills.AddAsync(skill);
         await _dbContext.SaveChangesAsync();
@@ -47,7 +48,7 @@ public class SkillService : ISkillService
     /// <summary>
     /// Gets a skill by ID
     /// </summary>
-    public async Task<SkillResponse?> GetByIdAsync(Guid id)
+    public async Task<SkillResponse> GetByIdAsync(Guid id)
     {
         _logger.LogInformation("Retrieving skill with ID: {SkillId}", id);
         
@@ -56,7 +57,7 @@ public class SkillService : ISkillService
         if (skill == null)
         {
             _logger.LogWarning("Skill with ID {SkillId} not found", id);
-            return null;
+            throw new EntityNotFoundException(nameof(Models.Entities.Skill), id);
         }
         
         _logger.LogInformation("Skill found: {SkillName}", skill.Name);
@@ -81,7 +82,7 @@ public class SkillService : ISkillService
     /// <summary>
     /// Updates a skill
     /// </summary>
-    public async Task<SkillResponse?> UpdateAsync(Guid id, UpdateSkillRequest request)
+    public async Task<SkillResponse> UpdateAsync(Guid id, UpdateSkillRequest request)
     {
         _logger.LogInformation("Updating skill with ID: {SkillId}", id);
         
@@ -90,7 +91,7 @@ public class SkillService : ISkillService
         if (skill == null)
         {
             _logger.LogWarning("Skill with ID {SkillId} not found", id);
-            return null;
+            throw new EntityNotFoundException(nameof(Models.Entities.Skill), id);
         }
         
         _mapper.Map(request, skill);
@@ -106,7 +107,7 @@ public class SkillService : ISkillService
     /// <summary>
     /// Deletes a skill
     /// </summary>
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
         _logger.LogInformation("Deleting skill with ID: {SkillId}", id);
         
@@ -115,14 +116,12 @@ public class SkillService : ISkillService
         if (skill == null)
         {
             _logger.LogWarning("Skill with ID {SkillId} not found", id);
-            return false;
+            throw new EntityNotFoundException(nameof(Models.Entities.Skill), id);
         }
         
         _dbContext.Skills.Remove(skill);
         await _dbContext.SaveChangesAsync();
         
         _logger.LogInformation("Skill deleted successfully: {SkillId}", id);
-        
-        return true;
     }
 }

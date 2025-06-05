@@ -1,4 +1,4 @@
-namespace SkillBridge.Services;
+namespace SkillBridge.Services.UserRole;
 
 /// <summary>
 /// Provides methods for managing user roles

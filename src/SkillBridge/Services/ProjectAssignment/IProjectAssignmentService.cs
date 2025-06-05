@@ -1,7 +1,7 @@
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 
-namespace SkillBridge.Services;
+namespace SkillBridge.Services.ProjectAssignment;
 
 /// <summary>
 /// Interface for the project assignment service
@@ -14,6 +14,7 @@ public interface IProjectAssignmentService
     /// <param name="companyId">The ID of the company creating the project assignment</param>
     /// <param name="request">The project assignment creation request</param>
     /// <returns>The created project assignment</returns>
+    /// <exception cref="ArgumentException">Thrown when company or skills don't exist</exception>
     Task<ProjectAssignmentResponse> CreateAsync(Guid companyId, CreateProjectAssignmentRequest request);
     
     /// <summary>
@@ -21,7 +22,8 @@ public interface IProjectAssignmentService
     /// </summary>
     /// <param name="id">The project assignment ID</param>
     /// <returns>The project assignment if found</returns>
-    Task<ProjectAssignmentResponse?> GetByIdAsync(Guid id);
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
+    Task<ProjectAssignmentResponse> GetByIdAsync(Guid id);
     
     /// <summary>
     /// Gets all project assignments
@@ -42,12 +44,14 @@ public interface IProjectAssignmentService
     /// <param name="id">The project assignment ID</param>
     /// <param name="request">The project assignment update request</param>
     /// <returns>The updated project assignment</returns>
-    Task<ProjectAssignmentResponse?> UpdateAsync(Guid id, UpdateProjectAssignmentRequest request);
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
+    /// <exception cref="ArgumentException">Thrown when skills don't exist</exception>
+    Task<ProjectAssignmentResponse> UpdateAsync(Guid id, UpdateProjectAssignmentRequest request);
     
     /// <summary>
     /// Deletes a project assignment
     /// </summary>
     /// <param name="id">The project assignment ID</param>
-    /// <returns>True if project assignment was deleted, false otherwise</returns>
-    Task<bool> DeleteAsync(Guid id);
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
+    Task DeleteAsync(Guid id);
 }

@@ -12,9 +12,14 @@ using SkillBridge.Data;
 using SkillBridge.Infrastructure.Configuration;
 using SkillBridge.Infrastructure.Mapping;
 using SkillBridge.Infrastructure.Validation;
-using SkillBridge.Services;
 using System.Reflection;
 using Auth0.ManagementApi;
+using SkillBridge.Services.Auth;
+using SkillBridge.Services.Company;
+using SkillBridge.Services.CurrentUser;
+using SkillBridge.Services.Skill;
+using SkillBridge.Services.UserRole;
+using SkillBridge.Services.ProjectAssignment;
 
 namespace SkillBridge.Infrastructure.Extensions;
 
@@ -94,7 +99,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICurrentUser, CurrentUserService>();
         
         // Add user role service with HttpClient
-        services.AddHttpClient<IUserRoleService, UserRoleService>();
         services.AddScoped<IUserRoleService, UserRoleService>();
 
         services.AddTransient<ManagementApiClient>(provider =>
@@ -177,12 +181,11 @@ public static class ServiceCollectionExtensions
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan(typeof(ServiceCollectionExtensions).Assembly);
         services.AddSingleton(config);
-        services.AddScoped<IMapper, ServiceMapper>();
-        
-        // Register application services
-        services.AddScoped<ICompanyService, CompanyService>();
-        services.AddScoped<ISkillService, SkillService>();
-        services.AddScoped<IProjectAssignmentService, ProjectAssignmentService>();
+        services.AddScoped<IMapper, ServiceMapper>();        // Register application services
+        services.AddScoped<SkillBridge.Services.Company.ICompanyService, SkillBridge.Services.Company.CompanyService>();
+        services.AddScoped<SkillBridge.Services.Skill.ISkillService, SkillBridge.Services.Skill.SkillService>();
+        services.AddScoped<SkillBridge.Services.ProjectAssignment.IProjectAssignmentService, SkillBridge.Services.ProjectAssignment.ProjectAssignmentService>();
+        services.AddScoped<SkillBridge.Services.UserRole.IUserRoleService, SkillBridge.Services.UserRole.UserRoleService>();
         
         return services;
     }

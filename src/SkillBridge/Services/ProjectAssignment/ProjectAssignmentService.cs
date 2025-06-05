@@ -1,13 +1,13 @@
 using MapsterMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SkillBridge.Data;
+using SkillBridge.Infrastructure.Exceptions;
 using SkillBridge.Models.Entities;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 
-namespace SkillBridge.Services;
+namespace SkillBridge.Services.ProjectAssignment;
 
 /// <summary>
 /// Implementation of the project assignment service
@@ -40,7 +40,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
         if (!companyExists)
         {
             _logger.LogWarning("Company with ID {CompanyId} not found", companyId);
-            throw new ArgumentException($"Company with ID {companyId} not found", nameof(companyId));
+            throw new EntityNotFoundException("Company", companyId);
         }
         
         // Verify all skills exist
@@ -54,13 +54,15 @@ public class ProjectAssignmentService : IProjectAssignmentService
             var missingSkillIds = request.SkillIds.Except(existingSkillIds).ToList();
             if (missingSkillIds.Any())
             {
-                _logger.LogWarning("One or more skills not found: {SkillIds}", string.Join(", ", missingSkillIds));
-                throw new ArgumentException($"One or more skills not found: {string.Join(", ", missingSkillIds)}", nameof(request.SkillIds));
+                var skillIdsString = string.Join(", ", missingSkillIds);
+                _logger.LogWarning("One or more skills not found: {SkillIds}", skillIdsString);
+                throw new EntityNotFoundException("Skill", skillIdsString, 
+                    $"One or more skills not found: {skillIdsString}");
             }
         }
         
         // Create the project assignment
-        var projectAssignment = _mapper.Map<ProjectAssignment>(request);
+        var projectAssignment = _mapper.Map<Models.Entities.ProjectAssignment>(request);
         projectAssignment.CompanyId = companyId;
         
         await _dbContext.ProjectAssignments.AddAsync(projectAssignment);
@@ -88,11 +90,23 @@ public class ProjectAssignmentService : IProjectAssignmentService
     /// <summary>
     /// Gets a project assignment by ID
     /// </summary>
-    public async Task<ProjectAssignmentResponse?> GetByIdAsync(Guid id)
+    public async Task<ProjectAssignmentResponse> GetByIdAsync(Guid id)
     {
         _logger.LogInformation("Retrieving project assignment with ID: {ProjectAssignmentId}", id);
         
-        return await GetResponseWithDetailsAsync(id);
+        var projectAssignment = await _dbContext.ProjectAssignments
+            .Include(p => p.Company)
+            .Include(p => p.ProjectSkills)
+                .ThenInclude(ps => ps.Skill)
+            .FirstOrDefaultAsync(p => p.Id == id);
+        
+        if (projectAssignment == null)
+        {
+            _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} not found", id);
+            throw new EntityNotFoundException("ProjectAssignment", id);
+        }
+        
+        return MapToResponse(projectAssignment);
     }
 
     /// <summary>
@@ -136,7 +150,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
     /// <summary>
     /// Updates a project assignment
     /// </summary>
-    public async Task<ProjectAssignmentResponse?> UpdateAsync(Guid id, UpdateProjectAssignmentRequest request)
+    public async Task<ProjectAssignmentResponse> UpdateAsync(Guid id, UpdateProjectAssignmentRequest request)
     {
         _logger.LogInformation("Updating project assignment with ID: {ProjectAssignmentId}", id);
         
@@ -148,7 +162,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
         if (projectAssignment == null)
         {
             _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} not found", id);
-            return null;
+            throw new EntityNotFoundException("ProjectAssignment", id);
         }
         
         // Update basic properties
@@ -166,8 +180,10 @@ public class ProjectAssignmentService : IProjectAssignmentService
             var missingSkillIds = request.SkillIds.Except(existingSkillIds).ToList();
             if (missingSkillIds.Any())
             {
-                _logger.LogWarning("One or more skills not found: {SkillIds}", string.Join(", ", missingSkillIds));
-                throw new ArgumentException($"One or more skills not found: {string.Join(", ", missingSkillIds)}", nameof(request.SkillIds));
+                var skillIdsString = string.Join(", ", missingSkillIds);
+                _logger.LogWarning("One or more skills not found: {SkillIds}", skillIdsString);
+                throw new EntityNotFoundException("Skill", skillIdsString, 
+                    $"One or more skills not found: {skillIdsString}");
             }
         }
         
@@ -194,7 +210,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
     /// <summary>
     /// Deletes a project assignment
     /// </summary>
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
         _logger.LogInformation("Deleting project assignment with ID: {ProjectAssignmentId}", id);
         
@@ -205,7 +221,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
         if (projectAssignment == null)
         {
             _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} not found", id);
-            return false;
+            throw new EntityNotFoundException("ProjectAssignment", id);
         }
         
         // Remove related project skills
@@ -217,14 +233,12 @@ public class ProjectAssignmentService : IProjectAssignmentService
         await _dbContext.SaveChangesAsync();
         
         _logger.LogInformation("Project assignment deleted successfully: {ProjectAssignmentId}", id);
-        
-        return true;
     }
     
     /// <summary>
     /// Helper method to get a project assignment with all its details
     /// </summary>
-    private async Task<ProjectAssignmentResponse?> GetResponseWithDetailsAsync(Guid id)
+    private async Task<ProjectAssignmentResponse> GetResponseWithDetailsAsync(Guid id)
     {
         var projectAssignment = await _dbContext.ProjectAssignments
             .Include(p => p.Company)
@@ -235,15 +249,16 @@ public class ProjectAssignmentService : IProjectAssignmentService
         if (projectAssignment == null)
         {
             _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} not found", id);
-            return null;
+            throw new EntityNotFoundException("ProjectAssignment", id);
         }
         
         return MapToResponse(projectAssignment);
     }
-      /// <summary>
+    
+    /// <summary>
     /// Helper method to map a project assignment entity to a response model
     /// </summary>
-    private ProjectAssignmentResponse MapToResponse(ProjectAssignment projectAssignment)
+    private ProjectAssignmentResponse MapToResponse(Models.Entities.ProjectAssignment projectAssignment)
     {
         var response = _mapper.Map<ProjectAssignmentResponse>(projectAssignment);
         

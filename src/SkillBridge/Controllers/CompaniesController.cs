@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
-using SkillBridge.Services;
+using SkillBridge.Services.Company;
+using SkillBridge.Services.CurrentUser;
 
 namespace SkillBridge.Controllers;
 
@@ -40,9 +41,7 @@ public class CompaniesController : ControllerBase
     {
         var company = await _companyService.CreateAsync(request);
         return CreatedAtAction(nameof(GetById), new { id = company.Id }, company);
-    }
-
-    /// <summary>
+    }    /// <summary>
     /// Gets a company by ID
     /// </summary>
     /// <param name="id">The company ID</param>
@@ -53,16 +52,9 @@ public class CompaniesController : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
     {
         var company = await _companyService.GetByIdAsync(id);
-        
-        if (company == null)
-        {
-            return NotFound();
-        }
-        
         return Ok(company);
     }
-    
-    /// <summary>
+      /// <summary>
     /// Gets the company of the current user or the specified user
     /// </summary>
     /// <param name="userId">Optional user ID (if not provided, uses the current user)</param>
@@ -74,12 +66,6 @@ public class CompaniesController : ControllerBase
     public async Task<IActionResult> GetMyCompany([FromQuery] string? userId = null)
     {
         var company = await _companyService.GetMyCompanyAsync(userId);
-        
-        if (company == null)
-        {
-            return NotFound();
-        }
-        
         return Ok(company);
     }
 
@@ -93,9 +79,7 @@ public class CompaniesController : ControllerBase
     {
         var companies = await _companyService.GetAllAsync();
         return Ok(companies);
-    }
-
-    /// <summary>
+    }    /// <summary>
     /// Updates a company
     /// </summary>
     /// <param name="id">The company ID</param>
@@ -109,16 +93,8 @@ public class CompaniesController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCompanyRequest request)
     {
         var company = await _companyService.UpdateAsync(id, request);
-        
-        if (company == null)
-        {
-            return NotFound();
-        }
-        
         return Ok(company);
-    }
-
-    /// <summary>
+    }    /// <summary>
     /// Deletes a company
     /// </summary>
     /// <param name="id">The company ID</param>
@@ -129,13 +105,7 @@ public class CompaniesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var result = await _companyService.DeleteAsync(id);
-        
-        if (!result)
-        {
-            return NotFound();
-        }
-        
+        await _companyService.DeleteAsync(id);
         return NoContent();
     }
 }

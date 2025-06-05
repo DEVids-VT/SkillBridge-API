@@ -1,7 +1,7 @@
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 
-namespace SkillBridge.Services;
+namespace SkillBridge.Services.Skill;
 
 /// <summary>
 /// Interface for the skill service
@@ -20,7 +20,8 @@ public interface ISkillService
     /// </summary>
     /// <param name="id">The skill ID</param>
     /// <returns>The skill if found</returns>
-    Task<SkillResponse?> GetByIdAsync(Guid id);
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when skill is not found</exception>
+    Task<SkillResponse> GetByIdAsync(Guid id);
     
     /// <summary>
     /// Gets all skills
@@ -34,12 +35,13 @@ public interface ISkillService
     /// <param name="id">The skill ID</param>
     /// <param name="request">The skill update request</param>
     /// <returns>The updated skill</returns>
-    Task<SkillResponse?> UpdateAsync(Guid id, UpdateSkillRequest request);
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when skill is not found</exception>
+    Task<SkillResponse> UpdateAsync(Guid id, UpdateSkillRequest request);
     
     /// <summary>
     /// Deletes a skill
     /// </summary>
     /// <param name="id">The skill ID</param>
-    /// <returns>True if skill was deleted, false otherwise</returns>
-    Task<bool> DeleteAsync(Guid id);
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when skill is not found</exception>
+    Task DeleteAsync(Guid id);
 }

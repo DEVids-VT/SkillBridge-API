@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SkillBridge.Infrastructure.Exceptions;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
-using SkillBridge.Services;
+using SkillBridge.Services.ProjectAssignment;
 
 namespace SkillBridge.Controllers;
 
@@ -47,16 +48,9 @@ public class ProjectAssignmentsController : ControllerBase
     /// <returns>The project assignment if found</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ProjectAssignmentResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(Guid id)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]    public async Task<IActionResult> GetById(Guid id)
     {
         var projectAssignment = await _projectAssignmentService.GetByIdAsync(id);
-        
-        if (projectAssignment == null)
-        {
-            return NotFound();
-        }
-        
         return Ok(projectAssignment);
     }
 
@@ -95,16 +89,9 @@ public class ProjectAssignmentsController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ProjectAssignmentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProjectAssignmentRequest request)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProjectAssignmentRequest request)
     {
         var projectAssignment = await _projectAssignmentService.UpdateAsync(id, request);
-        
-        if (projectAssignment == null)
-        {
-            return NotFound();
-        }
-        
         return Ok(projectAssignment);
     }
 
@@ -116,16 +103,9 @@ public class ProjectAssignmentsController : ControllerBase
     [Authorize(Policy = "CompanyScope")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid id)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]    public async Task<IActionResult> Delete(Guid id)
     {
-        var result = await _projectAssignmentService.DeleteAsync(id);
-        
-        if (!result)
-        {
-            return NotFound();
-        }
-        
+        await _projectAssignmentService.DeleteAsync(id);
         return NoContent();
     }
 }

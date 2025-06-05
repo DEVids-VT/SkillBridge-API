@@ -32,6 +32,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Use custom exception handler middleware
+app.UseGlobalExceptionHandler();
+
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(opts =>

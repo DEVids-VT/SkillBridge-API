@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace SkillBridge.Services;
+namespace SkillBridge.Services.CurrentUser;
 
 /// <summary>
 /// Interface for accessing the current authenticated user information
@@ -11,6 +11,7 @@ public interface ICurrentUser
     /// Gets the Auth0 user ID (sub claim) of the current user
     /// </summary>
     /// <returns>The Auth0 user ID</returns>
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.AuthenticationException">Thrown when user is not authenticated</exception>
     string GetUserId();
     
     /// <summary>

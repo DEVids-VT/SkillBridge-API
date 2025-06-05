@@ -1,7 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using SkillBridge.Infrastructure.Exceptions;
 
-namespace SkillBridge.Services;
+namespace SkillBridge.Services.CurrentUser;
 
 /// <summary>
 /// Implementation of the current user service
@@ -30,7 +31,7 @@ public class CurrentUserService : ICurrentUser
 
         if (string.IsNullOrEmpty(userId))
         {
-            throw new UnauthorizedAccessException("User is not authenticated or user ID claim is missing");
+            throw new AuthenticationException("User is not authenticated or user ID claim is missing");
         }
         
         return userId;

@@ -2,11 +2,13 @@ using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SkillBridge.Data;
+using SkillBridge.Infrastructure.Exceptions;
 using SkillBridge.Models.Entities;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
+using SkillBridge.Services.CurrentUser;
 
-namespace SkillBridge.Services;
+namespace SkillBridge.Services.Company;
 
 /// <summary>
 /// Implementation of the company service
@@ -31,14 +33,16 @@ public class CompanyService : ICompanyService
         _mapper = mapper;
         _logger = logger;
         _currentUser = currentUser;
-    }    /// <summary>
+    }
+
+    /// <summary>
     /// Creates a new company for the current user
     /// </summary>
     public async Task<CompanyResponse> CreateAsync(CreateCompanyRequest request)
     {
         _logger.LogInformation("Creating new company with name: {CompanyName}", request.Name);
         
-        var company = _mapper.Map<Company>(request);
+        var company = _mapper.Map<Models.Entities.Company>(request);
         
         // Set the Auth0 user ID from the current user instead of from request
         company.Auth0UserId = _currentUser.GetUserId();
@@ -54,7 +58,7 @@ public class CompanyService : ICompanyService
     /// <summary>
     /// Gets a company by ID
     /// </summary>
-    public async Task<CompanyResponse?> GetByIdAsync(Guid id)
+    public async Task<CompanyResponse> GetByIdAsync(Guid id)
     {
         _logger.LogInformation("Retrieving company with ID: {CompanyId}", id);
         
@@ -63,16 +67,18 @@ public class CompanyService : ICompanyService
         if (company == null)
         {
             _logger.LogWarning("Company with ID {CompanyId} not found", id);
-            return null;
+            throw new EntityNotFoundException(nameof(Models.Entities.Company), id);
         }
         
         _logger.LogInformation("Company found: {CompanyName}", company.Name);
         
         return _mapper.Map<CompanyResponse>(company);
-    }    /// <summary>
+    }
+
+    /// <summary>
     /// Gets the company of the currently logged in user
     /// </summary>
-    public async Task<CompanyResponse?> GetMyCompanyAsync(string? userId = null)
+    public async Task<CompanyResponse> GetMyCompanyAsync(string? userId = null)
     {
         // If userId is not provided, use the current user's ID
         var auth0UserId = userId ?? _currentUser.GetUserId();
@@ -85,7 +91,8 @@ public class CompanyService : ICompanyService
         if (company == null)
         {
             _logger.LogWarning("Company for user ID {Auth0UserId} not found", auth0UserId);
-            return null;
+            throw new EntityNotFoundException("Company", $"for user {auth0UserId}", 
+                $"No company found for user ID {auth0UserId}");
         }
         
         _logger.LogInformation("Company found: {CompanyName}", company.Name);
@@ -110,7 +117,7 @@ public class CompanyService : ICompanyService
     /// <summary>
     /// Updates a company
     /// </summary>
-    public async Task<CompanyResponse?> UpdateAsync(Guid id, UpdateCompanyRequest request)
+    public async Task<CompanyResponse> UpdateAsync(Guid id, UpdateCompanyRequest request)
     {
         _logger.LogInformation("Updating company with ID: {CompanyId}", id);
         
@@ -119,7 +126,7 @@ public class CompanyService : ICompanyService
         if (company == null)
         {
             _logger.LogWarning("Company with ID {CompanyId} not found", id);
-            return null;
+            throw new EntityNotFoundException(nameof(Models.Entities.Company), id);
         }
         
         _mapper.Map(request, company);
@@ -136,7 +143,7 @@ public class CompanyService : ICompanyService
     /// <summary>
     /// Deletes a company
     /// </summary>
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
         _logger.LogInformation("Deleting company with ID: {CompanyId}", id);
         
@@ -145,14 +152,12 @@ public class CompanyService : ICompanyService
         if (company == null)
         {
             _logger.LogWarning("Company with ID {CompanyId} not found", id);
-            return false;
+            throw new EntityNotFoundException(nameof(Models.Entities.Company), id);
         }
         
         _dbContext.Companies.Remove(company);
         await _dbContext.SaveChangesAsync();
         
         _logger.LogInformation("Company deleted successfully: {CompanyId}", id);
-        
-        return true;
     }
 }

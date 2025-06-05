@@ -1,6 +1,6 @@
 using SkillBridge.Models.Entities;
 using SkillBridge.Models.Request;
-using SkillBridge.Services;
+using SkillBridge.Services.Skill;
 using System.Reflection;
 
 namespace SkillBridge.Tests.Common;

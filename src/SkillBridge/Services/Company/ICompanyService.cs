@@ -1,7 +1,7 @@
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 
-namespace SkillBridge.Services;
+namespace SkillBridge.Services.Company;
 
 /// <summary>
 /// Interface for the company service
@@ -20,14 +20,16 @@ public interface ICompanyService
     /// </summary>
     /// <param name="id">The company ID</param>
     /// <returns>The company if found</returns>
-    Task<CompanyResponse?> GetByIdAsync(Guid id);
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when company is not found</exception>
+    Task<CompanyResponse> GetByIdAsync(Guid id);
     
     /// <summary>
     /// Gets the company of the currently logged in user
     /// </summary>
     /// <param name="userId">Optional user ID to get company for, defaults to current user</param>
     /// <returns>The company if found</returns>
-    Task<CompanyResponse?> GetMyCompanyAsync(string? userId = null);
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when user has no company</exception>
+    Task<CompanyResponse> GetMyCompanyAsync(string? userId = null);
     
     /// <summary>
     /// Gets all companies
@@ -41,12 +43,13 @@ public interface ICompanyService
     /// <param name="id">The company ID</param>
     /// <param name="request">The company update request</param>
     /// <returns>The updated company</returns>
-    Task<CompanyResponse?> UpdateAsync(Guid id, UpdateCompanyRequest request);
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when company is not found</exception>
+    Task<CompanyResponse> UpdateAsync(Guid id, UpdateCompanyRequest request);
     
     /// <summary>
     /// Deletes a company
     /// </summary>
     /// <param name="id">The company ID</param>
-    /// <returns>True if company was deleted, false otherwise</returns>
-    Task<bool> DeleteAsync(Guid id);
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when company is not found</exception>
+    Task DeleteAsync(Guid id);
 }

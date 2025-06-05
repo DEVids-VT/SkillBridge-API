@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
-using SkillBridge.Services;
+using SkillBridge.Services.Skill;
 
 namespace SkillBridge.Controllers;
 
@@ -35,9 +35,7 @@ public class SkillsController : ControllerBase
     {
         var skill = await _skillService.CreateAsync(request);
         return CreatedAtAction(nameof(GetById), new { id = skill.Id }, skill);
-    }
-
-    /// <summary>
+    }    /// <summary>
     /// Gets a skill by ID
     /// </summary>
     /// <param name="id">The skill ID</param>
@@ -48,12 +46,6 @@ public class SkillsController : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
     {
         var skill = await _skillService.GetByIdAsync(id);
-        
-        if (skill == null)
-        {
-            return NotFound();
-        }
-        
         return Ok(skill);
     }
 
@@ -67,9 +59,7 @@ public class SkillsController : ControllerBase
     {
         var skills = await _skillService.GetAllAsync();
         return Ok(skills);
-    }
-
-    /// <summary>
+    }    /// <summary>
     /// Updates a skill
     /// </summary>
     /// <param name="id">The skill ID</param>
@@ -82,16 +72,8 @@ public class SkillsController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateSkillRequest request)
     {
         var skill = await _skillService.UpdateAsync(id, request);
-        
-        if (skill == null)
-        {
-            return NotFound();
-        }
-        
         return Ok(skill);
-    }
-
-    /// <summary>
+    }    /// <summary>
     /// Deletes a skill
     /// </summary>
     /// <param name="id">The skill ID</param>
@@ -101,13 +83,7 @@ public class SkillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var result = await _skillService.DeleteAsync(id);
-        
-        if (!result)
-        {
-            return NotFound();
-        }
-        
+        await _skillService.DeleteAsync(id);
         return NoContent();
     }
 }
