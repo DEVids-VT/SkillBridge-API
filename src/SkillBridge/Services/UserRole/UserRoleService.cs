@@ -44,7 +44,9 @@ public class UserRoleService : IUserRoleService
     {
         userId ??= _currentUser.GetUserId();
         return await AssignRoleAsync(userId, "Candidate");
-    }    protected virtual async Task<bool> AssignRoleAsync(string userId, string roleName)
+    }
+
+    private async Task<bool> AssignRoleAsync(string userId, string roleName)
     {
         try
         {
@@ -76,7 +78,8 @@ public class UserRoleService : IUserRoleService
             throw new ExternalServiceException("Auth0", $"Failed to assign role '{roleName}' to user", ex);
         }
     }
-      protected virtual async Task<string?> GetRoleIdAsync(string roleName)
+    
+    private async Task<string?> GetRoleIdAsync(string roleName)
     {
         try
         {

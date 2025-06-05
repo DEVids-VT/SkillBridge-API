@@ -17,7 +17,13 @@ public class ProjectAssignmentMappingConfig : IRegister
     public void Register(TypeAdapterConfig config)
     {        // Entity to Response
         config.NewConfig<ProjectAssignment, ProjectAssignmentResponse>()
-            .Map(dest => dest.CompanyName, src => src.Company != null ? src.Company.Name : string.Empty);
+            .Map(dest => dest.CompanyName, src => src.Company != null ? src.Company.Name : string.Empty)
+            .Map(dest => dest.Skills, src => src.ProjectSkills != null 
+                ? src.ProjectSkills
+                    .Where(ps => ps.Skill != null)
+                    .Select(ps => ps.Skill!.Adapt<SkillResponse>())
+                    .ToList() 
+                : new List<SkillResponse>());
             
         // Request to Entity
         config.NewConfig<CreateProjectAssignmentRequest, ProjectAssignment>()

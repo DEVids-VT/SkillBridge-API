@@ -104,9 +104,8 @@ public class ProjectAssignmentService : IProjectAssignmentService
         {
             _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} not found", id);
             throw new EntityNotFoundException("ProjectAssignment", id);
-        }
-        
-        return MapToResponse(projectAssignment);
+        }        
+        return _mapper.Map<ProjectAssignmentResponse>(projectAssignment);
     }
 
     /// <summary>
@@ -121,10 +120,9 @@ public class ProjectAssignmentService : IProjectAssignmentService
             .Include(p => p.ProjectSkills)
                 .ThenInclude(ps => ps.Skill)
             .ToListAsync();
+          _logger.LogInformation("Retrieved {ProjectAssignmentCount} project assignments", projectAssignments.Count);
         
-        _logger.LogInformation("Retrieved {ProjectAssignmentCount} project assignments", projectAssignments.Count);
-        
-        return projectAssignments.Select(p => MapToResponse(p));
+        return projectAssignments.Select(p => _mapper.Map<ProjectAssignmentResponse>(p));
     }
 
     /// <summary>
@@ -140,11 +138,10 @@ public class ProjectAssignmentService : IProjectAssignmentService
                 .ThenInclude(ps => ps.Skill)
             .Where(p => p.CompanyId == companyId)
             .ToListAsync();
-        
-        _logger.LogInformation("Retrieved {ProjectAssignmentCount} project assignments for company ID: {CompanyId}", 
+          _logger.LogInformation("Retrieved {ProjectAssignmentCount} project assignments for company ID: {CompanyId}", 
             projectAssignments.Count, companyId);
         
-        return projectAssignments.Select(p => MapToResponse(p));
+        return projectAssignments.Select(p => _mapper.Map<ProjectAssignmentResponse>(p));
     }
 
     /// <summary>
@@ -234,8 +231,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
         
         _logger.LogInformation("Project assignment deleted successfully: {ProjectAssignmentId}", id);
     }
-    
-    /// <summary>
+      /// <summary>
     /// Helper method to get a project assignment with all its details
     /// </summary>
     private async Task<ProjectAssignmentResponse> GetResponseWithDetailsAsync(Guid id)
@@ -252,31 +248,6 @@ public class ProjectAssignmentService : IProjectAssignmentService
             throw new EntityNotFoundException("ProjectAssignment", id);
         }
         
-        return MapToResponse(projectAssignment);
-    }
-    
-    /// <summary>
-    /// Helper method to map a project assignment entity to a response model
-    /// </summary>
-    private ProjectAssignmentResponse MapToResponse(Models.Entities.ProjectAssignment projectAssignment)
-    {
-        var response = _mapper.Map<ProjectAssignmentResponse>(projectAssignment);
-        
-        // Set company name
-        if (projectAssignment.Company != null)
-        {
-            response.CompanyName = projectAssignment.Company.Name;
-        }
-        
-        // Map skills
-        if (projectAssignment.ProjectSkills != null)
-        {
-            response.Skills = projectAssignment.ProjectSkills
-                .Where(ps => ps.Skill != null)
-                .Select(ps => _mapper.Map<SkillResponse>(ps.Skill!))
-                .ToList();
-        }
-        
-        return response;
+        return _mapper.Map<ProjectAssignmentResponse>(projectAssignment);
     }
 }
