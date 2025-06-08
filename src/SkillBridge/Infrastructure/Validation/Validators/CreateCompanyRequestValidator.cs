@@ -55,7 +55,7 @@ public class CreateCompanyRequestValidator : AbstractValidator<CreateCompanyRequ
             .MaximumLength(500).WithMessage("Bulgarian office locations cannot exceed 500 characters");
 
         RuleFor(x => x.EmployeesInBulgaria)
-            .GreaterThan(0).When(x => x.EmployeesInBulgaria.HasValue)
+            .GreaterThan(0).When(x => x.HasOfficesInBulgaria == true)
             .WithMessage("Number of employees in Bulgaria must be greater than 0")
             .LessThanOrEqualTo(x => x.EmployeesWorldwide ?? int.MaxValue)
             .When(x => x.EmployeesInBulgaria.HasValue && x.EmployeesWorldwide.HasValue)

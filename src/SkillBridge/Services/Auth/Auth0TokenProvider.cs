@@ -52,7 +52,7 @@ public class Auth0TokenProvider : ITokenProvider
             {
                 client_id = _options.ClientId,
                 client_secret = _options.ClientSecret,
-                audience = _options.Audience,
+                audience = "https://dev-bnsuhx4qupwjsv3z.us.auth0.com/api/v2/",
                 grant_type = "client_credentials"
             };
 

@@ -8,7 +8,7 @@ namespace SkillBridge.Controllers;
 /// Controller for managing user roles
 /// </summary>
 [ApiController]
-[Route("api/user-roles")]
+[Route("api/r")]
 [Authorize]
 public class UserRolesController : ControllerBase
 {

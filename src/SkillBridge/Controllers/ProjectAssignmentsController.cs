@@ -11,7 +11,7 @@ namespace SkillBridge.Controllers;
 /// Controller for project assignment operations
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/p")]
 public class ProjectAssignmentsController : ControllerBase
 {
     private readonly IProjectAssignmentService _projectAssignmentService;
@@ -32,7 +32,7 @@ public class ProjectAssignmentsController : ControllerBase
     /// <param name="request">The project assignment creation request</param>
     /// <returns>The created project assignment</returns>
     [Authorize(Policy = "CompanyScope")]
-    [HttpPost("company/{companyId}")]
+    [HttpPost]
     [ProducesResponseType(typeof(ProjectAssignmentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(Guid companyId, [FromBody] CreateProjectAssignmentRequest request)
@@ -71,7 +71,7 @@ public class ProjectAssignmentsController : ControllerBase
     /// </summary>
     /// <param name="companyId">The company ID</param>
     /// <returns>A list of project assignments for the company</returns>
-    [HttpGet("company/{companyId}")]
+    [HttpGet("mine/{companyId}")]
     [ProducesResponseType(typeof(IEnumerable<ProjectAssignmentResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByCompanyId(Guid companyId)
     {
@@ -89,7 +89,8 @@ public class ProjectAssignmentsController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ProjectAssignmentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProjectAssignmentRequest request)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]    
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProjectAssignmentRequest request)
     {
         var projectAssignment = await _projectAssignmentService.UpdateAsync(id, request);
         return Ok(projectAssignment);
@@ -103,7 +104,8 @@ public class ProjectAssignmentsController : ControllerBase
     [Authorize(Policy = "CompanyScope")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]    public async Task<IActionResult> Delete(Guid id)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]    
+    public async Task<IActionResult> Delete(Guid id)
     {
         await _projectAssignmentService.DeleteAsync(id);
         return NoContent();

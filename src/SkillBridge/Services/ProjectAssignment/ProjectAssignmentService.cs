@@ -118,7 +118,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
         var projectAssignments = await _dbContext.ProjectAssignments
             .Include(p => p.Company)
             .Include(p => p.ProjectSkills)
-                .ThenInclude(ps => ps.Skill)
+                .ThenInclude(ps => ps.Skill).OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
           _logger.LogInformation("Retrieved {ProjectAssignmentCount} project assignments", projectAssignments.Count);
         
