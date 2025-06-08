@@ -1,3 +1,4 @@
+using System.ClientModel;
 using System.Diagnostics.CodeAnalysis;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -20,6 +21,10 @@ using SkillBridge.Services.CurrentUser;
 using SkillBridge.Services.Skill;
 using SkillBridge.Services.UserRole;
 using SkillBridge.Services.ProjectAssignment;
+using Microsoft.Extensions.Options;
+using OpenAI;
+using SkillBridge.Services.GenerateAssignment;
+using Stripe.Tax;
 
 namespace SkillBridge.Infrastructure.Extensions;
 
@@ -187,6 +192,28 @@ public static class ServiceCollectionExtensions
         services.AddScoped<SkillBridge.Services.ProjectAssignment.IProjectAssignmentService, SkillBridge.Services.ProjectAssignment.ProjectAssignmentService>();
         services.AddScoped<SkillBridge.Services.UserRole.IUserRoleService, SkillBridge.Services.UserRole.UserRoleService>();
         
+        return services;
+    }
+
+    public static IServiceCollection AddOpenAI(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<OpenAISettings>(configuration.GetSection("OpenAISettings"));
+
+        services.AddSingleton<OpenAIClient>(sp =>
+        {
+            var settings = sp.GetRequiredService<IOptions<OpenAISettings>>().Value;
+            return new OpenAIClient(settings.ApiKey);
+        });
+
+        // Register ChatClient derived from OpenAIClient
+        services.AddSingleton<OpenAI.Chat.ChatClient>(sp =>
+        {
+            var client = sp.GetRequiredService<OpenAIClient>();
+            var model = sp.GetRequiredService<IOptions<OpenAISettings>>().Value.Model;
+            return client.GetChatClient(model);
+        });
+
+        services.AddScoped<IGenerateAssignmentService, GenerateAssignmentService>();
         return services;
     }
 }

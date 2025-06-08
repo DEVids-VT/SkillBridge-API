@@ -1,27 +1,29 @@
-namespace SkillBridge.Models.Entities;
-
-/// <summary>
-/// Represents a many-to-many relationship between ProjectAssignment and Skill entities
-/// </summary>
-public class ProjectSkill
+namespace SkillBridge.Models.Entities
 {
+
     /// <summary>
-    /// Gets or sets the ID of the project assignment
+    /// Represents a many-to-many relationship between ProjectAssignment and Skill entities
     /// </summary>
-    public Guid ProjectAssignmentId { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the project assignment
-    /// </summary>
-    public ProjectAssignment? ProjectAssignment { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the ID of the skill
-    /// </summary>
-    public Guid SkillId { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the skill
-    /// </summary>
-    public Skill? Skill { get; set; }
+    public class ProjectSkill
+    {
+        /// <summary>
+        /// Gets or sets the ID of the project assignment
+        /// </summary>
+        public Guid ProjectAssignmentId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the project assignment
+        /// </summary>
+        public ProjectAssignment? ProjectAssignment { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ID of the skill
+        /// </summary>
+        public Guid SkillId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the skill
+        /// </summary>
+        public Skill? Skill { get; set; }
+    }
 }
