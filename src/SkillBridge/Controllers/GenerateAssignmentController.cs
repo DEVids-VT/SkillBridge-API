@@ -12,7 +12,7 @@ namespace SkillBridge.Controllers;
 /// Controller for AI-powered project assignment generation
 /// </summary>
 [ApiController]
-[Route("api/assignments/generate")]
+[Route("api/g")]
 public class GenerateAssignmentController : ControllerBase
 {    private readonly IGenerateAssignmentService _generateAssignmentService;
     private readonly IProjectAssignmentService _projectAssignmentService;
@@ -40,8 +40,7 @@ public class GenerateAssignmentController : ControllerBase
     /// <param name="companyId">The ID of the company creating the assignment</param>
     /// <param name="request">The candidate requirements</param>
     /// <returns>The generated project assignment</returns>
-    //[Authorize(Policy = "CompanyScope")]
-    [AllowAnonymous]
+    [Authorize(Policy = "CompanyScope")]
     [HttpPost("{companyId}")]
     [ProducesResponseType(typeof(ProjectAssignmentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]    
@@ -97,7 +96,7 @@ public class GenerateAssignmentController : ControllerBase
     /// <param name="request">The candidate requirements</param>
     /// <returns>The generated draft project assignment</returns>
     [HttpPost("draft")]
-    [AllowAnonymous]
+    [Authorize(Policy = "CompanyScope")]
     [ProducesResponseType(typeof(Models.Entities.ProjectAssignment), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GenerateDraft([FromBody] CandidateRequirementsRequest request)
