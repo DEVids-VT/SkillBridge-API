@@ -1,4 +1,5 @@
 using FluentValidation;
+using SkillBridge.Infrastructure.Validation;
 using SkillBridge.Models.Request;
 
 namespace SkillBridge.Infrastructure.Validation.Validators;
@@ -15,10 +16,12 @@ public class UpdateProjectAssignmentRequestValidator : AbstractValidator<UpdateP
     {
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Project assignment title is required")
-            .MaximumLength(200).WithMessage("Project assignment title cannot exceed 200 characters");
+            .MaximumLength(ValidationConstants.ProjectAssignment.TitleMaxLength)
+            .WithMessage($"Project assignment title cannot exceed {ValidationConstants.ProjectAssignment.TitleMaxLength} characters");
 
         RuleFor(x => x.Description)
-            .MaximumLength(2000).WithMessage("Description cannot exceed 2000 characters");
+            .MaximumLength(ValidationConstants.ProjectAssignment.DescriptionMaxLength)
+            .WithMessage($"Description cannot exceed {ValidationConstants.ProjectAssignment.DescriptionMaxLength} characters");
 
         RuleFor(x => x.Deadline)
             .NotEmpty().WithMessage("Deadline is required");

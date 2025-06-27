@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SkillBridge.Infrastructure.Validation;
 using SkillBridge.Models.Entities;
 
 namespace SkillBridge.Data.Configurations;
@@ -25,11 +26,11 @@ public class ProjectAssignmentConfiguration : IEntityTypeConfiguration<ProjectAs
         builder.Property(e => e.Title)
             .HasColumnName("title")
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(ValidationConstants.ProjectAssignment.TitleMaxLength);
             
         builder.Property(e => e.Description)
             .HasColumnName("description")
-            .HasMaxLength(2000);
+            .HasMaxLength(ValidationConstants.ProjectAssignment.DescriptionMaxLength);
             
         builder.Property(e => e.Deadline)
             .HasColumnName("deadline")

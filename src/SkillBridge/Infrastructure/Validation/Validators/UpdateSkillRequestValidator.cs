@@ -1,4 +1,5 @@
 using FluentValidation;
+using SkillBridge.Infrastructure.Validation;
 using SkillBridge.Models.Request;
 
 namespace SkillBridge.Infrastructure.Validation.Validators;
@@ -15,9 +16,11 @@ public class UpdateSkillRequestValidator : AbstractValidator<UpdateSkillRequest>
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Skill name is required")
-            .MaximumLength(100).WithMessage("Skill name cannot exceed 100 characters");
+            .MaximumLength(ValidationConstants.Skill.NameMaxLength)
+            .WithMessage($"Skill name cannot exceed {ValidationConstants.Skill.NameMaxLength} characters");
 
         RuleFor(x => x.Description)
-            .MaximumLength(500).WithMessage("Description cannot exceed 500 characters");
+            .MaximumLength(ValidationConstants.Skill.DescriptionMaxLength)
+            .WithMessage($"Description cannot exceed {ValidationConstants.Skill.DescriptionMaxLength} characters");
     }
 }

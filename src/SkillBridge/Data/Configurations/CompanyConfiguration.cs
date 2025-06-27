@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SkillBridge.Infrastructure.Validation;
 using SkillBridge.Models.Entities;
 
 namespace SkillBridge.Data.Configurations;
@@ -25,35 +26,35 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
         builder.Property(e => e.Name)
             .HasColumnName("name")
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(ValidationConstants.Company.NameMaxLength);
             
         builder.Property(e => e.About)
             .HasColumnName("about")
-            .HasMaxLength(2000);
+            .HasMaxLength(ValidationConstants.Company.AboutMaxLength);
             
         builder.Property(e => e.LogoUrl)
             .HasColumnName("logo_url")
-            .HasMaxLength(500);
+            .HasMaxLength(ValidationConstants.Company.LogoUrlMaxLength);
             
         builder.Property(e => e.BannerUrl)
             .HasColumnName("banner_url")
-            .HasMaxLength(500);
+            .HasMaxLength(ValidationConstants.Company.BannerUrlMaxLength);
             
         builder.Property(e => e.Activities)
             .HasColumnName("activities")
-            .HasMaxLength(500);
+            .HasMaxLength(ValidationConstants.Company.ActivitiesMaxLength);
             
         builder.Property(e => e.Sector)
             .HasColumnName("sector")
-            .HasMaxLength(100);
+            .HasMaxLength(ValidationConstants.Company.SectorMaxLength);
             
         builder.Property(e => e.HeadOfficeLocation)
             .HasColumnName("head_office_location")
-            .HasMaxLength(200);
+            .HasMaxLength(ValidationConstants.Company.HeadOfficeLocationMaxLength);
             
         builder.Property(e => e.Technologies)
             .HasColumnName("technologies")
-            .HasMaxLength(1000);
+            .HasMaxLength(ValidationConstants.Company.TechnologiesMaxLength);
             
         builder.Property(e => e.YearEstablished)
             .HasColumnName("year_established");
@@ -64,7 +65,7 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
             
         builder.Property(e => e.BulgarianOfficeLocations)
             .HasColumnName("bulgarian_office_locations")
-            .HasMaxLength(500);
+            .HasMaxLength(ValidationConstants.Company.BulgarianOfficeLocationsMaxLength);
             
         builder.Property(e => e.EmployeesInBulgaria)
             .HasColumnName("employees_in_bulgaria");
@@ -74,19 +75,19 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
             
         builder.Property(e => e.WhyWorkWithUs)
             .HasColumnName("why_work_with_us")
-            .HasMaxLength(2000);
+            .HasMaxLength(ValidationConstants.Company.WhyWorkWithUsMaxLength);
             
         builder.Property(e => e.WebsiteUrl)
             .HasColumnName("website_url")
-            .HasMaxLength(500);
+            .HasMaxLength(ValidationConstants.Company.WebsiteUrlMaxLength);
             
         builder.Property(e => e.ContactInfo)
             .HasColumnName("contact_info")
-            .HasMaxLength(1000);
+            .HasMaxLength(ValidationConstants.Company.ContactInfoMaxLength);
             
         builder.Property(e => e.Auth0UserId)
             .HasColumnName("auth0_user_id")
-            .HasMaxLength(50)
+            .HasMaxLength(ValidationConstants.Company.Auth0UserIdMaxLength)
             .IsRequired();
             
         builder.Property(e => e.CreatedAt)

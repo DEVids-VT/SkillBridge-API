@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SkillBridge.Infrastructure.Validation;
 using SkillBridge.Models.Entities;
 
 namespace SkillBridge.Data.Configurations;
@@ -25,11 +26,11 @@ public class SkillConfiguration : IEntityTypeConfiguration<Skill>
         builder.Property(e => e.Name)
             .HasColumnName("name")
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(ValidationConstants.Skill.NameMaxLength);
             
         builder.Property(e => e.Description)
             .HasColumnName("description")
-            .HasMaxLength(500);
+            .HasMaxLength(ValidationConstants.Skill.DescriptionMaxLength);
         
         // Create unique index on Name to ensure skills are unique
         builder.HasIndex(e => e.Name).IsUnique();
