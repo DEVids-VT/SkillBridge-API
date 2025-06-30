@@ -44,4 +44,19 @@ public interface ISkillService
     /// <param name="id">The skill ID</param>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when skill is not found</exception>
     Task DeleteAsync(Guid id);
+    
+    /// <summary>
+    /// Validates that all skills with the given IDs exist
+    /// </summary>
+    /// <param name="skillIds">List of skill IDs to validate</param>
+    /// <returns>List of validated skill IDs</returns>
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when any skill ID is not found</exception>
+    Task<List<Guid>> ValidateSkillsExistAsync(List<Guid> skillIds);
+    
+    /// <summary>
+    /// Gets or creates skills by their names
+    /// </summary>
+    /// <param name="skillNames">List of skill names</param>
+    /// <returns>List of skill IDs that exist in the database</returns>
+    Task<List<Guid>> GetOrCreateSkillsByNameAsync(List<string> skillNames);
 }

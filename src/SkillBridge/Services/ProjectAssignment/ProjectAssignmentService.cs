@@ -6,6 +6,7 @@ using SkillBridge.Infrastructure.Exceptions;
 using SkillBridge.Models.Entities;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
+using SkillBridge.Services.Skill;
 
 namespace SkillBridge.Services.ProjectAssignment;
 
@@ -17,15 +18,21 @@ public class ProjectAssignmentService : IProjectAssignmentService
     private readonly AppDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly ILogger<ProjectAssignmentService> _logger;
+    private readonly ISkillService _skillService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProjectAssignmentService"/> class.
     /// </summary>
-    public ProjectAssignmentService(AppDbContext dbContext, IMapper mapper, ILogger<ProjectAssignmentService> logger)
+    public ProjectAssignmentService(
+        AppDbContext dbContext, 
+        IMapper mapper, 
+        ILogger<ProjectAssignmentService> logger,
+        ISkillService skillService)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _logger = logger;
+        _skillService = skillService;
     }
 
     /// <summary>
@@ -43,43 +50,29 @@ public class ProjectAssignmentService : IProjectAssignmentService
             throw new EntityNotFoundException("Company", companyId);
         }
         
-        // Verify all skills exist
+        // Validate skills using SkillService
+        List<Guid> validatedSkillIds = new();
         if (request.SkillIds.Any())
         {
-            var existingSkillIds = await _dbContext.Skills
-                .Where(s => request.SkillIds.Contains(s.Id))
-                .Select(s => s.Id)
-                .ToListAsync();
-            
-            var missingSkillIds = request.SkillIds.Except(existingSkillIds).ToList();
-            if (missingSkillIds.Any())
-            {
-                var skillIdsString = string.Join(", ", missingSkillIds);
-                _logger.LogWarning("One or more skills not found: {SkillIds}", skillIdsString);
-                throw new EntityNotFoundException("Skill", skillIdsString, 
-                    $"One or more skills not found: {skillIdsString}");
-            }
+            validatedSkillIds = await _skillService.ValidateSkillsExistAsync(request.SkillIds);
         }
         
-        // Create the project assignment
+        // Create the project assignment with skills
         var projectAssignment = _mapper.Map<Models.Entities.ProjectAssignment>(request);
         projectAssignment.CompanyId = companyId;
         
-        await _dbContext.ProjectAssignments.AddAsync(projectAssignment);
-        await _dbContext.SaveChangesAsync();
-        
-        // Add project skills
-        if (request.SkillIds.Any())
+        // Prepare project skills if any skills are specified
+        if (validatedSkillIds.Any())
         {
-            var projectSkills = request.SkillIds.Select(skillId => new ProjectSkill
+            projectAssignment.ProjectSkills = validatedSkillIds.Select(skillId => new ProjectSkill
             {
-                ProjectAssignmentId = projectAssignment.Id,
                 SkillId = skillId
             }).ToList();
-            
-            await _dbContext.ProjectSkills.AddRangeAsync(projectSkills);
-            await _dbContext.SaveChangesAsync();
         }
+        
+        // Save everything in a single transaction
+        await _dbContext.ProjectAssignments.AddAsync(projectAssignment);
+        await _dbContext.SaveChangesAsync();
         
         _logger.LogInformation("Project assignment created successfully with ID: {ProjectAssignmentId}", projectAssignment.Id);
         
@@ -166,34 +159,26 @@ public class ProjectAssignmentService : IProjectAssignmentService
         _mapper.Map(request, projectAssignment);
         projectAssignment.UpdatedAt = DateTime.UtcNow;
         
-        // Verify all skills exist
+        // Validate skills using SkillService
+        List<Guid> validatedSkillIds = new();
         if (request.SkillIds.Any())
         {
-            var existingSkillIds = await _dbContext.Skills
-                .Where(s => request.SkillIds.Contains(s.Id))
-                .Select(s => s.Id)
-                .ToListAsync();
-            
-            var missingSkillIds = request.SkillIds.Except(existingSkillIds).ToList();
-            if (missingSkillIds.Any())
-            {
-                var skillIdsString = string.Join(", ", missingSkillIds);
-                _logger.LogWarning("One or more skills not found: {SkillIds}", skillIdsString);
-                throw new EntityNotFoundException("Skill", skillIdsString, 
-                    $"One or more skills not found: {skillIdsString}");
-            }
+            validatedSkillIds = await _skillService.ValidateSkillsExistAsync(request.SkillIds);
         }
         
         // Update skills - remove existing and add new ones
         _dbContext.ProjectSkills.RemoveRange(projectAssignment.ProjectSkills);
         
-        var projectSkills = request.SkillIds.Select(skillId => new ProjectSkill
+        if (validatedSkillIds.Any())
         {
-            ProjectAssignmentId = projectAssignment.Id,
-            SkillId = skillId
-        }).ToList();
-        
-        await _dbContext.ProjectSkills.AddRangeAsync(projectSkills);
+            var projectSkills = validatedSkillIds.Select(skillId => new ProjectSkill
+            {
+                ProjectAssignmentId = projectAssignment.Id,
+                SkillId = skillId
+            }).ToList();
+            
+            await _dbContext.ProjectSkills.AddRangeAsync(projectSkills);
+        }
         
         // Save all changes
         await _dbContext.SaveChangesAsync();
@@ -231,7 +216,8 @@ public class ProjectAssignmentService : IProjectAssignmentService
         
         _logger.LogInformation("Project assignment deleted successfully: {ProjectAssignmentId}", id);
     }
-      /// <summary>
+
+    /// <summary>
     /// Helper method to get a project assignment with all its details
     /// </summary>
     private async Task<ProjectAssignmentResponse> GetResponseWithDetailsAsync(Guid id)

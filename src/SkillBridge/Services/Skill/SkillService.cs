@@ -124,4 +124,84 @@ public class SkillService : ISkillService
         
         _logger.LogInformation("Skill deleted successfully: {SkillId}", id);
     }
+    
+    /// <summary>
+    /// Validates that all skills with the given IDs exist
+    /// </summary>
+    /// <param name="skillIds">List of skill IDs to validate</param>
+    /// <returns>List of validated skill IDs</returns>
+    /// <exception cref="EntityNotFoundException">Thrown when any skill ID is not found</exception>
+    public async Task<List<Guid>> ValidateSkillsExistAsync(List<Guid> skillIds)
+    {
+        if (skillIds == null || !skillIds.Any())
+        {
+            return new List<Guid>();
+        }
+            
+        _logger.LogInformation("Validating {SkillCount} skills", skillIds.Count);
+        
+        var existingSkills = await _dbContext.Skills
+            .Where(s => skillIds.Contains(s.Id))
+            .ToListAsync();
+            
+        var existingSkillIds = existingSkills.Select(s => s.Id).ToList();
+        var missingSkillIds = skillIds.Except(existingSkillIds).ToList();
+            
+        if (missingSkillIds.Any())
+        {
+            var missingSkillIdsString = string.Join(", ", missingSkillIds);
+            _logger.LogWarning("Skills with the following IDs were not found: {SkillIds}", missingSkillIdsString);
+            throw new EntityNotFoundException("Skill", missingSkillIdsString,
+                $"Skills with the following IDs were not found: {missingSkillIdsString}");
+        }
+            
+        _logger.LogInformation("All {SkillCount} skills validated successfully", skillIds.Count);
+        return existingSkillIds;
+    }
+    
+    /// <summary>
+    /// Gets or creates skills by their names
+    /// </summary>
+    /// <param name="skillNames">List of skill names</param>
+    /// <returns>List of skill IDs that exist in the database</returns>
+    public async Task<List<Guid>> GetOrCreateSkillsByNameAsync(List<string> skillNames)
+    {
+        if (skillNames == null || !skillNames.Any())
+        {
+            return new List<Guid>();
+        }
+            
+        _logger.LogInformation("Getting or creating {SkillCount} skills by name", skillNames.Count);
+        
+        var normalizedNames = skillNames.Select(name => name.Trim()).Where(name => !string.IsNullOrEmpty(name)).Distinct().ToList();
+        
+        // Find existing skills by name
+        var existingSkills = await _dbContext.Skills
+            .Where(s => normalizedNames.Contains(s.Name))
+            .ToListAsync();
+            
+        var existingSkillNames = existingSkills.Select(s => s.Name).ToList();
+        var missingSkillNames = normalizedNames.Except(existingSkillNames, StringComparer.OrdinalIgnoreCase).ToList();
+            
+        // Create missing skills
+        if (missingSkillNames.Any())
+        {
+            _logger.LogInformation("Creating {MissingSkillCount} new skills", missingSkillNames.Count);
+            
+            var newSkills = missingSkillNames.Select(name => new Models.Entities.Skill
+            {
+                Id = Guid.NewGuid(),
+                Name = name,
+                Description = null
+            }).ToList();
+                
+            await _dbContext.Skills.AddRangeAsync(newSkills);
+            await _dbContext.SaveChangesAsync();
+                
+            existingSkills.AddRange(newSkills);
+        }
+            
+        _logger.LogInformation("Returning {SkillCount} skill IDs", existingSkills.Count);
+        return existingSkills.Select(s => s.Id).ToList();
+    }
 }
