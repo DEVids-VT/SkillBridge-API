@@ -48,29 +48,25 @@ public class UserRoleService : IUserRoleService
 
     private async Task<bool> AssignRoleAsync(string userId, string roleName)
     {
+        // Get the role ID by role name
+        var roleId = await GetRoleIdAsync(roleName);
+        if (string.IsNullOrEmpty(roleId))
+        {
+            _logger.LogError("Role '{RoleName}' not found in Auth0", roleName);
+            throw new ExternalServiceException("Auth0", $"Role '{roleName}' not found in Auth0");
+        }
+
+        // Assign the role to the user
+        var assignRoleRequest = new AssignRolesRequest
+        {
+            Roles = new[] { roleId }
+        };
+
         try
         {
-            // First, get the role ID by role name
-            var roleId = await GetRoleIdAsync(roleName);
-            if (string.IsNullOrEmpty(roleId))
-            {
-                throw new ExternalServiceException("Auth0", $"Role '{roleName}' not found in Auth0");
-            }
-
-            // Assign the role to the user
-            var assignRoleRequest = new AssignRolesRequest
-            {
-                Roles = new[] { roleId }
-            };
-
             await _managementApiClient.Users.AssignRolesAsync(userId, assignRoleRequest);
-            
             _logger.LogInformation("Successfully assigned role {Role} to user {UserId}", roleName, userId);
             return true;
-        }
-        catch (ExternalServiceException)
-        {
-            throw;
         }
         catch (Exception ex)
         {
