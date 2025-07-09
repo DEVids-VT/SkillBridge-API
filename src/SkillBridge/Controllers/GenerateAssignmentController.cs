@@ -37,7 +37,7 @@ public class GenerateAssignmentController : ControllerBase
     public async Task<IActionResult> Generate(Guid companyId, [FromBody] CandidateRequirementsRequest request)
     {
         // Generate and save the assignment using the service
-        var savedAssignment = await _generateAssignmentService.GenerateAndSaveAssignmentAsync(companyId, request);
+        var savedAssignment = await _generateAssignmentService.GenerateAssignmentAsync(companyId, request);
         
         return CreatedAtAction(
             actionName: nameof(ProjectAssignmentsController.GetById),

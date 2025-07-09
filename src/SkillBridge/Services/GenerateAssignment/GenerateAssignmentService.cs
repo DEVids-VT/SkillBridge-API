@@ -1,77 +1,60 @@
-﻿using Auth0.ManagementApi.Models;
-using Microsoft.Extensions.Options;
-using OpenAI;
-using SkillBridge.Infrastructure.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using SkillBridge.Infrastructure.Ai;
 using SkillBridge.Models.Entities;
 using SkillBridge.Models.Enums;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
-using System.Text.Json;
-using Newtonsoft.Json;
-using OpenAI.Chat;
-using SkillBridge.Infrastructure.Prompts;
 using SkillBridge.Services.ProjectAssignment;
 using SkillBridge.Services.Skill;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace SkillBridge.Services.GenerateAssignment
 {
     public class GenerateAssignmentService : IGenerateAssignmentService
     {
-        private readonly ChatClient _chatClient;
+        private readonly ILlmClient _llmClient;
+        private readonly IPromptBuilder _promptBuilder;
         private readonly IProjectAssignmentService _projectAssignmentService;
         private readonly ISkillService _skillService;
 
         public GenerateAssignmentService(
-            ChatClient chatClient, 
-            IOptions<OpenAISettings> options,
+            ILlmClient llmClient,
+            IPromptBuilder promptBuilder,
             IProjectAssignmentService projectAssignmentService,
             ISkillService skillService)
         {
-            _chatClient = chatClient;
-            _projectAssignmentService = projectAssignmentService;
-            _skillService = skillService;
+            _llmClient = llmClient ?? throw new ArgumentNullException(nameof(llmClient));
+            _promptBuilder = promptBuilder ?? throw new ArgumentNullException(nameof(promptBuilder));
+            _projectAssignmentService = projectAssignmentService ?? throw new ArgumentNullException(nameof(projectAssignmentService));
+            _skillService = skillService ?? throw new ArgumentNullException(nameof(skillService));
         }
 
-        public async Task<Models.Entities.ProjectAssignment> GenerateAssignmentAsync(CandidateRequirementsRequest candidate)
+        /// <summary>
+        /// Generates and saves a project assignment for a company
+        /// </summary>
+        /// <param name="companyId">The ID of the company creating the assignment</param>
+        /// <param name="candidate">The candidate requirements</param>
+        /// <returns>The saved project assignment response</returns>
+        public async Task<ProjectAssignmentResponse> GenerateAssignmentAsync(Guid companyId, CandidateRequirementsRequest candidate)
         {
-            var prompt = AssignmentGenerationPrompts.GenerateAssignmentPrompt(candidate);
-
-            var messages = new List<ChatMessage>
+            var prompt = _promptBuilder.BuildFromFile<Models.Entities.ProjectAssignment>("AssignmentGenerationPrompt.md", candidate);
+            
+            // Generate assignment using LLM client
+            var result = await _llmClient.GenerateAsync(prompt);
+            
+            if (result == null)
+                throw new Exception("Failed to generate assignment from AI.");
+            
+            // Convert the result to a project assignment
+            var generatedAssignment = new Models.Entities.ProjectAssignment
             {
-                new UserChatMessage(prompt)
-            };
-
-            var chatOpts = new ChatCompletionOptions()
-            {
-                ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
-            };
-
-            var response = await _chatClient.CompleteChatAsync(messages, chatOpts);
-            var json = response.Value.Content[0].Text;
-
-            var parsed = JsonConvert.DeserializeObject<ProjectAssignmentResult>(json);
-
-            if (parsed == null)
-                throw new Exception("Failed to parse GPT response.");
-
-            return new Models.Entities.ProjectAssignment
-            {
-                Title = parsed.Title,
-                Description = parsed.Description,
+                Title = result.Title,
+                Description = result.Description,
                 Deadline = DateTime.UtcNow.AddDays(14),
                 Status = ProjectAssignmentStatus.Draft,
-                CreatedAt = DateTime.UtcNow,
-                ProjectSkills = candidate.RequiredSkills
-                    .Select(skill => new ProjectSkill { Skill = new Models.Entities.Skill { Name = skill } })
-                    .ToList()
+                CreatedAt = DateTime.UtcNow
             };
-        }
-
-        public async Task<ProjectAssignmentResponse> GenerateAndSaveAssignmentAsync(Guid companyId, CandidateRequirementsRequest candidate)
-        {
-            // Generate the assignment using AI
-            var generatedAssignment = await GenerateAssignmentAsync(candidate);
             
             // Get all skills to find matching ones by name
             var allSkills = await _skillService.GetAllAsync();
@@ -97,6 +80,7 @@ namespace SkillBridge.Services.GenerateAssignment
                 }
             }
             
+            // Create request for saving the assignment
             var createRequest = new CreateProjectAssignmentRequest
             {
                 Title = generatedAssignment.Title,
@@ -108,17 +92,6 @@ namespace SkillBridge.Services.GenerateAssignment
             
             // Save the generated assignment to database through the project assignment service
             return await _projectAssignmentService.CreateAsync(companyId, createRequest);
-        }
-        
-        private class ProjectAssignmentResult
-        {
-            public string Title { get; set; } = string.Empty;
-            public string Description { get; set; } = string.Empty;
-            public string Deadline { get; set; } = "";
-            public List<string> Skills { get; set; } = new();
-            public List<string> Requirements { get; set; } = new();
-            public List<string> BonusTasks { get; set; } = new();
-            public List<string> EvaluationCriteria { get; set; } = new();
         }
     }
 }
