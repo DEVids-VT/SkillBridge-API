@@ -19,8 +19,11 @@ namespace SkillBridge.Infrastructure.Ai
         /// </summary>
         public PromptBuilder()
         {
-            // Default constructor uses the current directory as the base for prompt files
-            _promptsDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            var projectRoot = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory)
+                ?.Parent?.Parent?.Parent?.FullName;
+
+            _promptsDirectory = Path.Combine(projectRoot ?? "", "Infrastructure", "Prompts", "Files");
+
         }
 
         /// <summary>

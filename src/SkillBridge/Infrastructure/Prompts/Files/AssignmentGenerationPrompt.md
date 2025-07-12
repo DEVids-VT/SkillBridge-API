@@ -12,19 +12,4 @@ Given a candidate profile, generate a realistic coding project assignment that:
 4. Optionally incorporates domain knowledge from the listed industry experience.
 5. Helps prepare the candidate for a technical interview.
 
-## Output Format
-
-Provide your response as a JSON object with the following structure:
-```json
-{
-  "title": "A concise project title",
-  "description": "A brief description of the project",
-  "deadline": "yyyy-MM-dd",
-  "skills": ["skill1", "skill2", "..."],
-  "requirements": ["requirement1", "requirement2", "..."],
-  "bonusTasks": ["task1", "task2"],
-  "evaluationCriteria": ["criterion1", "criterion2", "..."]
-}
-```
-
 Each field should be thoughtfully crafted to provide a comprehensive and challenging assignment appropriate for the candidate's experience level.

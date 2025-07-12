@@ -31,9 +31,10 @@ namespace SkillBridge.Infrastructure.Ai
             Content = content ?? throw new ArgumentNullException(nameof(content));
 
             var response = JsonSchema.FromType<TResponse>().ToJson();
-            var sb = new StringBuilder(Content);
+            var sb = new StringBuilder(SystemPrompt);
+            sb.AppendLine("## OUTPUT FORMAT");
             sb.AppendLine(response);
-            Content = sb.ToString();
+            SystemPrompt = sb.ToString();
         }
     }
 }
