@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SkillBridge.Data;
+using SkillBridge.Infrastructure.Ai;
 using SkillBridge.Infrastructure.Configuration;
 using SkillBridge.Infrastructure.Mapping;
 using SkillBridge.Infrastructure.Validation;
@@ -212,6 +213,12 @@ public static class ServiceCollectionExtensions
             var model = sp.GetRequiredService<IOptions<OpenAISettings>>().Value.Model;
             return client.GetChatClient(model);
         });
+
+        // Register ILlmClient implementation
+        services.AddSingleton<ILlmClient, OpenAILlmClient>();
+
+        // Register IPromptBuilder implementation as transient
+        services.AddTransient<IPromptBuilder, PromptBuilder>();
 
         services.AddScoped<IGenerateAssignmentService, GenerateAssignmentService>();
         return services;
