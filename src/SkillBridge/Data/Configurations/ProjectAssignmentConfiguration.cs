@@ -32,6 +32,25 @@ public class ProjectAssignmentConfiguration : IEntityTypeConfiguration<ProjectAs
             .HasColumnName("description")
             .HasMaxLength(ValidationConstants.ProjectAssignment.DescriptionMaxLength);
             
+        builder.Property(e => e.Summary)
+            .HasColumnName("summary")
+            .IsRequired()
+            .HasMaxLength(ValidationConstants.ProjectAssignment.SummaryMaxLength);
+
+        builder.Property(e => e.LearningBenefits)
+            .HasColumnName("learning_benefits")
+            .IsRequired()
+            .HasMaxLength(ValidationConstants.ProjectAssignment.LearningBenefitsMaxLength);
+
+        builder.Property(e => e.SuggestedApproach)
+            .HasColumnName("suggested_approach")
+            .IsRequired()
+            .HasMaxLength(ValidationConstants.ProjectAssignment.SuggestedApproachMaxLength);
+
+        builder.Property(e => e.Level)
+            .HasColumnName("level")
+            .IsRequired();
+            
         builder.Property(e => e.Deadline)
             .HasColumnName("deadline")
             .IsRequired();
@@ -61,5 +80,6 @@ public class ProjectAssignmentConfiguration : IEntityTypeConfiguration<ProjectAs
         builder.HasIndex(e => e.Status);
         builder.HasIndex(e => e.CompanyId);
         builder.HasIndex(e => e.Deadline);
+        builder.HasIndex(e => e.Level);
     }
 }

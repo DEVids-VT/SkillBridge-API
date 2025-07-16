@@ -54,4 +54,48 @@ public interface IProjectAssignmentService
     /// <param name="id">The project assignment ID</param>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
     Task DeleteAsync(Guid id);
+    
+    /// <summary>
+    /// Creates a new task for a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <param name="request">The task creation request</param>
+    /// <returns>The created task</returns>
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
+    Task<AssignmentTaskResponse> CreateTaskAsync(Guid projectId, CreateAssignmentTaskRequest request);
+    
+    /// <summary>
+    /// Gets all tasks for a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <returns>A list of tasks for the project assignment</returns>
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
+    Task<IEnumerable<AssignmentTaskResponse>> GetTasksAsync(Guid projectId);
+    
+    /// <summary>
+    /// Gets a specific task from a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <param name="taskId">The ID of the task</param>
+    /// <returns>The task if found</returns>
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment or task is not found</exception>
+    Task<AssignmentTaskResponse> GetTaskByIdAsync(Guid projectId, Guid taskId);
+    
+    /// <summary>
+    /// Updates a specific task in a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <param name="taskId">The ID of the task</param>
+    /// <param name="request">The task update request</param>
+    /// <returns>The updated task</returns>
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment or task is not found</exception>
+    Task<AssignmentTaskResponse> UpdateTaskAsync(Guid projectId, Guid taskId, UpdateAssignmentTaskRequest request);
+    
+    /// <summary>
+    /// Deletes a specific task from a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <param name="taskId">The ID of the task</param>
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment or task is not found</exception>
+    Task DeleteTaskAsync(Guid projectId, Guid taskId);
 }

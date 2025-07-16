@@ -22,6 +22,21 @@ public class UpdateProjectAssignmentRequestValidator : AbstractValidator<UpdateP
         RuleFor(x => x.Description)
             .MaximumLength(ValidationConstants.ProjectAssignment.DescriptionMaxLength)
             .WithMessage($"Description cannot exceed {ValidationConstants.ProjectAssignment.DescriptionMaxLength} characters");
+            
+        RuleFor(x => x.Summary)
+            .NotEmpty().WithMessage("Project assignment summary is required")
+            .MaximumLength(ValidationConstants.ProjectAssignment.SummaryMaxLength)
+            .WithMessage($"Summary cannot exceed {ValidationConstants.ProjectAssignment.SummaryMaxLength} characters");
+            
+        RuleFor(x => x.LearningBenefits)
+            .NotEmpty().WithMessage("Learning benefits are required")
+            .MaximumLength(ValidationConstants.ProjectAssignment.LearningBenefitsMaxLength)
+            .WithMessage($"Learning benefits cannot exceed {ValidationConstants.ProjectAssignment.LearningBenefitsMaxLength} characters");
+            
+        RuleFor(x => x.SuggestedApproach)
+            .NotEmpty().WithMessage("Suggested approach is required")
+            .MaximumLength(ValidationConstants.ProjectAssignment.SuggestedApproachMaxLength)
+            .WithMessage($"Suggested approach cannot exceed {ValidationConstants.ProjectAssignment.SuggestedApproachMaxLength} characters");
 
         RuleFor(x => x.Deadline)
             .NotEmpty().WithMessage("Deadline is required");

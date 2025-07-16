@@ -18,6 +18,26 @@ public class CreateProjectAssignmentRequest
     public string? Description { get; set; }
     
     /// <summary>
+    /// Gets or sets a brief summary of the project assignment
+    /// </summary>
+    public string Summary { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the learning benefits that candidates can gain from this project assignment
+    /// </summary>
+    public string LearningBenefits { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the suggested approach for completing this project assignment
+    /// </summary>
+    public string SuggestedApproach { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the difficulty level of this project assignment
+    /// </summary>
+    public ProjectAssignmentLevel Level { get; set; } = ProjectAssignmentLevel.Intermediate;
+    
+    /// <summary>
     /// Gets or sets the deadline for the project assignment
     /// </summary>
     public DateTime Deadline { get; set; }

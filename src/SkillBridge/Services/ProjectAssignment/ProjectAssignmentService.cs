@@ -218,6 +218,139 @@ public class ProjectAssignmentService : IProjectAssignmentService
     }
 
     /// <summary>
+    /// Creates a new task for a project assignment
+    /// </summary>
+    public async Task<AssignmentTaskResponse> CreateTaskAsync(Guid projectId, CreateAssignmentTaskRequest request)
+    {
+        _logger.LogInformation("Creating new task for project assignment ID: {ProjectAssignmentId}", projectId);
+        
+        // Verify project assignment exists
+        var projectExists = await _dbContext.ProjectAssignments.AnyAsync(p => p.Id == projectId);
+        if (!projectExists)
+        {
+            _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} not found", projectId);
+            throw new EntityNotFoundException("ProjectAssignment", projectId);
+        }
+        
+        // Create the task
+        var task = _mapper.Map<AssignmentTask>(request);
+        task.ProjectAssignmentId = projectId;
+        
+        // Save the task
+        await _dbContext.AssignmentTasks.AddAsync(task);
+        await _dbContext.SaveChangesAsync();
+        
+        _logger.LogInformation("Task created successfully with ID: {TaskId} for project assignment ID: {ProjectAssignmentId}", 
+            task.Id, projectId);
+        
+        return _mapper.Map<AssignmentTaskResponse>(task);
+    }
+    
+    /// <summary>
+    /// Gets all tasks for a project assignment
+    /// </summary>
+    public async Task<IEnumerable<AssignmentTaskResponse>> GetTasksAsync(Guid projectId)
+    {
+        _logger.LogInformation("Retrieving tasks for project assignment ID: {ProjectAssignmentId}", projectId);
+        
+        // Verify project assignment exists
+        var projectExists = await _dbContext.ProjectAssignments.AnyAsync(p => p.Id == projectId);
+        if (!projectExists)
+        {
+            _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} not found", projectId);
+            throw new EntityNotFoundException("ProjectAssignment", projectId);
+        }
+        
+        var tasks = await _dbContext.AssignmentTasks
+            .Where(t => t.ProjectAssignmentId == projectId)
+            .OrderBy(t => t.Sequence)
+            .ToListAsync();
+        
+        _logger.LogInformation("Retrieved {TaskCount} tasks for project assignment ID: {ProjectAssignmentId}",
+            tasks.Count, projectId);
+        
+        return tasks.Select(t => _mapper.Map<AssignmentTaskResponse>(t));
+    }
+    
+    /// <summary>
+    /// Gets a specific task from a project assignment
+    /// </summary>
+    public async Task<AssignmentTaskResponse> GetTaskByIdAsync(Guid projectId, Guid taskId)
+    {
+        _logger.LogInformation("Retrieving task with ID: {TaskId} for project assignment ID: {ProjectAssignmentId}", 
+            taskId, projectId);
+        
+        var task = await _dbContext.AssignmentTasks
+            .FirstOrDefaultAsync(t => t.ProjectAssignmentId == projectId && t.Id == taskId);
+        
+        if (task == null)
+        {
+            _logger.LogWarning("Task with ID {TaskId} not found in project assignment ID: {ProjectAssignmentId}", 
+                taskId, projectId);
+            throw new EntityNotFoundException("AssignmentTask", taskId);
+        }
+        
+        return _mapper.Map<AssignmentTaskResponse>(task);
+    }
+    
+    /// <summary>
+    /// Updates a specific task in a project assignment
+    /// </summary>
+    public async Task<AssignmentTaskResponse> UpdateTaskAsync(Guid projectId, Guid taskId, UpdateAssignmentTaskRequest request)
+    {
+        _logger.LogInformation("Updating task with ID: {TaskId} for project assignment ID: {ProjectAssignmentId}",
+            taskId, projectId);
+        
+        var task = await _dbContext.AssignmentTasks
+            .FirstOrDefaultAsync(t => t.ProjectAssignmentId == projectId && t.Id == taskId);
+        
+        if (task == null)
+        {
+            _logger.LogWarning("Task with ID {TaskId} not found in project assignment ID: {ProjectAssignmentId}",
+                taskId, projectId);
+            throw new EntityNotFoundException("AssignmentTask", taskId);
+        }
+        
+        // Update the task properties
+        _mapper.Map(request, task);
+        task.UpdatedAt = DateTime.UtcNow;
+        
+        // Save changes
+        await _dbContext.SaveChangesAsync();
+        
+        _logger.LogInformation("Task updated successfully with ID: {TaskId} for project assignment ID: {ProjectAssignmentId}",
+            taskId, projectId);
+        
+        return _mapper.Map<AssignmentTaskResponse>(task);
+    }
+    
+    /// <summary>
+    /// Deletes a specific task from a project assignment
+    /// </summary>
+    public async Task DeleteTaskAsync(Guid projectId, Guid taskId)
+    {
+        _logger.LogInformation("Deleting task with ID: {TaskId} from project assignment ID: {ProjectAssignmentId}",
+            taskId, projectId);
+        
+        var task = await _dbContext.AssignmentTasks
+            .FirstOrDefaultAsync(t => t.ProjectAssignmentId == projectId && t.Id == taskId);
+        
+        if (task == null)
+        {
+            _logger.LogWarning("Task with ID {TaskId} not found in project assignment ID: {ProjectAssignmentId}",
+                taskId, projectId);
+            throw new EntityNotFoundException("AssignmentTask", taskId);
+        }
+        
+        // Remove the task
+        _dbContext.AssignmentTasks.Remove(task);
+        await _dbContext.SaveChangesAsync();
+        
+        _logger.LogInformation("Task deleted successfully with ID: {TaskId} from project assignment ID: {ProjectAssignmentId}",
+            taskId, projectId);
+    }
+
+    /// <summary>
     /// Helper method to get a project assignment with all its details
     /// </summary>
     private async Task<ProjectAssignmentResponse> GetResponseWithDetailsAsync(Guid id)

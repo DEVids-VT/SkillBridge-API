@@ -48,7 +48,8 @@ public class ProjectAssignmentsController : ControllerBase
     /// <returns>The project assignment if found</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ProjectAssignmentResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]    public async Task<IActionResult> GetById(Guid id)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(Guid id)
     {
         var projectAssignment = await _projectAssignmentService.GetByIdAsync(id);
         return Ok(projectAssignment);
@@ -89,7 +90,7 @@ public class ProjectAssignmentsController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ProjectAssignmentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]    
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProjectAssignmentRequest request)
     {
         var projectAssignment = await _projectAssignmentService.UpdateAsync(id, request);
@@ -104,10 +105,90 @@ public class ProjectAssignmentsController : ControllerBase
     [Authorize(Policy = "CompanyScope")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]    
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _projectAssignmentService.DeleteAsync(id);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Creates a new task for a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <param name="request">The task creation request</param>
+    /// <returns>The created task</returns>
+    [Authorize(Policy = "CompanyScope")]
+    [HttpPost("{projectId}/tasks")]
+    [ProducesResponseType(typeof(AssignmentTaskResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CreateTask(Guid projectId, [FromBody] CreateAssignmentTaskRequest request)
+    {
+        var task = await _projectAssignmentService.CreateTaskAsync(projectId, request);
+        return CreatedAtAction(nameof(GetTaskById), new { projectId = projectId, taskId = task.Id }, task);
+    }
+
+    /// <summary>
+    /// Gets all tasks for a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <returns>A list of tasks for the project assignment</returns>
+    [HttpGet("{projectId}/tasks")]
+    [ProducesResponseType(typeof(IEnumerable<AssignmentTaskResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetTasks(Guid projectId)
+    {
+        var tasks = await _projectAssignmentService.GetTasksAsync(projectId);
+        return Ok(tasks);
+    }
+
+    /// <summary>
+    /// Gets a specific task from a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <param name="taskId">The ID of the task</param>
+    /// <returns>The task if found</returns>
+    [HttpGet("{projectId}/tasks/{taskId}")]
+    [ProducesResponseType(typeof(AssignmentTaskResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetTaskById(Guid projectId, Guid taskId)
+    {
+        var task = await _projectAssignmentService.GetTaskByIdAsync(projectId, taskId);
+        return Ok(task);
+    }
+
+    /// <summary>
+    /// Updates a specific task in a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <param name="taskId">The ID of the task</param>
+    /// <param name="request">The task update request</param>
+    /// <returns>The updated task</returns>
+    [Authorize(Policy = "CompanyScope")]
+    [HttpPut("{projectId}/tasks/{taskId}")]
+    [ProducesResponseType(typeof(AssignmentTaskResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateTask(Guid projectId, Guid taskId, [FromBody] UpdateAssignmentTaskRequest request)
+    {
+        var task = await _projectAssignmentService.UpdateTaskAsync(projectId, taskId, request);
+        return Ok(task);
+    }
+
+    /// <summary>
+    /// Deletes a specific task from a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <param name="taskId">The ID of the task</param>
+    /// <returns>No content if deleted successfully</returns>
+    [Authorize(Policy = "CompanyScope")]
+    [HttpDelete("{projectId}/tasks/{taskId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteTask(Guid projectId, Guid taskId)
+    {
+        await _projectAssignmentService.DeleteTaskAsync(projectId, taskId);
         return NoContent();
     }
 }

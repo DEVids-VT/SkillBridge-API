@@ -38,6 +38,21 @@ public static class ValidationConstants
         /// Maximum length for the Description property
         /// </summary>
         public const int DescriptionMaxLength = 2000;
+        
+        /// <summary>
+        /// Maximum length for the Summary property
+        /// </summary>
+        public const int SummaryMaxLength = 500;
+        
+        /// <summary>
+        /// Maximum length for the LearningBenefits property
+        /// </summary>
+        public const int LearningBenefitsMaxLength = 1000;
+        
+        /// <summary>
+        /// Maximum length for the SuggestedApproach property
+        /// </summary>
+        public const int SuggestedApproachMaxLength = 1000;
     }
     
     /// <summary>
@@ -122,5 +137,21 @@ public static class ValidationConstants
     public static class ProjectSkill
     {
         // No specific validation constants required for this entity
+    }
+    
+    /// <summary>
+    /// Constants related to the AssignmentTask entity
+    /// </summary>
+    public static class AssignmentTask
+    {
+        /// <summary>
+        /// Maximum length for the Title property
+        /// </summary>
+        public const int TitleMaxLength = 200;
+        
+        /// <summary>
+        /// Maximum length for the Description property
+        /// </summary>
+        public const int DescriptionMaxLength = 2000;
     }
 }
