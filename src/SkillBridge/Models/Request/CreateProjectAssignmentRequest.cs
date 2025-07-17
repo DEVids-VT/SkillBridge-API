@@ -51,4 +51,9 @@ public class CreateProjectAssignmentRequest
     /// Gets or sets the skill IDs associated with this project assignment
     /// </summary>
     public List<Guid> SkillIds { get; set; } = new List<Guid>();
+    
+    /// <summary>
+    /// Gets or sets the tasks associated with this project assignment
+    /// </summary>
+    public List<CreateAssignmentTaskRequest> Tasks { get; set; } = new List<CreateAssignmentTaskRequest>();
 }

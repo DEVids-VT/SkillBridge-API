@@ -70,13 +70,26 @@ public class ProjectAssignmentService : IProjectAssignmentService
             }).ToList();
         }
         
+        // Create assignment tasks if any are specified
+        if (request.Tasks != null && request.Tasks.Any())
+        {
+            _logger.LogInformation("Creating {TaskCount} tasks for project assignment", request.Tasks.Count);
+            
+            projectAssignment.Tasks = request.Tasks.Select(taskRequest => 
+            {
+                var task = _mapper.Map<AssignmentTask>(taskRequest);
+                // No need to set ProjectAssignmentId as EF Core will handle this
+                return task;
+            }).ToList();
+        }
+        
         // Save everything in a single transaction
         await _dbContext.ProjectAssignments.AddAsync(projectAssignment);
         await _dbContext.SaveChangesAsync();
         
         _logger.LogInformation("Project assignment created successfully with ID: {ProjectAssignmentId}", projectAssignment.Id);
         
-        // Return the full project assignment with skills
+        // Return the full project assignment with skills and tasks
         return await GetResponseWithDetailsAsync(projectAssignment.Id);
     }
 
@@ -359,6 +372,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
             .Include(p => p.Company)
             .Include(p => p.ProjectSkills)
                 .ThenInclude(ps => ps.Skill)
+            .Include(p => p.Tasks)
             .FirstOrDefaultAsync(p => p.Id == id);
         
         if (projectAssignment == null)

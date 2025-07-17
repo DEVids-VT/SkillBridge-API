@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SkillBridge.Infrastructure.Ai;
 using SkillBridge.Models.Entities;
@@ -46,20 +47,6 @@ namespace SkillBridge.Services.GenerateAssignment
             if (result == null)
                 throw new Exception("Failed to generate assignment from AI.");
             
-            // Convert the result to a project assignment
-            var generatedAssignment = new Models.Entities.ProjectAssignment
-            {
-                Title = result.Title,
-                Description = result.Description,
-                Summary = result.Summary,
-                LearningBenefits = result.LearningBenefits,
-                SuggestedApproach = result.SuggestedApproach,
-                Level = result.Level,
-                Deadline = DateTime.UtcNow.AddDays(14),
-                Status = ProjectAssignmentStatus.Draft,
-                CreatedAt = DateTime.UtcNow
-            };
-            
             // Get all skills to find matching ones by name
             var allSkills = await _skillService.GetAllAsync();
             var skillIdsByName = allSkills.ToDictionary(
@@ -84,21 +71,39 @@ namespace SkillBridge.Services.GenerateAssignment
                 }
             }
             
-            // Create request for saving the assignment
+            // Create tasks from AI result
+            var tasks = new List<CreateAssignmentTaskRequest>();
+            if (result.Tasks != null && result.Tasks.Any())
+            {
+                int sequence = 1;
+                foreach (var task in result.Tasks)
+                {
+                    tasks.Add(new CreateAssignmentTaskRequest
+                    {
+                        Title = task.Title,
+                        Description = task.Description,
+                        IsCompleted = false, // Tasks start as incomplete
+                        Sequence = sequence++
+                    });
+                }
+            }
+            
+            // Create request for saving the assignment with tasks
             var createRequest = new CreateProjectAssignmentRequest
             {
-                Title = generatedAssignment.Title,
-                Description = generatedAssignment.Description,
-                Summary = generatedAssignment.Summary,
-                LearningBenefits = generatedAssignment.LearningBenefits,
-                SuggestedApproach = generatedAssignment.SuggestedApproach,
-                Level = generatedAssignment.Level,
-                Deadline = generatedAssignment.Deadline,
-                Status = generatedAssignment.Status,
-                SkillIds = matchingSkillIds
+                Title = result.Title,
+                Description = result.Description,
+                Summary = result.Summary,
+                LearningBenefits = result.LearningBenefits,
+                SuggestedApproach = result.SuggestedApproach,
+                Level = result.Level,
+                Deadline = DateTime.UtcNow.AddDays(14), // Default deadline if not provided by AI
+                Status = ProjectAssignmentStatus.Draft,
+                SkillIds = matchingSkillIds,
+                Tasks = tasks
             };
             
-            // Save the generated assignment to database through the project assignment service
+            // Save the generated assignment with tasks to database in a single transaction
             return await _projectAssignmentService.CreateAsync(companyId, createRequest);
         }
     }
