@@ -51,6 +51,10 @@ namespace SkillBridge.Services.GenerateAssignment
             {
                 Title = result.Title,
                 Description = result.Description,
+                Summary = result.Summary,
+                LearningBenefits = result.LearningBenefits,
+                SuggestedApproach = result.SuggestedApproach,
+                Level = result.Level,
                 Deadline = DateTime.UtcNow.AddDays(14),
                 Status = ProjectAssignmentStatus.Draft,
                 CreatedAt = DateTime.UtcNow
@@ -85,6 +89,10 @@ namespace SkillBridge.Services.GenerateAssignment
             {
                 Title = generatedAssignment.Title,
                 Description = generatedAssignment.Description,
+                Summary = generatedAssignment.Summary,
+                LearningBenefits = generatedAssignment.LearningBenefits,
+                SuggestedApproach = generatedAssignment.SuggestedApproach,
+                Level = generatedAssignment.Level,
                 Deadline = generatedAssignment.Deadline,
                 Status = generatedAssignment.Status,
                 SkillIds = matchingSkillIds
