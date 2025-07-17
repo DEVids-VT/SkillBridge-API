@@ -13,6 +13,6 @@
         /// <summary>
         /// The deployment model name to be used (e.g., "gpt-4o").
         /// </summary>
-        public string Model { get; set; } = "gpt-4o";
+        public string Model { get; set; } = "gpt-4o-mini";
     }
 }

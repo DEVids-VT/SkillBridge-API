@@ -1,3 +1,5 @@
+using NJsonSchema.Annotations;
+
 namespace SkillBridge.Models.Entities
 {
 
@@ -9,16 +11,19 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the ID of the project assignment
         /// </summary>
+        [JsonSchemaIgnore]
         public Guid ProjectAssignmentId { get; set; }
 
         /// <summary>
         /// Gets or sets the project assignment
         /// </summary>
+        [JsonSchemaIgnore]
         public ProjectAssignment? ProjectAssignment { get; set; }
 
         /// <summary>
         /// Gets or sets the ID of the skill
         /// </summary>
+        [JsonSchemaIgnore]
         public Guid SkillId { get; set; }
 
         /// <summary>

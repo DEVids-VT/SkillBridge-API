@@ -1,3 +1,4 @@
+using NJsonSchema.Annotations;
 using System;
 
 namespace SkillBridge.Models.Entities
@@ -10,6 +11,7 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the unique identifier for the task
         /// </summary>
+        [JsonSchemaIgnore]
         public Guid Id { get; set; }
 
         /// <summary>
@@ -35,21 +37,25 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the ID of the project assignment this task belongs to
         /// </summary>
+        [JsonSchemaIgnore]
         public Guid ProjectAssignmentId { get; set; }
 
         /// <summary>
         /// Gets or sets the project assignment this task belongs to
         /// </summary>
+        [JsonSchemaIgnore]
         public ProjectAssignment? ProjectAssignment { get; set; }
 
         /// <summary>
         /// Gets or sets the date when this task was created
         /// </summary>
+        [JsonSchemaIgnore]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Gets or sets the date when this task was last updated
         /// </summary>
+        [JsonSchemaIgnore]
         public DateTime? UpdatedAt { get; set; }
     }
 }

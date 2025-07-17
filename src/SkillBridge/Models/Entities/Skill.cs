@@ -1,3 +1,5 @@
+using NJsonSchema.Annotations;
+
 namespace SkillBridge.Models.Entities
 {
 
@@ -9,6 +11,7 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the unique identifier for the skill
         /// </summary>
+        [JsonSchemaIgnore]
         public Guid Id { get; set; }
 
         /// <summary>
@@ -24,6 +27,7 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the collection of project skills associated with this skill
         /// </summary>
+        [JsonSchemaIgnore]
         public ICollection<ProjectSkill> ProjectSkills { get; set; } = new List<ProjectSkill>();
     }
 }
