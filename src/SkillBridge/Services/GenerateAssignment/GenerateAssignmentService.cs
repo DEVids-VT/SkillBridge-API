@@ -65,7 +65,7 @@ namespace SkillBridge.Services.GenerateAssignment
                 else
                 {
                     // Create the skill if it doesn't exist
-                    var createSkillRequest = new CreateSkillRequest { Name = skillName };
+                    var createSkillRequest = new CreateSkillRequest { Name = skillName, Description = "unneeded description" };
                     var newSkill = await _skillService.CreateAsync(createSkillRequest);
                     matchingSkillIds.Add(newSkill.Id);
                 }
