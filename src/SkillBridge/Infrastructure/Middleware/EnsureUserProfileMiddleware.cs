@@ -17,7 +17,6 @@ public class EnsureUserProfileMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<EnsureUserProfileMiddleware> _logger;
-    private readonly ICurrentUser _currentUser;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EnsureUserProfileMiddleware"/> class
@@ -26,12 +25,10 @@ public class EnsureUserProfileMiddleware
     /// <param name="logger">The logger</param>
     public EnsureUserProfileMiddleware(
         RequestDelegate next,
-        ILogger<EnsureUserProfileMiddleware> logger,
-        ICurrentUser currentUser)
+        ILogger<EnsureUserProfileMiddleware> logger)
     {
         _next = next;
         _logger = logger;
-        _currentUser = currentUser;
     }
 
     /// <summary>
@@ -45,7 +42,7 @@ public class EnsureUserProfileMiddleware
         // Only process for authenticated users
         if (context.User.Identity?.IsAuthenticated == true)
         {
-            var userId = _currentUser.GetUserId();
+            var userId = GetUserId(context.User);
             
             if (!string.IsNullOrEmpty(userId))
             {
@@ -74,4 +71,10 @@ public class EnsureUserProfileMiddleware
         await _next(context);
     }
     
+    private static string? GetUserId(ClaimsPrincipal user)
+    {
+        return user.FindFirst("sub")?.Value ??
+               user.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+               user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+    }
 }
