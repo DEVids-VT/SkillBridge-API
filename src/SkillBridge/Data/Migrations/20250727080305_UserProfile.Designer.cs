@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SkillBridge.Data;
@@ -11,9 +12,11 @@ using SkillBridge.Data;
 namespace SkillBridge.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250727080305_UserProfile")]
+    partial class UserProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -316,37 +319,6 @@ namespace SkillBridge.Data.Migrations
                     b.ToTable("user_profiles", (string)null);
                 });
 
-            modelBuilder.Entity("SkillBridge.Models.Entities.UserProjectAssignment", b =>
-                {
-                    b.Property<string>("UserProfileId")
-                        .HasColumnType("text")
-                        .HasColumnName("user_profile_id");
-
-                    b.Property<Guid>("ProjectAssignmentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("project_assignment_id");
-
-                    b.Property<DateTime>("ClaimedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("claimed_at");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completed_at");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_completed");
-
-                    b.HasKey("UserProfileId", "ProjectAssignmentId");
-
-                    b.HasIndex("ProjectAssignmentId");
-
-                    b.HasIndex("UserProfileId");
-
-                    b.ToTable("user_project_assignments", (string)null);
-                });
-
             modelBuilder.Entity("SkillBridge.Models.Entities.AssignmentTask", b =>
                 {
                     b.HasOne("SkillBridge.Models.Entities.ProjectAssignment", "ProjectAssignment")
@@ -388,25 +360,6 @@ namespace SkillBridge.Data.Migrations
                     b.Navigation("Skill");
                 });
 
-            modelBuilder.Entity("SkillBridge.Models.Entities.UserProjectAssignment", b =>
-                {
-                    b.HasOne("SkillBridge.Models.Entities.ProjectAssignment", "ProjectAssignment")
-                        .WithMany("UserProjectAssignments")
-                        .HasForeignKey("ProjectAssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SkillBridge.Models.Entities.UserProfile", "UserProfile")
-                        .WithMany("UserProjectAssignments")
-                        .HasForeignKey("UserProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProjectAssignment");
-
-                    b.Navigation("UserProfile");
-                });
-
             modelBuilder.Entity("SkillBridge.Models.Entities.Company", b =>
                 {
                     b.Navigation("ProjectAssignments");
@@ -417,18 +370,11 @@ namespace SkillBridge.Data.Migrations
                     b.Navigation("ProjectSkills");
 
                     b.Navigation("Tasks");
-
-                    b.Navigation("UserProjectAssignments");
                 });
 
             modelBuilder.Entity("SkillBridge.Models.Entities.Skill", b =>
                 {
                     b.Navigation("ProjectSkills");
-                });
-
-            modelBuilder.Entity("SkillBridge.Models.Entities.UserProfile", b =>
-                {
-                    b.Navigation("UserProjectAssignments");
                 });
 #pragma warning restore 612, 618
         }

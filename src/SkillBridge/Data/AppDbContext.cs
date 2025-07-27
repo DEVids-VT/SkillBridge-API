@@ -35,6 +35,16 @@ public class AppDbContext : DbContext
     public DbSet<AssignmentTask> AssignmentTasks { get; set; } = null!;
 
     /// <summary>
+    /// Gets or sets the user profiles in the database
+    /// </summary>
+    public DbSet<UserProfile> UserProfiles { get; set; } = null!;
+    
+    /// <summary>
+    /// Gets or sets the user project assignments in the database
+    /// </summary>
+    public DbSet<UserProjectAssignment> UserProjectAssignments { get; set; } = null!;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="AppDbContext"/> class.
     /// </summary>
     /// <param name="options">The options for this context.</param>

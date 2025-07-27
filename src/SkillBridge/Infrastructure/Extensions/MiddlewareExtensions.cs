@@ -15,4 +15,13 @@ public static class MiddlewareExtensions
     {
         return app.UseMiddleware<ExceptionHandlerMiddleware>();
     }
+    /// <summary>
+    /// Adds middleware to ensure that authenticated users have a corresponding UserProfile in the database
+    /// </summary>
+    /// <param name="app">The application builder</param>
+    /// <returns>The application builder</returns>
+    public static IApplicationBuilder UseEnsureUserProfile(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<EnsureUserProfileMiddleware>();
+    }
 }

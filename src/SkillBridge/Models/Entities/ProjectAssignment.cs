@@ -75,6 +75,12 @@ namespace SkillBridge.Models.Entities
         /// Gets or sets the collection of tasks belonging to this project assignment
         /// </summary>
         public ICollection<AssignmentTask> Tasks { get; set; } = new List<AssignmentTask>();
+        
+        /// <summary>
+        /// Gets or sets the collection of user project assignments for this project assignment
+        /// </summary>
+        [JsonSchemaIgnore]
+        public ICollection<UserProjectAssignment> UserProjectAssignments { get; set; } = new List<UserProjectAssignment>();
 
         /// <summary>
         /// Gets or sets the date when this project assignment was created

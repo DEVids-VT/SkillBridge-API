@@ -47,6 +47,7 @@ app.UseCors(opts =>
 });
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseEnsureUserProfile(); // Add middleware to ensure user profiles exist
 
 app.MapControllers();
 
