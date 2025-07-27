@@ -60,12 +60,12 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
             throw new EntityNotFoundException("ProjectAssignment", request.ProjectAssignmentId);
         }
         
-        if (projectAssignment.Status != Models.Enums.ProjectAssignmentStatus.Published)
-        {
-            _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} is not published", 
-                request.ProjectAssignmentId);
-            throw new InvalidOperationException("Cannot claim a project assignment that is not published");
-        }
+        //if (projectAssignment.Status != Models.Enums.ProjectAssignmentStatus.Published)
+        //{
+        //    _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} is not published", 
+        //        request.ProjectAssignmentId);
+        //    throw new InvalidOperationException("Cannot claim a project assignment that is not published");
+        //}
         
         // Check if the user has already claimed this project
         var existingClaim = await _dbContext.UserProjectAssignments
