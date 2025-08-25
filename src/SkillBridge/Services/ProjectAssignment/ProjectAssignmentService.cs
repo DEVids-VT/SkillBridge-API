@@ -104,6 +104,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
             .Include(p => p.Company)
             .Include(p => p.ProjectSkills)
                 .ThenInclude(ps => ps.Skill)
+            .Include(p => p.Tasks.OrderBy(t => t.Sequence))
             .FirstOrDefaultAsync(p => p.Id == id);
         
         if (projectAssignment == null)
@@ -124,7 +125,9 @@ public class ProjectAssignmentService : IProjectAssignmentService
         var projectAssignments = await _dbContext.ProjectAssignments
             .Include(p => p.Company)
             .Include(p => p.ProjectSkills)
-                .ThenInclude(ps => ps.Skill).OrderByDescending(p => p.CreatedAt)
+                .ThenInclude(ps => ps.Skill)
+            .Include(p => p.Tasks.OrderBy(t => t.Sequence))
+            .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
           _logger.LogInformation("Retrieved {ProjectAssignmentCount} project assignments", projectAssignments.Count);
         
@@ -142,6 +145,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
             .Include(p => p.Company)
             .Include(p => p.ProjectSkills)
                 .ThenInclude(ps => ps.Skill)
+            .Include(p => p.Tasks.OrderBy(t => t.Sequence))
             .Where(p => p.CompanyId == companyId)
             .ToListAsync();
           _logger.LogInformation("Retrieved {ProjectAssignmentCount} project assignments for company ID: {CompanyId}", 
@@ -372,7 +376,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
             .Include(p => p.Company)
             .Include(p => p.ProjectSkills)
                 .ThenInclude(ps => ps.Skill)
-            .Include(p => p.Tasks)
+            .Include(p => p.Tasks.OrderBy(t => t.Sequence))
             .FirstOrDefaultAsync(p => p.Id == id);
         
         if (projectAssignment == null)
