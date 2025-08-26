@@ -1,6 +1,9 @@
 using Microsoft.OpenApi.Models;
 using Serilog;
+using SkillBridge.Infrastructure.Ai;
 using SkillBridge.Infrastructure.Extensions;
+using SkillBridge.Services.GenerateAssignment;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +20,11 @@ builder.Host.UseSerilog((context, configuration) =>
 builder.Services.AddAuth0(builder.Configuration);
 builder.Services.AddWeb();
 builder.Services.AddPostgres(builder.Configuration);
-builder.Services.AddOpenAI(builder.Configuration);
+//builder.Services.AddOpenAI(builder.Configuration);
+builder.Services.AddPerplexity(builder.Configuration);
 //builder.Services.AddStripe(builder.Configuration);
+builder.Services.AddTransient<IPromptBuilder, PromptBuilder>();
+builder.Services.AddScoped<IGenerateAssignmentService, GenerateAssignmentService>();
 
 builder.Services.AddSwaggerGen(s =>
 {
