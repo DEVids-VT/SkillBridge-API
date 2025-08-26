@@ -230,11 +230,7 @@ public static class ServiceCollectionExtensions
         // Register ILlmClient implementation
         services.AddSingleton<ILlmClient, PerplexityLlmClient>();
         // Register IPromptBuilder implementation as transient
-        services.AddSingleton<PerplexityLlmClient>(sp =>
-        {
-            var settings = sp.GetRequiredService<IOptions<PerplexitySettings>>();
-            return new PerplexityLlmClient(settings);
-        });
+       
         return services;
     }
 }

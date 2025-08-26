@@ -58,23 +58,31 @@ namespace SkillBridge.Infrastructure.Ai
             {
                 throw new Exception($"Perplexity API returned error: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
             }
-
-            var responseJson = await response.Content.ReadAsStringAsync();
-            var apiResponse = JsonConvert.DeserializeObject<dynamic>(responseJson);
-
-            if (apiResponse?.choices == null || apiResponse.choices.Count == 0 ||
-                apiResponse.choices?.message == null || apiResponse.choices.message.content == null)
+            try
             {
-                throw new Exception("Invalid response format from Perplexity API");
+                var responseJson = await response.Content.ReadAsStringAsync();
+                var apiResponse = JsonConvert.DeserializeObject<dynamic>(responseJson);
+
+                if (apiResponse?.choices == null || apiResponse.choices.Count == 0 ||
+                    apiResponse.choices[0]?.message == null || apiResponse.choices[0].message.content == null )
+                {
+                    throw new Exception("Invalid response format from Perplexity API");
+                }
+
+                string contentJson = apiResponse.choices[0].message.content.ToString();
+                var parsedResponse = JsonConvert.DeserializeObject<TResponse>(contentJson);
+
+                if (parsedResponse == null)
+                    throw new Exception($"Failed to deserialize response to type {typeof(TResponse).Name}");
+
+                return parsedResponse;
             }
+            catch (Exception)
+            {
 
-            string contentJson = apiResponse.choices.message.content.ToString();
-            var parsedResponse = JsonConvert.DeserializeObject<TResponse>(contentJson);
-
-            if (parsedResponse == null)
-                throw new Exception($"Failed to deserialize response to type {typeof(TResponse).Name}");
-
-            return parsedResponse;
+                throw;
+            }
+            
         }
     }
 }
