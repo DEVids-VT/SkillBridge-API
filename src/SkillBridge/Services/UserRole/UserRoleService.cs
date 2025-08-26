@@ -97,4 +97,13 @@ public class UserRoleService : IUserRoleService
             throw new ExternalServiceException("Auth0", $"Failed to retrieve role information for '{roleName}'", ex);
         }
     }
+    public async Task<bool> IsCandidate (HttpContext context)
+    {
+        //userId ??= _currentUser.GetUserId();
+        //var roles = await _managementApiClient.Users.GetRolesAsync(userId);
+        //return roles.Any(r => r.Name.Equals("Candidate", StringComparison.OrdinalIgnoreCase))
+
+        return true;
+    
+    }
 }

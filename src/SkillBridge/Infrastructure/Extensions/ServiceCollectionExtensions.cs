@@ -220,9 +220,21 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILlmClient, OpenAILlmClient>();
 
         // Register IPromptBuilder implementation as transient
-        services.AddTransient<IPromptBuilder, PromptBuilder>();
+        
+        return services;
+    }
 
-        services.AddScoped<IGenerateAssignmentService, GenerateAssignmentService>();
+    public static IServiceCollection AddPerplexity(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<PerplexitySettings>(configuration.GetSection("PerplexitySettings"));
+        // Register ILlmClient implementation
+        services.AddSingleton<ILlmClient, PerplexityLlmClient>();
+        // Register IPromptBuilder implementation as transient
+        services.AddSingleton<PerplexityLlmClient>(sp =>
+        {
+            var settings = sp.GetRequiredService<IOptions<PerplexitySettings>>();
+            return new PerplexityLlmClient(settings);
+        });
         return services;
     }
 }

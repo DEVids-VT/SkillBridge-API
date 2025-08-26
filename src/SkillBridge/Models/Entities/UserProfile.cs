@@ -26,4 +26,19 @@ public class UserProfile
     /// Gets or sets the collection of user project assignments for this user
     /// </summary>
     public ICollection<UserProjectAssignment> UserProjectAssignments { get; set; } = new List<UserProjectAssignment>();
+
+
+    public  string ProfilePicture  { get; set; } = string.Empty;
+
+    public string FullName { get; set; } = string.Empty;
+
+    public string Email { get; set; } = string.Empty;
+
+    public string Username { get; set; } = string.Empty;
+
+    public string Interests { get; set; } = string.Empty;
+
+    public string CVUpload { get; set; } = string.Empty;
+
+    public string GitHubConnection { get; set; } = string.Empty;
 }
