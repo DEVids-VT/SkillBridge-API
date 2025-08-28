@@ -85,7 +85,7 @@ public class CompaniesController : ControllerBase
     /// <param name="id">The company ID</param>
     /// <param name="request">The company update request</param>
     /// <returns>The updated company</returns>
-    [Authorize(Policy = "CompaniesScope")]
+    [Authorize(Policy = "Company")]
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(CompanyResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
