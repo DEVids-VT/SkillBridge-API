@@ -27,6 +27,8 @@ using OpenAI;
 using SkillBridge.Services.GenerateAssignment;
 using SkillBridge.Services.UserProjectAssignment;
 using Stripe.Tax;
+using Microsoft.Extensions.DependencyInjection;
+using SkillBridge.Services.File;
 
 namespace SkillBridge.Infrastructure.Extensions;
 
@@ -98,13 +100,13 @@ public static class ServiceCollectionExtensions
 
         services.AddHttpClient<ITokenProvider, Auth0TokenProvider>();
         services.AddSingleton<ITokenProvider, Auth0TokenProvider>();
-        
+
         // Add HTTP context accessor
         services.AddHttpContextAccessor();
-        
+
         // Add current user service
         services.AddScoped<ICurrentUser, CurrentUserService>();
-        
+
         // Add user role service with HttpClient
         services.AddScoped<IUserRoleService, UserRoleService>();
 
@@ -118,7 +120,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-
     /// <summary>
     /// Adds PostgreSQL database services to the service collection.
     /// </summary>
@@ -129,9 +130,10 @@ public static class ServiceCollectionExtensions
     {
         var settings = configuration.GetSection("Postgres").Get<PostgresSettings>()
             ?? throw new InvalidOperationException("Postgres settings are not configured");
-        
+
         services.Configure<PostgresSettings>(configuration.GetSection("Postgres"));
 
+        // Register DbContext
         services.AddDbContext<AppDbContext>(options =>
         {
             options.UseNpgsql(settings.ConnectionString, npgsqlOptions =>
@@ -140,9 +142,13 @@ public static class ServiceCollectionExtensions
                 npgsqlOptions.EnableRetryOnFailure(5);
             });
         });
-        
-        // Add additional database-related services here if needed
-        // e.g., repositories, unit of work, etc.
+
+        // Register Supabase Client
+        var supabaseClient = new Supabase.Client(settings.SupabaseUrl, settings.SupabaseKey);
+        services.AddSingleton(supabaseClient);
+
+        // Hosted service to initialize buckets
+        services.AddHostedService(provider => new SupabaseBucketInitializer(supabaseClient));
 
         return services;
     }
@@ -157,17 +163,19 @@ public static class ServiceCollectionExtensions
     {
         var settings = configuration.GetSection("Stripe").Get<StripeSettings>()
             ?? throw new InvalidOperationException("Stripe settings are not configured");
-        
+
         services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
-        
+
         // Configure Stripe API
         Stripe.StripeConfiguration.ApiKey = settings.SecretKey;
-        
+
         // Register any Stripe-related services
         // Example: services.AddScoped<IPaymentService, StripePaymentService>();
 
         return services;
-    }    /// <summary>
+    }
+
+    /// <summary>
     /// Adds Web-related services to the service collection.
     /// </summary>
     /// <param name="services">The service collection.</param>
@@ -179,11 +187,11 @@ public static class ServiceCollectionExtensions
             o.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser()
                 .Build()));
         });
-        
+
         // Add validation
         services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
-        
+
         // Add Mapster for object mapping
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan(typeof(ServiceCollectionExtensions).Assembly);
@@ -194,7 +202,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProjectAssignmentService, ProjectAssignmentService>();
         services.AddScoped<IUserRoleService, UserRoleService>();
         services.AddScoped<IUserProjectAssignmentService, UserProjectAssignmentService>();
-        
+        services.AddScoped<IFileUploader, SupabaseBucketFileUploader>();
+
         return services;
     }
 
