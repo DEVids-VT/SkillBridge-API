@@ -56,16 +56,16 @@ namespace SkillBridge.Services.GenerateAssignment
             // Match skill names from the request with existing skill IDs
             // Create skills that don't exist
             var matchingSkillIds = new List<Guid>();
-            foreach (var skillName in candidate.RequiredSkills)
+            foreach (var skillName in candidate.RequiredCompetencies)
             {
-                if (skillIdsByName.TryGetValue(skillName.ToLowerInvariant(), out var skillId))
+                if (skillIdsByName.TryGetValue(skillName.Name.ToLowerInvariant(), out var skillId))
                 {
                     matchingSkillIds.Add(skillId);
                 }
                 else
                 {
                     // Create the skill if it doesn't exist
-                    var createSkillRequest = new CreateSkillRequest { Name = skillName, Description = "unneeded description" };
+                    var createSkillRequest = new CreateSkillRequest { Name = skillName.Name, Description = skillName.Description };
                     var newSkill = await _skillService.CreateAsync(createSkillRequest);
                     matchingSkillIds.Add(newSkill.Id);
                 }
