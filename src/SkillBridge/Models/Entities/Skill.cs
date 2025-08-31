@@ -17,7 +17,7 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the name of the skill
         /// </summary>
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the description of the skill

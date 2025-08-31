@@ -116,9 +116,19 @@ public static class ValidationConstants
         public const int WebsiteUrlMaxLength = 500;
         
         /// <summary>
-        /// Maximum length for the ContactInfo property
+        /// Maximum length for the ContactName property
         /// </summary>
-        public const int ContactInfoMaxLength = 1000;
+        public const int ContactNameMaxLength = 100;
+        
+        /// <summary>
+        /// Maximum length for the ContactEmail property
+        /// </summary>
+        public const int ContactEmailMaxLength = 255;
+        
+        /// <summary>
+        /// Maximum length for the ContactPhone property
+        /// </summary>
+        public const int ContactPhoneMaxLength = 20;
         
         /// <summary>
         /// Maximum length for the Auth0UserId property

@@ -30,6 +30,7 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
             
         builder.Property(e => e.About)
             .HasColumnName("about")
+            .IsRequired()
             .HasMaxLength(ValidationConstants.Company.AboutMaxLength);
             
         builder.Property(e => e.LogoUrl)
@@ -42,21 +43,26 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
             
         builder.Property(e => e.Activities)
             .HasColumnName("activities")
+            .IsRequired()
             .HasMaxLength(ValidationConstants.Company.ActivitiesMaxLength);
             
         builder.Property(e => e.Sector)
             .HasColumnName("sector")
+            .IsRequired()
             .HasMaxLength(ValidationConstants.Company.SectorMaxLength);
             
         builder.Property(e => e.HeadOfficeLocation)
             .HasColumnName("head_office_location")
+            .IsRequired()
             .HasMaxLength(ValidationConstants.Company.HeadOfficeLocationMaxLength);
             
         builder.Property(e => e.Technologies)
             .HasColumnName("technologies")
+            .IsRequired()
             .HasMaxLength(ValidationConstants.Company.TechnologiesMaxLength);
             
         builder.Property(e => e.YearEstablished)
+            .IsRequired()
             .HasColumnName("year_established");
             
         builder.Property(e => e.HasOfficesInBulgaria)
@@ -71,7 +77,8 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
             .HasColumnName("employees_in_bulgaria");
             
         builder.Property(e => e.EmployeesWorldwide)
-            .HasColumnName("employees_worldwide");
+            .HasColumnName("employees_worldwide")
+            .IsRequired();
             
         builder.Property(e => e.WhyWorkWithUs)
             .HasColumnName("why_work_with_us")
@@ -79,11 +86,23 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
             
         builder.Property(e => e.WebsiteUrl)
             .HasColumnName("website_url")
+            .IsRequired()
             .HasMaxLength(ValidationConstants.Company.WebsiteUrlMaxLength);
             
-        builder.Property(e => e.ContactInfo)
-            .HasColumnName("contact_info")
-            .HasMaxLength(ValidationConstants.Company.ContactInfoMaxLength);
+        builder.Property(e => e.ContactName)
+            .HasColumnName("contact_name")
+            .IsRequired()
+            .HasMaxLength(ValidationConstants.Company.ContactNameMaxLength);
+            
+        builder.Property(e => e.ContactEmail)
+            .HasColumnName("contact_email")
+            .IsRequired()
+            .HasMaxLength(ValidationConstants.Company.ContactEmailMaxLength);
+            
+        builder.Property(e => e.ContactPhone)
+            .HasColumnName("contact_phone")
+            .IsRequired()
+            .HasMaxLength(ValidationConstants.Company.ContactPhoneMaxLength);
             
         builder.Property(e => e.Auth0UserId)
             .HasColumnName("auth0_user_id")

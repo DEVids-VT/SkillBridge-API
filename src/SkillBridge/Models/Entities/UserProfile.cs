@@ -10,7 +10,7 @@ public class UserProfile
     /// <summary>
     /// Gets or sets the ID of the user profile (Auth0 user ID)
     /// </summary>
-    public string Id { get; set; } = string.Empty;
+    public string Id { get; set; } = default!;
     
     /// <summary>
     /// Gets or sets the date when this user profile was created

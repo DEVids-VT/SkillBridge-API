@@ -17,7 +17,7 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the title of the task
         /// </summary>
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the description of the task
