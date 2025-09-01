@@ -15,7 +15,7 @@ public class ProjectAssignmentResponse
     /// <summary>
     /// Gets or sets the title of the project assignment
     /// </summary>
-    public string Title { get; set; } = string.Empty;
+    public string Title { get; set; } = default!;
     
     /// <summary>
     /// Gets or sets the description of the project assignment
@@ -25,17 +25,17 @@ public class ProjectAssignmentResponse
     /// <summary>
     /// Gets or sets a brief summary of the project assignment
     /// </summary>
-    public string Summary { get; set; } = string.Empty;
+    public string Summary { get; set; } = default!;
     
     /// <summary>
     /// Gets or sets the learning benefits that candidates can gain from this project assignment
     /// </summary>
-    public string LearningBenefits { get; set; } = string.Empty;
+    public string LearningBenefits { get; set; } = default!;
     
     /// <summary>
     /// Gets or sets the suggested approach for completing this project assignment
     /// </summary>
-    public string SuggestedApproach { get; set; } = string.Empty;
+    public string SuggestedApproach { get; set; } = default!;
     
     /// <summary>
     /// Gets or sets the difficulty level of this project assignment
@@ -60,7 +60,7 @@ public class ProjectAssignmentResponse
     /// <summary>
     /// Gets or sets the company name that created this project assignment
     /// </summary>
-    public string CompanyName { get; set; } = string.Empty;
+    public string CompanyName { get; set; } = default!;
     
     /// <summary>
     /// Gets or sets the skills required for this project assignment

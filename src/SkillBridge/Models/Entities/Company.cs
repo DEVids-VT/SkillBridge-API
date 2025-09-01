@@ -13,12 +13,12 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the name of the company
         /// </summary>
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the about text of the company
         /// </summary>
-        public string? About { get; set; }
+        public string About { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the URL to the company logo
@@ -33,22 +33,22 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the company's activities (e.g., Product company)
         /// </summary>
-        public string? Activities { get; set; }
+        public string Activities { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the company's sector (e.g., IoT)
         /// </summary>
-        public string? Sector { get; set; }
+        public string Sector { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the location of the head office (e.g., Sofia, Bulgaria)
         /// </summary>
-        public string? HeadOfficeLocation { get; set; }
+        public string HeadOfficeLocation { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the list of technologies used by the company
         /// </summary>
-        public string? Technologies { get; set; }
+        public string Technologies { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the year the company was established
@@ -73,7 +73,7 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the number of employees worldwide
         /// </summary>
-        public int? EmployeesWorldwide { get; set; }
+        public int EmployeesWorldwide { get; set; }
 
         /// <summary>
         /// Gets or sets the "Why work with us" text
@@ -83,17 +83,27 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the website URL
         /// </summary>
-        public string? WebsiteUrl { get; set; }
+        public string WebsiteUrl { get; set; } = default!;
 
         /// <summary>
-        /// Gets or sets the contacts information
+        /// Gets or sets the contact person name
         /// </summary>
-        public string? ContactInfo { get; set; }
+        public string ContactName { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the contact email address
+        /// </summary>
+        public string ContactEmail { get; set; } = default!;
+
+        /// <summary>
+        /// Gets or sets the contact phone number
+        /// </summary>
+        public string ContactPhone { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the Auth0 user ID of the company owner
         /// </summary>
-        public string Auth0UserId { get; set; } = string.Empty;
+        public string Auth0UserId { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the collection of project assignments created by this company

@@ -81,7 +81,17 @@ public class UpdateCompanyRequest
     public string? WebsiteUrl { get; set; }
     
     /// <summary>
-    /// Gets or sets the contacts information
+    /// Gets or sets the contact person name
     /// </summary>
-    public string? ContactInfo { get; set; }
+    public string? ContactName { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the contact email address
+    /// </summary>
+    public string? ContactEmail { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the contact phone number
+    /// </summary>
+    public string? ContactPhone { get; set; }
 }

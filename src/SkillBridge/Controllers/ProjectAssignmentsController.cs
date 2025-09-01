@@ -31,7 +31,7 @@ public class ProjectAssignmentsController : ControllerBase
     /// <param name="companyId">The ID of the company creating the project assignment</param>
     /// <param name="request">The project assignment creation request</param>
     /// <returns>The created project assignment</returns>
-    [Authorize(Policy = "CompanyScope")]
+    [Authorize(Policy = "Company")]
     [HttpPost]
     [ProducesResponseType(typeof(ProjectAssignmentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -86,7 +86,7 @@ public class ProjectAssignmentsController : ControllerBase
     /// <param name="id">The project assignment ID</param>
     /// <param name="request">The project assignment update request</param>
     /// <returns>The updated project assignment</returns>
-    [Authorize(Policy = "CompanyScope")]
+    [Authorize(Policy = "Company")]
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ProjectAssignmentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -102,7 +102,7 @@ public class ProjectAssignmentsController : ControllerBase
     /// </summary>
     /// <param name="id">The project assignment ID</param>
     /// <returns>No content if deleted successfully</returns>
-    [Authorize(Policy = "CompanyScope")]
+    [Authorize(Policy = "Company")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -118,7 +118,7 @@ public class ProjectAssignmentsController : ControllerBase
     /// <param name="projectId">The ID of the project assignment</param>
     /// <param name="request">The task creation request</param>
     /// <returns>The created task</returns>
-    [Authorize(Policy = "CompanyScope")]
+    [Authorize(Policy = "Company")]
     [HttpPost("{projectId}/tasks")]
     [ProducesResponseType(typeof(AssignmentTaskResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -165,7 +165,7 @@ public class ProjectAssignmentsController : ControllerBase
     /// <param name="taskId">The ID of the task</param>
     /// <param name="request">The task update request</param>
     /// <returns>The updated task</returns>
-    [Authorize(Policy = "CompanyScope")]
+    [Authorize(Policy = "Company")]
     [HttpPut("{projectId}/tasks/{taskId}")]
     [ProducesResponseType(typeof(AssignmentTaskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -182,7 +182,7 @@ public class ProjectAssignmentsController : ControllerBase
     /// <param name="projectId">The ID of the project assignment</param>
     /// <param name="taskId">The ID of the task</param>
     /// <returns>No content if deleted successfully</returns>
-    [Authorize(Policy = "CompanyScope")]
+    [Authorize(Policy = "Company")]
     [HttpDelete("{projectId}/tasks/{taskId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

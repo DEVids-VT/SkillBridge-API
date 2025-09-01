@@ -17,7 +17,7 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the title of the project assignment
         /// </summary>
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the description of the project assignment
@@ -27,17 +27,17 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets a brief summary of the project assignment
         /// </summary>
-        public string Summary { get; set; } = string.Empty;
+        public string Summary { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the learning benefits that candidates can gain from this project assignment
         /// </summary>
-        public string LearningBenefits { get; set; } = string.Empty;
+        public string LearningBenefits { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the suggested approach for completing this project assignment
         /// </summary>
-        public string SuggestedApproach { get; set; } = string.Empty;
+        public string SuggestedApproach { get; set; } = default!;
 
         /// <summary>
         /// Gets or sets the difficulty level of this project assignment

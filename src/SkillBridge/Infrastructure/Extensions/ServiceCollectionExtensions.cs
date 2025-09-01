@@ -75,19 +75,17 @@ public static class ServiceCollectionExtensions
         // --- Authorization Policies (Optional) ---
         services.AddAuthorization(options =>
         {
-            options.AddPolicy("CompanyScope", policy =>
+            options.AddPolicy("Company", policy =>
                 policy.RequireAssertion(context =>
                     context.User.HasClaim(c =>
-                        c.Type == "scope" &&
+                        c.Type == "permissions" &&
                         c.Value.Split(' ').Contains("default:company")
                     )
                 ));
-
-
-            options.AddPolicy("CandidateScope", policy =>
+            options.AddPolicy("Candidate", policy =>
                 policy.RequireAssertion(context =>
                     context.User.HasClaim(c =>
-                        c.Type == "scope" &&
+                        c.Type == "permissions" &&
                         c.Value.Split(' ').Contains("default:candidate")
                     )
                 ));
@@ -220,9 +218,17 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILlmClient, OpenAILlmClient>();
 
         // Register IPromptBuilder implementation as transient
-        services.AddTransient<IPromptBuilder, PromptBuilder>();
+        
+        return services;
+    }
 
-        services.AddScoped<IGenerateAssignmentService, GenerateAssignmentService>();
+    public static IServiceCollection AddPerplexity(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<PerplexitySettings>(configuration.GetSection("PerplexitySettings"));
+        // Register ILlmClient implementation
+        services.AddSingleton<ILlmClient, PerplexityLlmClient>();
+        // Register IPromptBuilder implementation as transient
+       
         return services;
     }
 }
