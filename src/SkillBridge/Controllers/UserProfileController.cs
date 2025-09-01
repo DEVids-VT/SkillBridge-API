@@ -32,21 +32,21 @@ namespace SkillBridge.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMyProfile([FromQuery] string? userId)
         {
-            var company = await _userProfileService.GetMyProfileAsync(userId);
+            var userProfile = await _userProfileService.GetMyProfileAsync(userId);
 
-            return Ok(company);
+            return Ok(userProfile);
         }
 
-        [Authorize(Policy = "CandidateScope")]
-        [HttpPut("{id}")]
+        [Authorize(Policy = "Candidate")]
+        [HttpPut]
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update([FromBody] UpdateUserProfileRequest request, string? userId)
         {
-            var company = await _userProfileService.UpdateAsync(request, userId);
+            var userProfile = await _userProfileService.UpdateAsync(request, userId);
 
-            return Ok(company);
+            return Ok(userProfile);
         }
         /// <summary>
         /// Gets a company by ID
@@ -58,9 +58,9 @@ namespace SkillBridge.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(string? userId)
         {
-            var user = await _userProfileService.GetByIdAsync(userId);
+            var userProfile = await _userProfileService.GetByIdAsync(userId);
 
-            return Ok(user);
+            return Ok(userProfile);
         }
 
         /// <summary>

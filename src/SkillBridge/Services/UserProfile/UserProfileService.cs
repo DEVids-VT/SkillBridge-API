@@ -25,12 +25,14 @@ namespace SkillBridge.Services.UserProfile
             AppDbContext dbContext,
             ICurrentUser current,
             IMapper mapper,
-            ILogger<UserProfileService> logger)
+            ILogger<UserProfileService> logger,
+            ManagementApiClient managementApiClient)
         {
             _dbContext = dbContext;
             _currentUser = current;
             _mapper = mapper;
             _logger = logger;
+            _managementApiClient = managementApiClient;
         }
 
         public async Task<UserProfileResponse> DeleteAsync(string? userId = null)
