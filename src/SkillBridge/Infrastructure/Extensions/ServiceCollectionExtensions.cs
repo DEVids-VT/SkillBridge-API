@@ -29,6 +29,7 @@ using SkillBridge.Services.UserProjectAssignment;
 using Stripe.Tax;
 using Microsoft.Extensions.DependencyInjection;
 using SkillBridge.Services.File;
+using SkillBridge.Infrastructure.SupabaseDb;
 
 namespace SkillBridge.Infrastructure.Extensions;
 

@@ -1,17 +1,16 @@
 ﻿using Supabase;
 using Supabase.Storage;
-using Client = Supabase.Client;
 
-namespace SkillBridge.Infrastructure.Supabase
+namespace SkillBridge.Infrastructure.SupabaseDb
 {
     /// <summary>
     /// Hosted service to ensure Supabase buckets exist at startup.
     /// </summary>
     public class SupabaseBucketInitializer : IHostedService
     {
-        private readonly Client _client;
+        private readonly Supabase.Client _client;
 
-        public SupabaseBucketInitializer(Client client)
+        public SupabaseBucketInitializer(Supabase.Client client)
         {
             _client = client;
         }
