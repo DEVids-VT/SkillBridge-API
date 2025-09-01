@@ -30,9 +30,10 @@ namespace SkillBridge.Controllers
         [Authorize]
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetMyProfile([FromQuery] string? userId = null)
+        public async Task<IActionResult> GetMyProfile([FromQuery] string? userId)
         {
             var company = await _userProfileService.GetMyProfileAsync(userId);
+
             return Ok(company);
         }
 
@@ -41,9 +42,10 @@ namespace SkillBridge.Controllers
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Update([FromBody] UpdateUserProfileRequest request, string? userId = null)
+        public async Task<IActionResult> Update([FromBody] UpdateUserProfileRequest request, string? userId)
         {
             var company = await _userProfileService.UpdateAsync(request, userId);
+
             return Ok(company);
         }
         /// <summary>
@@ -54,10 +56,11 @@ namespace SkillBridge.Controllers
         [HttpGet("id/{id:guid}")]
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetById(string? userId = null)
+        public async Task<IActionResult> GetById(string? userId)
         {
-            var company = await _userProfileService.GetByIdAsync(userId);
-            return Ok(company);
+            var user = await _userProfileService.GetByIdAsync(userId);
+
+            return Ok(user);
         }
 
         /// <summary>
@@ -69,9 +72,10 @@ namespace SkillBridge.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(string? id)
         {
             await _userProfileService.DeleteAsync(id);
+
             return NoContent();
         }
     }

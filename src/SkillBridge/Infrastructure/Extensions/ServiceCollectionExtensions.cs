@@ -27,6 +27,7 @@ using OpenAI;
 using SkillBridge.Services.GenerateAssignment;
 using SkillBridge.Services.UserProjectAssignment;
 using Stripe.Tax;
+using SkillBridge.Services.UserProfile;
 
 namespace SkillBridge.Infrastructure.Extensions;
 
@@ -192,7 +193,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProjectAssignmentService, ProjectAssignmentService>();
         services.AddScoped<IUserRoleService, UserRoleService>();
         services.AddScoped<IUserProjectAssignmentService, UserProjectAssignmentService>();
-        
+        services.AddTransient<IPromptBuilder, PromptBuilder>();
+        services.AddScoped<IGenerateAssignmentService, GenerateAssignmentService>();
+        services.AddScoped<IUserProfileService, UserProfileService>();
+
         return services;
     }
 
