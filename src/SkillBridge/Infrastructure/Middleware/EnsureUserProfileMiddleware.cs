@@ -48,9 +48,7 @@ public class EnsureUserProfileMiddleware
             {
                 var userProfileExists = await dbContext.UserProfiles
                     .AnyAsync(up => up.Id == userId);
-
-                context.User.IsInRole("Candidate");
-
+                
                 if (!userProfileExists )
                 {
                     _logger.LogInformation("Creating new user profile for user {UserId}", userId);
