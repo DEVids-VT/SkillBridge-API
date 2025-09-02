@@ -32,39 +32,64 @@ namespace SkillBridge.Services.File
         }
 
         /// <summary>
-        /// Deletes a file from the appropriate Supabase bucket.
-        /// Extracts the file name from the provided URL and removes it from the storage bucket.
+        /// Deletes a file from Supabase Storage.  
+        /// Works for both public image URLs and raw CV storage keys.
         /// </summary>
-        /// <param name="fileUrl">The full URL of the file to delete.</param>
+        /// <param name="fileUrl">
+        /// - For images: full public URL (https://.../object/public/{bucket}/{file})  
+        /// - For CVs: raw storage key (e.g. "cv/abc123.pdf")
+        /// </param>
         /// <param name="type">The type of file (Image or CV).</param>
-        /// <returns>A task representing the asynchronous delete operation.</returns>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="fileUrl"/> is null or empty.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the file name cannot be extracted from the URL.</exception>
         public async Task DeleteFileAsync(string fileUrl, FileType type)
         {
             if (string.IsNullOrWhiteSpace(fileUrl))
-            {
                 throw new ArgumentException("File URL cannot be null or empty.", nameof(fileUrl));
-            }
 
             var bucket = GetBucketName(type);
             var storage = _supabaseClient.Storage.From(bucket);
+            string fileName;
 
-            // Extract the file name from the URL
-            // For public URL: last segment of the path
-            var fileName = Path.GetFileName(new Uri(fileUrl).LocalPath);
+            if (type == FileType.Image)
+            {
+                // Images are stored as public URLs
+                if (!Uri.TryCreate(fileUrl, UriKind.Absolute, out var uri))
+                {
+                    throw new InvalidOperationException("Invalid image URL format.");
+                }
+
+                // Find bucket in path
+                var bucketIndex = uri.AbsolutePath.IndexOf($"/{bucket}/", StringComparison.OrdinalIgnoreCase);
+                if (bucketIndex == -1)
+                {
+                    _logger.LogWarning("Bucket '{Bucket}' not found in URL: {Url}", bucket, fileUrl);
+                    throw new InvalidOperationException("Could not resolve file name from image URL.");
+                }
+
+                // Extract file path relative to the bucket
+                fileName = uri.AbsolutePath.Substring(bucketIndex + bucket.Length + 2); // +2 for slashes
+            }
+            else if (type == FileType.CV)
+            {
+                // CVs are stored as raw keys, no URL parsing
+                fileName = fileUrl;
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(type), "Unknown file type.");
+            }
 
             if (string.IsNullOrWhiteSpace(fileName))
             {
-                _logger.LogInformation("Could not extract file name from URL: {Url}", fileUrl);
+                _logger.LogWarning("Could not extract file name from URL: {Url}", fileUrl);
                 throw new InvalidOperationException("Could not extract file name from URL.");
             }
 
-            // Remove the file from the bucket
+            // Delete file
             await storage.Remove(new List<string> { fileName });
-            _logger.LogInformation("File deleted successfully. URL: {Url}", fileUrl);
-
+            _logger.LogInformation("File deleted successfully. URL/Key: {Url}", fileUrl);
         }
+
+
 
         /// <summary>
         /// Returns the URL of a file stored in Supabase Storage.

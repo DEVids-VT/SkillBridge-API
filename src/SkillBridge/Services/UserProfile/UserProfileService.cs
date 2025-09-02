@@ -135,22 +135,16 @@ namespace SkillBridge.Services.UserProfile
             _mapper.Map(request, userProfile);
 
             // Update files and images
-            if (request.CVUpload != null)
+            if (!string.IsNullOrEmpty(userProfile.CVUpload))
             {
-                if (string.IsNullOrEmpty(userProfile.CVUpload))
-                {
-                    await _fileUploader.DeleteFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
-                }
-                userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
+                await _fileUploader.DeleteFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
             }
-            if (request.ProfilePicture != null)
+            userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
+            if (!string.IsNullOrEmpty(userProfile.ProfilePicture))
             {
-                if (string.IsNullOrEmpty(userProfile.ProfilePicture))
-                {
-                    await _fileUploader.DeleteFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
-                }
-                userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
+                await _fileUploader.DeleteFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
             }
+            userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
 
             userProfile.UpdatedAt = DateTime.UtcNow;
 
