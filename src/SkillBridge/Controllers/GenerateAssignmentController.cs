@@ -30,7 +30,7 @@ public class GenerateAssignmentController : ControllerBase
     /// <param name="companyId">The ID of the company creating the assignment</param>
     /// <param name="request">The candidate requirements</param>
     /// <returns>The generated project assignment</returns>
-    [Authorize(Policy = "CompanyScope")]
+    [Authorize(Policy = "Company")]
     [HttpPost("{companyId}")]
     [ProducesResponseType(typeof(ProjectAssignmentResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]    

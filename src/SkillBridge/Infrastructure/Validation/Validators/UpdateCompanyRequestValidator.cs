@@ -15,11 +15,12 @@ public class UpdateCompanyRequestValidator : AbstractValidator<UpdateCompanyRequ
     public UpdateCompanyRequestValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Company name is required")
+            .NotEmpty().When(x => x.Name != null).WithMessage("Company name cannot be empty")
             .MaximumLength(ValidationConstants.Company.NameMaxLength)
             .WithMessage($"Company name cannot exceed {ValidationConstants.Company.NameMaxLength} characters");
 
         RuleFor(x => x.About)
+            .NotEmpty().When(x => x.About != null).WithMessage("About text cannot be empty")
             .MaximumLength(ValidationConstants.Company.AboutMaxLength)
             .WithMessage($"About text cannot exceed {ValidationConstants.Company.AboutMaxLength} characters");
 
@@ -36,18 +37,22 @@ public class UpdateCompanyRequestValidator : AbstractValidator<UpdateCompanyRequ
             .WithMessage("Banner URL must be a valid URL");
 
         RuleFor(x => x.Activities)
+            .NotEmpty().When(x => x.Activities != null).WithMessage("Activities cannot be empty")
             .MaximumLength(ValidationConstants.Company.ActivitiesMaxLength)
             .WithMessage($"Activities cannot exceed {ValidationConstants.Company.ActivitiesMaxLength} characters");
 
         RuleFor(x => x.Sector)
+            .NotEmpty().When(x => x.Sector != null).WithMessage("Sector cannot be empty")
             .MaximumLength(ValidationConstants.Company.SectorMaxLength)
             .WithMessage($"Sector cannot exceed {ValidationConstants.Company.SectorMaxLength} characters");
 
         RuleFor(x => x.HeadOfficeLocation)
+            .NotEmpty().When(x => x.HeadOfficeLocation != null).WithMessage("Head office location cannot be empty")
             .MaximumLength(ValidationConstants.Company.HeadOfficeLocationMaxLength)
             .WithMessage($"Head office location cannot exceed {ValidationConstants.Company.HeadOfficeLocationMaxLength} characters");
 
         RuleFor(x => x.Technologies)
+            .NotEmpty().When(x => x.Technologies != null).WithMessage("Technologies cannot be empty")
             .MaximumLength(ValidationConstants.Company.TechnologiesMaxLength)
             .WithMessage($"Technologies list cannot exceed {ValidationConstants.Company.TechnologiesMaxLength} characters");
 
@@ -80,14 +85,30 @@ public class UpdateCompanyRequestValidator : AbstractValidator<UpdateCompanyRequ
             .WithMessage($"Why work with us text cannot exceed {ValidationConstants.Company.WhyWorkWithUsMaxLength} characters");
 
         RuleFor(x => x.WebsiteUrl)
+            .NotEmpty().When(x => x.WebsiteUrl != null).WithMessage("Website URL cannot be empty")
             .MaximumLength(ValidationConstants.Company.WebsiteUrlMaxLength)
             .WithMessage($"Website URL cannot exceed {ValidationConstants.Company.WebsiteUrlMaxLength} characters")
             .Must(BeAValidUrl).When(x => !string.IsNullOrEmpty(x.WebsiteUrl))
             .WithMessage("Website URL must be a valid URL");
 
-        RuleFor(x => x.ContactInfo)
-            .MaximumLength(ValidationConstants.Company.ContactInfoMaxLength)
-            .WithMessage($"Contact information cannot exceed {ValidationConstants.Company.ContactInfoMaxLength} characters");
+        RuleFor(x => x.ContactName)
+            .NotEmpty().When(x => x.ContactName != null).WithMessage("Contact name cannot be empty")
+            .MaximumLength(ValidationConstants.Company.ContactNameMaxLength)
+            .WithMessage($"Contact name cannot exceed {ValidationConstants.Company.ContactNameMaxLength} characters");
+
+        RuleFor(x => x.ContactEmail)
+            .NotEmpty().When(x => x.ContactEmail != null).WithMessage("Contact email cannot be empty")
+            .EmailAddress().When(x => !string.IsNullOrEmpty(x.ContactEmail))
+            .WithMessage("Contact email must be a valid email address")
+            .MaximumLength(ValidationConstants.Company.ContactEmailMaxLength)
+            .WithMessage($"Contact email cannot exceed {ValidationConstants.Company.ContactEmailMaxLength} characters");
+
+        RuleFor(x => x.ContactPhone)
+            .NotEmpty().When(x => x.ContactPhone != null).WithMessage("Contact phone cannot be empty")
+            .MaximumLength(ValidationConstants.Company.ContactPhoneMaxLength)
+            .WithMessage($"Contact phone cannot exceed {ValidationConstants.Company.ContactPhoneMaxLength} characters")
+            .Matches(@"^[\+]?[0-9\s\-\(\)]{5,20}$").When(x => !string.IsNullOrEmpty(x.ContactPhone))
+            .WithMessage("Contact phone must be a valid phone number");
     }
 
     private static bool BeAValidUrl(string? url)

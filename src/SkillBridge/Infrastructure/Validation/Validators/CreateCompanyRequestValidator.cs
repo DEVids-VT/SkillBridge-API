@@ -20,6 +20,7 @@ public class CreateCompanyRequestValidator : AbstractValidator<CreateCompanyRequ
             .WithMessage($"Company name cannot exceed {ValidationConstants.Company.NameMaxLength} characters");
 
         RuleFor(x => x.About)
+            .NotEmpty().WithMessage("About text is required")
             .MaximumLength(ValidationConstants.Company.AboutMaxLength)
             .WithMessage($"About text cannot exceed {ValidationConstants.Company.AboutMaxLength} characters");
 
@@ -36,18 +37,22 @@ public class CreateCompanyRequestValidator : AbstractValidator<CreateCompanyRequ
             .WithMessage("Banner URL must be a valid URL");
 
         RuleFor(x => x.Activities)
+            .NotEmpty().WithMessage("Activities are required")
             .MaximumLength(ValidationConstants.Company.ActivitiesMaxLength)
             .WithMessage($"Activities cannot exceed {ValidationConstants.Company.ActivitiesMaxLength} characters");
 
         RuleFor(x => x.Sector)
+            .NotEmpty().WithMessage("Sector is required")
             .MaximumLength(ValidationConstants.Company.SectorMaxLength)
             .WithMessage($"Sector cannot exceed {ValidationConstants.Company.SectorMaxLength} characters");
 
         RuleFor(x => x.HeadOfficeLocation)
+            .NotEmpty().WithMessage("Head office location is required")
             .MaximumLength(ValidationConstants.Company.HeadOfficeLocationMaxLength)
             .WithMessage($"Head office location cannot exceed {ValidationConstants.Company.HeadOfficeLocationMaxLength} characters");
 
         RuleFor(x => x.Technologies)
+            .NotEmpty().WithMessage("Technologies are required")
             .MaximumLength(ValidationConstants.Company.TechnologiesMaxLength)
             .WithMessage($"Technologies list cannot exceed {ValidationConstants.Company.TechnologiesMaxLength} characters");
 
@@ -59,35 +64,49 @@ public class CreateCompanyRequestValidator : AbstractValidator<CreateCompanyRequ
             .WithMessage("Year established cannot be in the future");
 
         RuleFor(x => x.BulgarianOfficeLocations)
-            .NotEmpty().When(x => x.HasOfficesInBulgaria == true)
+            .NotEmpty().When(x => x.HasOfficesInBulgaria)
             .WithMessage("Bulgarian office locations are required when HasOfficesInBulgaria is true")
             .MaximumLength(ValidationConstants.Company.BulgarianOfficeLocationsMaxLength)
             .WithMessage($"Bulgarian office locations cannot exceed {ValidationConstants.Company.BulgarianOfficeLocationsMaxLength} characters");
 
         RuleFor(x => x.EmployeesInBulgaria)
-            .GreaterThan(0).When(x => x.HasOfficesInBulgaria == true)
+            .GreaterThan(0).When(x => x.EmployeesInBulgaria.HasValue)
             .WithMessage("Number of employees in Bulgaria must be greater than 0")
-            .LessThanOrEqualTo(x => x.EmployeesWorldwide ?? int.MaxValue)
-            .When(x => x.EmployeesInBulgaria.HasValue && x.EmployeesWorldwide.HasValue)
+            .LessThanOrEqualTo(x => x.EmployeesWorldwide)
+            .When(x => x.EmployeesInBulgaria.HasValue)
             .WithMessage("Number of employees in Bulgaria cannot be greater than worldwide employees");
 
         RuleFor(x => x.EmployeesWorldwide)
-            .GreaterThan(0).When(x => x.EmployeesWorldwide.HasValue)
-            .WithMessage("Number of employees worldwide must be greater than 0");
+            .NotEmpty().WithMessage("Number of employees worldwide is required")
+            .GreaterThan(0).WithMessage("Number of employees worldwide must be greater than 0");
 
         RuleFor(x => x.WhyWorkWithUs)
             .MaximumLength(ValidationConstants.Company.WhyWorkWithUsMaxLength)
             .WithMessage($"Why work with us text cannot exceed {ValidationConstants.Company.WhyWorkWithUsMaxLength} characters");
 
         RuleFor(x => x.WebsiteUrl)
+            .NotEmpty().WithMessage("Website URL is required")
             .MaximumLength(ValidationConstants.Company.WebsiteUrlMaxLength)
             .WithMessage($"Website URL cannot exceed {ValidationConstants.Company.WebsiteUrlMaxLength} characters")
-            .Must(BeAValidUrl).When(x => !string.IsNullOrEmpty(x.WebsiteUrl))
-            .WithMessage("Website URL must be a valid URL");
+            .Must(BeAValidUrl).WithMessage("Website URL must be a valid URL");
 
-        RuleFor(x => x.ContactInfo)
-            .MaximumLength(ValidationConstants.Company.ContactInfoMaxLength)
-            .WithMessage($"Contact information cannot exceed {ValidationConstants.Company.ContactInfoMaxLength} characters");
+        RuleFor(x => x.ContactName)
+            .NotEmpty().WithMessage("Contact name is required")
+            .MaximumLength(ValidationConstants.Company.ContactNameMaxLength)
+            .WithMessage($"Contact name cannot exceed {ValidationConstants.Company.ContactNameMaxLength} characters");
+
+        RuleFor(x => x.ContactEmail)
+            .NotEmpty().WithMessage("Contact email is required")
+            .EmailAddress().WithMessage("Contact email must be a valid email address")
+            .MaximumLength(ValidationConstants.Company.ContactEmailMaxLength)
+            .WithMessage($"Contact email cannot exceed {ValidationConstants.Company.ContactEmailMaxLength} characters");
+
+        RuleFor(x => x.ContactPhone)
+            .NotEmpty().WithMessage("Contact phone is required")
+            .MaximumLength(ValidationConstants.Company.ContactPhoneMaxLength)
+            .WithMessage($"Contact phone cannot exceed {ValidationConstants.Company.ContactPhoneMaxLength} characters")
+            .Matches(@"^[\+]?[0-9\s\-\(\)]{5,20}$")
+            .WithMessage("Contact phone must be a valid phone number");
     }
 
     private static bool BeAValidUrl(string? url)
