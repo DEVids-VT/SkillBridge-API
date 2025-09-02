@@ -85,7 +85,7 @@ public class EnsureUserProfileMiddleware
                user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
     }
 
-    public async Task<bool> IsCandidate(string userId)
+    private async Task<bool> IsCandidate(string userId)
     {
         var role = await _managementApiClient.Users.GetRolesAsync(userId);
         return role.Any(r => r.Name == "Candidate");
