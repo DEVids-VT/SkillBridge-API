@@ -8,6 +8,7 @@ using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 using SkillBridge.Services.Company;
 using SkillBridge.Services.CurrentUser;
+using SkillBridge.Services.File;
 
 namespace SkillBridge.Services.UserProfile
 {
@@ -18,6 +19,7 @@ namespace SkillBridge.Services.UserProfile
         private readonly IMapper _mapper;
         private readonly ILogger<UserProfileService> _logger;
         private readonly ManagementApiClient _managementApiClient;
+        private readonly IFileUploader _fileUploader;
         /// <summary>
         /// Initializes a new instance of the <see cref="UserProfileService"/> class.
         /// </summary>
@@ -26,13 +28,15 @@ namespace SkillBridge.Services.UserProfile
             ICurrentUser current,
             IMapper mapper,
             ILogger<UserProfileService> logger,
-            ManagementApiClient managementApiClient)
+            ManagementApiClient managementApiClient,
+            IFileUploader fileUploader)
         {
             _dbContext = dbContext;
             _currentUser = current;
             _mapper = mapper;
             _logger = logger;
             _managementApiClient = managementApiClient;
+            _fileUploader = fileUploader;
         }
 
         public async Task<UserProfileResponse> DeleteAsync(string? userId = null)
@@ -48,8 +52,16 @@ namespace SkillBridge.Services.UserProfile
                 throw new EntityNotFoundException(nameof(Models.Entities.UserProfile), auth0UserId);
             }
 
+            var cvUrl = userProfile.CVUpload;
+            var profilePicture = userProfile.ProfilePicture;
+
+            // Delete user
             _dbContext.UserProfiles.Remove(userProfile);
             await _dbContext.SaveChangesAsync();
+
+            // Delete files and images
+            await _fileUploader.DeleteFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
+            await _fileUploader.DeleteFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
 
             _logger.LogInformation("Profile deleted successfully: {UserProfileId}", auth0UserId);
 
@@ -69,13 +81,18 @@ namespace SkillBridge.Services.UserProfile
                 throw new EntityNotFoundException(nameof(Models.Entities.UserProfile), auth0UserId);
             }
             var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
-           
-            _logger.LogInformation("Pofile found: {PofileName}", username);
 
-            return _mapper.Map<UserProfileResponse>(userProfile);
+            _logger.LogInformation("Pofile found: {PofileName}", username);
+            var response = _mapper.Map<UserProfileResponse>(userProfile);
+
+            // Adding valid Urls to the files and images
+            response.ProfilePicture = await _fileUploader.GetFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
+            response.CVUpload = await _fileUploader.GetFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
+
+            return response;
         }
 
-        public async Task<UserProfileResponse> GetMyProfileAsync(string? userId=null)
+        public async Task<UserProfileResponse> GetMyProfileAsync(string? userId = null)
         {
             // If userId is not provided, use the current user's ID
             var auth0UserId = userId ?? _currentUser.GetUserId();
@@ -94,14 +111,20 @@ namespace SkillBridge.Services.UserProfile
             var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
             _logger.LogInformation("Profile found: {ProfileName}", username);
 
-            return _mapper.Map<UserProfileResponse>(userProfile);
+            var response = _mapper.Map<UserProfileResponse>(userProfile);
+
+            // Adding valid Urls to the files and images
+            response.ProfilePicture = await _fileUploader.GetFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
+            response.CVUpload = await _fileUploader.GetFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
+
+            return response;
         }
 
         public async Task<UserProfileResponse> UpdateAsync(UpdateUserProfileRequest request, string? userId = null)
         {
-             var auth0UserId = userId ?? _currentUser.GetUserId();
+            var auth0UserId = userId ?? _currentUser.GetUserId();
             _logger.LogInformation("Updating profile with ID: {UserProfileId}", auth0UserId);
-           
+
             var userProfile = await _dbContext.UserProfiles.FindAsync(auth0UserId);
 
             if (userProfile == null)
@@ -109,8 +132,26 @@ namespace SkillBridge.Services.UserProfile
                 _logger.LogWarning("Profile with ID {ProfileId} not found", auth0UserId);
                 throw new EntityNotFoundException(nameof(Models.Entities.UserProfile), auth0UserId);
             }
-
             _mapper.Map(request, userProfile);
+
+            // Update files and images
+            if (request.CVUpload != null)
+            {
+                if (string.IsNullOrEmpty(userProfile.CVUpload))
+                {
+                    await _fileUploader.DeleteFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
+                }
+                userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
+            }
+            if (request.ProfilePicture != null)
+            {
+                if (string.IsNullOrEmpty(userProfile.ProfilePicture))
+                {
+                    await _fileUploader.DeleteFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
+                }
+                userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
+            }
+
             userProfile.UpdatedAt = DateTime.UtcNow;
 
             _dbContext.UserProfiles.Update(userProfile);

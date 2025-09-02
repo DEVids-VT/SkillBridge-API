@@ -1,8 +1,10 @@
-﻿using MapsterMapper;
+﻿using Auth0.ManagementApi.Models;
+using MapsterMapper;
 using Microsoft.AspNetCore.Routing.Constraints;
 using SkillBridge.Data;
 using SkillBridge.Models.Enums;
 using SkillBridge.Services.ProjectAssignment;
+using SkillBridge.Services.UserProfile;
 using Supabase;
 
 namespace SkillBridge.Services.File
@@ -12,7 +14,8 @@ namespace SkillBridge.Services.File
     /// </summary>
     public class SupabaseBucketFileUploader : IFileUploader
     {
-        private readonly Client _supabaseClient;
+        private readonly Supabase.Client _supabaseClient;
+        private readonly ILogger<SupabaseBucketFileUploader> _logger;
 
         private readonly string[] _allowedImageTypes = { "image/jpeg", "image/png" };
         private readonly string[] _allowedImageExtensions = { ".jpg", ".jpeg", ".png" };
@@ -20,10 +23,12 @@ namespace SkillBridge.Services.File
         private readonly string[] _allowedCvExtensions = { ".pdf", ".doc", ".docx" };
 
 
+
         public SupabaseBucketFileUploader(
-            Client supabaseClient)
+            Supabase.Client supabaseClient, ILogger<SupabaseBucketFileUploader> logger)
         {
             _supabaseClient = supabaseClient;
+            _logger = logger;
         }
 
         /// <summary>
@@ -38,7 +43,9 @@ namespace SkillBridge.Services.File
         public async Task DeleteFileAsync(string fileUrl, FileType type)
         {
             if (string.IsNullOrWhiteSpace(fileUrl))
+            {
                 throw new ArgumentException("File URL cannot be null or empty.", nameof(fileUrl));
+            }
 
             var bucket = GetBucketName(type);
             var storage = _supabaseClient.Storage.From(bucket);
@@ -48,10 +55,15 @@ namespace SkillBridge.Services.File
             var fileName = Path.GetFileName(new Uri(fileUrl).LocalPath);
 
             if (string.IsNullOrWhiteSpace(fileName))
+            {
+                _logger.LogInformation("Could not extract file name from URL: {Url}", fileUrl);
                 throw new InvalidOperationException("Could not extract file name from URL.");
+            }
 
             // Remove the file from the bucket
             await storage.Remove(new List<string> { fileName });
+            _logger.LogInformation("File deleted successfully. URL: {Url}", fileUrl);
+
         }
 
         /// <summary>
@@ -68,7 +80,7 @@ namespace SkillBridge.Services.File
             var storage = _supabaseClient.Storage.From(bucket);
 
             if (type == FileType.Image)
-            {
+            {                
                 // Public bucket → return permanent public URL
                 return storage.GetPublicUrl(fileName);
             }
@@ -78,7 +90,7 @@ namespace SkillBridge.Services.File
                 var signedUrlResponse = await storage.CreateSignedUrl(fileName, 3600);
                 return signedUrlResponse;
             }
-
+            _logger.LogInformation("Unknown file type. File Name: {FileName}", fileName);
             throw new ArgumentOutOfRangeException(nameof(type), "Unknown file type");
         }
 
@@ -117,6 +129,7 @@ namespace SkillBridge.Services.File
                 ? storage.GetPublicUrl(fileName)
                 : (await storage.CreateSignedUrl(fileName, 3600));
 
+            _logger.LogInformation("File uploaded successfully. Public URL: {PublicUrl}", publicUrl);
             return publicUrl;
         }
 
