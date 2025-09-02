@@ -79,16 +79,17 @@ namespace SkillBridge.Services.File
             var bucket = GetBucketName(type);
             var storage = _supabaseClient.Storage.From(bucket);
 
-            if (type == FileType.Image)
-            {                
+            if (type == FileType.Image && !string.IsNullOrEmpty(fileName))
+            {
                 // Public bucket → return permanent public URL
                 return storage.GetPublicUrl(fileName);
             }
-            else if (type == FileType.CV)
+            else if (type == FileType.CV && !string.IsNullOrEmpty(fileName))
             {
+                var signedUrlResponse = string.Empty;
                 // Private bucket → generate signed URL (valid for 1 hour)
-                var signedUrlResponse = await storage.CreateSignedUrl(fileName, 3600);
-                return signedUrlResponse;
+                signedUrlResponse = await storage.CreateSignedUrl(fileName, 3600);
+                return storage.GetPublicUrl(fileName);
             }
             _logger.LogInformation("Unknown file type. File Name: {FileName}", fileName);
             throw new ArgumentOutOfRangeException(nameof(type), "Unknown file type");
@@ -125,12 +126,8 @@ namespace SkillBridge.Services.File
                 Upsert = false,
             });
 
-            var publicUrl = type == FileType.Image
-                ? storage.GetPublicUrl(fileName)
-                : (await storage.CreateSignedUrl(fileName, 3600));
-
-            _logger.LogInformation("File uploaded successfully. Public URL: {PublicUrl}", publicUrl);
-            return publicUrl;
+            _logger.LogInformation("File uploaded successfully. URL: {PublicUrl}", fileName);
+            return fileName;
         }
 
         /// <summary>

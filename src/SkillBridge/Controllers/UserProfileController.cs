@@ -10,7 +10,7 @@ namespace SkillBridge.Controllers
 {
     [ApiController]
     [Route("api/u")]
-    public class UserProfileController: ControllerBase
+    public class UserProfileController : ControllerBase
     {
         private readonly IUserProfileService _userProfileService;
         private readonly ICurrentUser _currentUser;
@@ -42,7 +42,7 @@ namespace SkillBridge.Controllers
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Update([FromBody] UpdateUserProfileRequest request, string? userId)
+        public async Task<IActionResult> Update([FromForm] UpdateUserProfileRequest request, string? userId)
         {
             var userProfile = await _userProfileService.UpdateAsync(request, userId);
 
