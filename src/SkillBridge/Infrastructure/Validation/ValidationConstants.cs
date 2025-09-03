@@ -164,4 +164,15 @@ public static class ValidationConstants
         /// </summary>
         public const int DescriptionMaxLength = 2000;
     }
+    public static class UserProfile
+    {
+        public const long ProfilePictureMaxBytes = 5L * 1024 * 1024;  // 5 MB
+        public const long CvMaxBytes = 10L * 1024 * 1024; // 10 MB
+        public const int GitHubConnectionMaxLength = 200;           // room for full URL
+
+        public static readonly string[] AllowedImageTypes = { "image/jpeg", "image/png" };
+        public static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png" };
+        public static readonly string[] AllowedCvTypes = { "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
+        public static readonly string[] AllowedCvExtensions = { ".pdf", ".doc", ".docx" };
+    }
 }

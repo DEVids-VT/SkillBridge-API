@@ -30,6 +30,14 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
             
         builder.Property(e => e.UpdatedAt)
             .HasColumnName("updated_at");
-            
+
+        builder.Property(e => e.ProfilePicture)
+            .HasColumnName("profile_picture");
+
+        builder.Property(e => e.CVUpload)
+            .HasColumnName("cv_upload");
+
+        builder.Property(e => e.GitHubConnection)
+            .HasColumnName("github_connection");
     }
 }

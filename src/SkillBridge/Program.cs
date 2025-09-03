@@ -23,8 +23,6 @@ builder.Services.AddPostgres(builder.Configuration);
 //builder.Services.AddOpenAI(builder.Configuration);
 builder.Services.AddPerplexity(builder.Configuration);
 //builder.Services.AddStripe(builder.Configuration);
-builder.Services.AddTransient<IPromptBuilder, PromptBuilder>();
-builder.Services.AddScoped<IGenerateAssignmentService, GenerateAssignmentService>();
 
 builder.Services.AddSwaggerGen(s =>
 {

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SkillBridge.Data;
@@ -11,9 +12,11 @@ using SkillBridge.Data;
 namespace SkillBridge.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250901110900_UserProfileAddedFileLinks")]
+    partial class UserProfileAddedFileLinks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -325,8 +328,7 @@ namespace SkillBridge.Data.Migrations
 
                     b.Property<string>("CVUpload")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("cv_upload");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -334,13 +336,11 @@ namespace SkillBridge.Data.Migrations
 
                     b.Property<string>("GitHubConnection")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("github_connection");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProfilePicture")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("profile_picture");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
