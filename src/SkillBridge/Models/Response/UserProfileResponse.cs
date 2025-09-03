@@ -2,10 +2,10 @@
 {
     public class UserProfileResponse
     {
-        public string Id { get; set; } = string.Empty;
-        public string ProfilePicture { get; set; } = string.Empty;
+        public string Id { get; set; } = default!;
+        public string? ProfilePicture { get; set; } 
 
-        public string CVUpload { get; set; } = string.Empty;
-        public string GitHubConnection { get; set; } = string.Empty;
+        public string? CVUpload { get; set; } 
+        public string? GitHubConnection { get; set; } 
     }
 }

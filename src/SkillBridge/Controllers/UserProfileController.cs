@@ -16,7 +16,7 @@ namespace SkillBridge.Controllers
         private readonly ICurrentUser _currentUser;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CompaniesController"/> class.
+        /// Initializes a new instance of the <see cref="UserProfileController"/> class.
         /// </summary>
         /// <param name="companyService">The company service</param>
         /// <param name="currentUser">The current user service</param>
@@ -25,12 +25,16 @@ namespace SkillBridge.Controllers
             _userProfileService = userProfileService;
             _currentUser = currentUser;
         }
-
-        [HttpGet("my")]
+        /// <summary>
+        /// Gets a userProfile by ID
+        /// </summary>
+        /// <param name="id">The userProfile ID</param>
+        /// <returns>The userProfile if found</returns>
+        [HttpGet("{userId}")]
         [Authorize]
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetMyProfile([FromQuery] string? userId)
+        public async Task<IActionResult> GetMyProfile([FromRoute] string? userId)
         {
             var userProfile = await _userProfileService.GetMyProfileAsync(userId);
 
@@ -48,25 +52,11 @@ namespace SkillBridge.Controllers
 
             return Ok(userProfile);
         }
-        /// <summary>
-        /// Gets a company by ID
-        /// </summary>
-        /// <param name="id">The company ID</param>
-        /// <returns>The company if found</returns>
-        [HttpGet("id/{id:guid}")]
-        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetById(string? userId)
-        {
-            var userProfile = await _userProfileService.GetByIdAsync(userId);
-
-            return Ok(userProfile);
-        }
 
         /// <summary>
-        /// Deletes a company
+        /// Deletes a userProfile
         /// </summary>
-        /// <param name="id">The company ID</param>
+        /// <param name="id">The userProfile ID</param>
         /// <returns>No content if deleted successfully</returns>
         [Authorize(Policy = "Candidate")]
         [HttpDelete("{id}")]

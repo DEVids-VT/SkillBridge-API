@@ -82,7 +82,7 @@ namespace SkillBridge.Services.UserProfile
             }
             var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
 
-            _logger.LogInformation("Pofile found: {PofileName}", username);
+            _logger.LogInformation("Profile found: {ProfileName}", username);
             var response = _mapper.Map<UserProfileResponse>(userProfile);
 
             // Adding valid Urls to the files and images
