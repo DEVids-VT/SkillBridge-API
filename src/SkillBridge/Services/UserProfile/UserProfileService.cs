@@ -136,15 +136,21 @@ namespace SkillBridge.Services.UserProfile
 
             // Update files and images
             if (!string.IsNullOrEmpty(userProfile.CVUpload))
-            {
                 await _fileUploader.DeleteFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
-            }
-            userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
+            if (request.CVUpload != null)
+                userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
+            else
+                userProfile.CVUpload = string.Empty;
+
             if (!string.IsNullOrEmpty(userProfile.ProfilePicture))
-            {
                 await _fileUploader.DeleteFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
-            }
-            userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
+            if (request.ProfilePicture != null)
+                userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
+            else
+                userProfile.ProfilePicture = string.Empty;
+
+            if (string.IsNullOrEmpty(request.GitHubConnection))
+                userProfile.GitHubConnection = string.Empty;
 
             userProfile.UpdatedAt = DateTime.UtcNow;
 
