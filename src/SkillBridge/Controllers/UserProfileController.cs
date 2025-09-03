@@ -30,7 +30,7 @@ namespace SkillBridge.Controllers
         /// </summary>
         /// <param name="id">The userProfile ID</param>
         /// <returns>The userProfile if found</returns>
-        [HttpGet("{userId}")]
+        [HttpGet("{userId?}")]
         [Authorize]
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -41,12 +41,18 @@ namespace SkillBridge.Controllers
             return Ok(userProfile);
         }
 
+
+        /// Updates a userProfile
+        /// </summary>
+        /// <param name="userId">The userProfile ID</param>
+        /// <param name="request">The userProfile update request</param>
+        /// <returns>The updated userProfile</returns>
         [Authorize(Policy = "Candidate")]
-        [HttpPut]
+        [HttpPut("{userId?}")]
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Update([FromForm] UpdateUserProfileRequest request, string? userId)
+        public async Task<IActionResult> Update([FromRoute] string? userId,[FromForm] UpdateUserProfileRequest request)
         {
             var userProfile = await _userProfileService.UpdateAsync(request, userId);
 

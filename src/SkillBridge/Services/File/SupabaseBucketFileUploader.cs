@@ -2,9 +2,11 @@
 using MapsterMapper;
 using Microsoft.AspNetCore.Routing.Constraints;
 using SkillBridge.Data;
+using SkillBridge.Infrastructure.Validation;
 using SkillBridge.Models.Enums;
 using SkillBridge.Services.ProjectAssignment;
 using SkillBridge.Services.UserProfile;
+using SkillBridge.Infrastructure.Validation;
 using Supabase;
 
 namespace SkillBridge.Services.File
@@ -16,12 +18,6 @@ namespace SkillBridge.Services.File
     {
         private readonly Supabase.Client _supabaseClient;
         private readonly ILogger<SupabaseBucketFileUploader> _logger;
-
-        private readonly string[] _allowedImageTypes = { "image/jpeg", "image/png" };
-        private readonly string[] _allowedImageExtensions = { ".jpg", ".jpeg", ".png" };
-        private readonly string[] _allowedCvTypes = { "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
-        private readonly string[] _allowedCvExtensions = { ".pdf", ".doc", ".docx" };
-
 
 
         public SupabaseBucketFileUploader(
@@ -151,13 +147,13 @@ namespace SkillBridge.Services.File
             switch (type)
             {
                 case FileType.Image:
-                    if (!_allowedImageTypes.Contains(contentType) || !_allowedImageExtensions.Contains(extension))
-                        throw new InvalidOperationException("Invalid image type. Allowed: JPG, PNG, GIF.");
+                    if (!ValidationConstants.UserProfile.AllowedImageTypes.Contains(contentType) || !ValidationConstants.UserProfile.AllowedImageExtensions.Contains(extension))
+                        throw new InvalidOperationException($"Invalid image type. Allowed: {string.Join(", ", ValidationConstants.UserProfile.AllowedImageExtensions).ToUpperInvariant()}.");
                     break;
 
                 case FileType.CV:
-                    if (!_allowedCvTypes.Contains(contentType) || !_allowedCvExtensions.Contains(extension))
-                        throw new InvalidOperationException("Invalid CV type. Allowed: PDF, DOC, DOCX.");
+                    if (!ValidationConstants.UserProfile.AllowedCvTypes.Contains(contentType) || !ValidationConstants.UserProfile.AllowedCvExtensions.Contains(extension))
+                        throw new InvalidOperationException($"Invalid CV type. Allowed: {string.Join(", ", ValidationConstants.UserProfile.AllowedCvExtensions).ToUpperInvariant()}");
                     break;
 
                 default:
