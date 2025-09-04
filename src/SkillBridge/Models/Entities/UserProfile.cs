@@ -27,8 +27,8 @@ public class UserProfile
     /// </summary>
     public ICollection<UserProjectAssignment> UserProjectAssignments { get; set; } = new List<UserProjectAssignment>();
 
-    public string ProfilePicture { get; set; } = string.Empty;
+    public string? ProfilePicture { get; set; }
 
-    public string CVUpload { get; set; } = string.Empty;    
-    public string GitHubConnection { get; set; } = string.Empty;
+    public string? CVUpload { get; set; }    
+    public string? GitHubConnection { get; set; }
 }
