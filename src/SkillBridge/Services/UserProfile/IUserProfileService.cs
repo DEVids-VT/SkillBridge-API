@@ -10,5 +10,7 @@ namespace SkillBridge.Services.UserProfile
         Task<UserProfileResponse> GetByIdAsync(string? userId);
         Task<UserProfileResponse> GetMyProfileAsync(string? userId);
         Task<UserProfileResponse> UpdateAsync(UpdateUserProfileRequest request,string? userId);
+        Task<List<Models.Entities.UserProfile>> GetByAssigmentId(Guid id);
+
     }
 }

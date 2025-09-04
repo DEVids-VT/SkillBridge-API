@@ -74,5 +74,21 @@ namespace SkillBridge.Controllers
 
             return NoContent();
         }
+        /// <summary>
+        /// Gets all user candidates assigned to a given project assignment.
+        /// </summary>
+        /// <param name="projectId">The ID of the project assignment.</param>
+        /// <returns>
+        /// A list of user profiles assigned to the project.
+        [Authorize(Policy = "Company")]
+        [HttpGet("assignment/{projectId}/candidates")]
+        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetAssigmnentCandidatesAsync(Guid projectId)
+        {
+            var task = await _userProfileService.GetByAssigmentId(projectId);
+            return Ok(task);
+        }
     }
 }
