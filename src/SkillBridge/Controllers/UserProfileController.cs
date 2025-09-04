@@ -34,9 +34,9 @@ namespace SkillBridge.Controllers
         [Authorize]
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetMyProfile([FromRoute] string? userId)
+        public async Task<IActionResult> Get([FromRoute] string? userId)
         {
-            var userProfile = await _userProfileService.GetMyProfileAsync(userId);
+            var userProfile = await _userProfileService.GetAsync(userId);
 
             return Ok(userProfile);
         }
@@ -57,38 +57,6 @@ namespace SkillBridge.Controllers
             var userProfile = await _userProfileService.UpdateAsync(request, userId);
 
             return Ok(userProfile);
-        }
-
-        /// <summary>
-        /// Deletes a userProfile
-        /// </summary>
-        /// <param name="id">The userProfile ID</param>
-        /// <returns>No content if deleted successfully</returns>
-        [Authorize(Policy = "Candidate")]
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(string? id)
-        {
-            await _userProfileService.DeleteAsync(id);
-
-            return NoContent();
-        }
-        /// <summary>
-        /// Gets all user candidates assigned to a given project assignment.
-        /// </summary>
-        /// <param name="projectId">The ID of the project assignment.</param>
-        /// <returns>
-        /// A list of user profiles assigned to the project.
-        [Authorize(Policy = "Company")]
-        [HttpGet("assignment/{projectId}/candidates")]
-        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetAssigmnentCandidatesAsync(Guid projectId)
-        {
-            var task = await _userProfileService.GetByAssigmentId(projectId);
-            return Ok(task);
         }
     }
 }
