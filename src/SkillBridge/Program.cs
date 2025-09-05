@@ -20,8 +20,8 @@ builder.Host.UseSerilog((context, configuration) =>
 builder.Services.AddAuth0(builder.Configuration);
 builder.Services.AddWeb();
 builder.Services.AddPostgres(builder.Configuration);
-//builder.Services.AddOpenAI(builder.Configuration);
-builder.Services.AddPerplexity(builder.Configuration);
+builder.Services.AddOpenAI(builder.Configuration);
+//builder.Services.AddPerplexity(builder.Configuration);
 //builder.Services.AddStripe(builder.Configuration);
 
 builder.Services.AddSwaggerGen(s =>

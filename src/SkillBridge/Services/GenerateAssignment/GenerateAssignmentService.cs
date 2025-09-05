@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SkillBridge.Infrastructure.Ai;
 using SkillBridge.Models.Entities;
@@ -43,7 +44,10 @@ namespace SkillBridge.Services.GenerateAssignment
             
             // Generate assignment using LLM client
             var result = await _llmClient.GenerateAsync(prompt);
-            
+
+            var descriptionPrompt = _promptBuilder.BuildFromFile<DescriptionModel>("AssignmentDescriptionGenerationPrompt.md", result);
+            var description = await _llmClient.GenerateAsync(descriptionPrompt);
+
             if (result == null)
                 throw new Exception("Failed to generate assignment from AI.");
             
@@ -92,7 +96,7 @@ namespace SkillBridge.Services.GenerateAssignment
             var createRequest = new CreateProjectAssignmentRequest
             {
                 Title = result.Title,
-                Description = result.Description,
+                Description = description.Description,
                 Summary = result.Summary,
                 LearningBenefits = result.LearningBenefits,
                 SuggestedApproach = result.SuggestedApproach,
@@ -106,5 +110,10 @@ namespace SkillBridge.Services.GenerateAssignment
             // Save the generated assignment with tasks to database in a single transaction
             return await _projectAssignmentService.CreateAsync(companyId, createRequest);
         }
+    }
+
+    class DescriptionModel
+    {
+        public string Description { get; set; } = default!;
     }
 }

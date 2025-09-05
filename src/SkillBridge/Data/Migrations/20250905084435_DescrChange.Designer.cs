@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SkillBridge.Data;
@@ -11,9 +12,11 @@ using SkillBridge.Data;
 namespace SkillBridge.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250905084435_DescrChange")]
+    partial class DescrChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,12 +224,14 @@ namespace SkillBridge.Data.Migrations
                         .HasColumnName("deadline");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
+                        .HasMaxLength(20000)
+                        .HasColumnType("character varying(20000)")
                         .HasColumnName("description");
 
                     b.Property<string>("LearningBenefits")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("learning_benefits");
 
                     b.Property<int>("Level")
@@ -239,12 +244,14 @@ namespace SkillBridge.Data.Migrations
 
                     b.Property<string>("SuggestedApproach")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("suggested_approach");
 
                     b.Property<string>("Summary")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("summary");
 
                     b.Property<string>("Title")
