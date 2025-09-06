@@ -30,29 +30,29 @@ namespace SkillBridge.Infrastructure.Validation.Validators
         /// </summary>
         public UserProfileRequestValidator()
         {
-            // Profile picture (optional)
-            When(x => x.ProfilePicture != null, () =>
-            {
-                RuleFor(x => x.ProfilePicture!)
-                    .Must(f => f.Length <= ValidationConstants.UserProfile.ProfilePictureMaxBytes)
-                    .WithMessage($"Profile picture must be ≤ {BytesToMb(ValidationConstants.UserProfile.ProfilePictureMaxBytes)} MB.");
+            //// Profile picture (optional)
+            //When(x => x.ProfilePicture != null, () =>
+            //{
+            //    RuleFor(x => x.ProfilePicture!)
+            //        .Must(f => f.Length <= ValidationConstants.UserProfile.ProfilePictureMaxBytes)
+            //        .WithMessage($"Profile picture must be ≤ {BytesToMb(ValidationConstants.UserProfile.ProfilePictureMaxBytes)} MB.");
 
-                RuleFor(x => x.ProfilePicture!)
-                    .Must(f => AllowedImageContentTypes.Contains(f.ContentType, StringComparer.OrdinalIgnoreCase))
-                    .WithMessage($"Profile picture must be one of: {string.Join(", ", AllowedImageContentTypes)}.");
-            });
+            //    RuleFor(x => x.ProfilePicture!)
+            //        .Must(f => AllowedImageContentTypes.Contains(f.ContentType, StringComparer.OrdinalIgnoreCase))
+            //        .WithMessage($"Profile picture must be one of: {string.Join(", ", AllowedImageContentTypes)}.");
+            //});
 
-            // CV (optional)
-            When(x => x.CVUpload != null, () =>
-            {
-                RuleFor(x => x.CVUpload!)
-                    .Must(f => f.Length <= ValidationConstants.UserProfile.CvMaxBytes)
-                    .WithMessage($"CV must be ≤ {BytesToMb(ValidationConstants.UserProfile.CvMaxBytes)} MB.");
+            //// CV (optional)
+            //When(x => x.CVUpload != null, () =>
+            //{
+            //    RuleFor(x => x.CVUpload!)
+            //        .Must(f => f.Length <= ValidationConstants.UserProfile.CvMaxBytes)
+            //        .WithMessage($"CV must be ≤ {BytesToMb(ValidationConstants.UserProfile.CvMaxBytes)} MB.");
 
-                RuleFor(x => x.CVUpload!)
-                    .Must(f => AllowedCvContentTypes.Contains(f.ContentType, StringComparer.OrdinalIgnoreCase))
-                    .WithMessage($"CV must be one of: {string.Join(", ", AllowedCvContentTypes)}.");
-            });
+            //    RuleFor(x => x.CVUpload!)
+            //        .Must(f => AllowedCvContentTypes.Contains(f.ContentType, StringComparer.OrdinalIgnoreCase))
+            //        .WithMessage($"CV must be one of: {string.Join(", ", AllowedCvContentTypes)}.");
+            //});
 
             // GitHubConnection (optional)
             When(x => !string.IsNullOrWhiteSpace(x.GitHubConnection), () =>

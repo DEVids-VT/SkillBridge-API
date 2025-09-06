@@ -52,11 +52,36 @@ namespace SkillBridge.Controllers
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Update([FromRoute] string? userId,[FromForm] UpdateUserProfileRequest request)
+        public async Task<IActionResult> Update([FromRoute] string? userId,[FromBody] UpdateUserProfileRequest request)
         {
             var userProfile = await _userProfileService.UpdateAsync(request, userId);
 
             return Ok(userProfile);
         }
+
+
+
+        [Authorize(Policy = "Candidate")]
+        [HttpPatch("{userId?}/cv")]
+        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CVUploadAsync([FromRoute] string? userId, [FromForm] CVUploadRequest request)
+        {
+            var userProfile = await _userProfileService.UpdateCVUpload(request, userId);
+            return Ok(userProfile);
+        }
+
+        [Authorize(Policy = "Candidate")]
+        [HttpPatch("{userId?}/profile-picture")]
+        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ProfilePictureAsync([FromRoute] string? userId, [FromForm] ProfilePictureRequest request)
+        {
+            var userProfile = await _userProfileService.UpdateProfilePicture(request, userId);
+            return Ok(userProfile);
+        }
+
     }
 }
