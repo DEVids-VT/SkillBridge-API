@@ -55,8 +55,7 @@ namespace SkillBridge.Services.UserProfile
                 throw new EntityNotFoundException("Profile", $"for user {auth0UserId}",
                     $"No profile found for user ID {auth0UserId}");
             }
-            var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
-            _logger.LogInformation("Profile found: {ProfileName}", username);
+            _logger.LogInformation("Profile with Id found: {ProfileId}", userProfile.Id);
 
             var response = _mapper.Map<UserProfileResponse>(userProfile);
 
@@ -81,28 +80,6 @@ namespace SkillBridge.Services.UserProfile
                 throw new EntityNotFoundException(nameof(Models.Entities.UserProfile), auth0UserId);
             }
 
-            // Update files and images
-
-            //if (request.CVUpload != null)
-            //{
-            //    if (!string.IsNullOrEmpty(userProfile.CVUpload))
-            //    {
-            //        await _fileUploader.DeleteFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
-            //    }
-
-            //    userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
-            //}
-
-            //if (request.ProfilePicture != null)
-            //{
-            //    if (!string.IsNullOrEmpty(userProfile.ProfilePicture))
-            //    {
-            //        await _fileUploader.DeleteFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
-            //    }
-
-            //    userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
-            //}
-
             if (request.GitHubConnection != null)
             {
                 userProfile.GitHubConnection = request.GitHubConnection;
@@ -113,9 +90,7 @@ namespace SkillBridge.Services.UserProfile
             _dbContext.UserProfiles.Update(userProfile);
             await _dbContext.SaveChangesAsync();
 
-            var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
-
-            _logger.LogInformation("Profile updated successfully: {ProfileName}", username);
+            _logger.LogInformation("Profile updated successfully with Id: {ProfileId}", userProfile.Id);
 
             return _mapper.Map<UserProfileResponse>(userProfile);
         }
@@ -157,9 +132,7 @@ namespace SkillBridge.Services.UserProfile
             _dbContext.UserProfiles.Update(userProfile);
             await _dbContext.SaveChangesAsync();
 
-            var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
-
-            _logger.LogInformation("Profile updated successfully: {ProfileName}", username);
+            _logger.LogInformation("Profile updated successfully with Id: {ProfileId}", userProfile.Id);
 
             return _mapper.Map<UserProfileResponse>(userProfile);
 
@@ -194,9 +167,7 @@ namespace SkillBridge.Services.UserProfile
             _dbContext.UserProfiles.Update(userProfile);
             await _dbContext.SaveChangesAsync();
 
-            var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
-
-            _logger.LogInformation("Profile updated successfully: {ProfileName}", username);
+            _logger.LogInformation("Profile updated successfully with Id: {ProfileId}", userProfile.Id);
 
             return _mapper.Map<UserProfileResponse>(userProfile);
         }
