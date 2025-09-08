@@ -55,8 +55,7 @@ namespace SkillBridge.Services.UserProfile
                 throw new EntityNotFoundException("Profile", $"for user {auth0UserId}",
                     $"No profile found for user ID {auth0UserId}");
             }
-            var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
-            _logger.LogInformation("Profile found: {ProfileName}", username);
+            _logger.LogInformation("Profile with Id found: {ProfileId}", userProfile.Id);
 
             var response = _mapper.Map<UserProfileResponse>(userProfile);
 
@@ -81,28 +80,6 @@ namespace SkillBridge.Services.UserProfile
                 throw new EntityNotFoundException(nameof(Models.Entities.UserProfile), auth0UserId);
             }
 
-            // Update files and images
-            
-            if (request.CVUpload != null)
-            {
-                if (!string.IsNullOrEmpty(userProfile.CVUpload))
-                {
-                    await _fileUploader.DeleteFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
-                }
-                    
-                userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
-            }
-                
-            if (request.ProfilePicture != null)
-            {
-                if (!string.IsNullOrEmpty(userProfile.ProfilePicture))
-                {
-                    await _fileUploader.DeleteFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
-                }
-
-                userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
-            }
-
             if (request.GitHubConnection != null)
             {
                 userProfile.GitHubConnection = request.GitHubConnection;
@@ -113,19 +90,88 @@ namespace SkillBridge.Services.UserProfile
             _dbContext.UserProfiles.Update(userProfile);
             await _dbContext.SaveChangesAsync();
 
-            var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
-
-            _logger.LogInformation("Profile updated successfully: {ProfileName}", username);
+            _logger.LogInformation("Profile updated successfully with Id: {ProfileId}", userProfile.Id);
 
             return _mapper.Map<UserProfileResponse>(userProfile);
         }
 
         public async Task<List<Models.Entities.UserProfile>> GetByAssigmentId(Guid projectId)
         {
-            var candidates = await _dbContext.UserProjectAssignments.Include(x=>x.UserProfile).Where(upa => upa.ProjectAssignmentId == projectId).Select(x => x.UserProfile)
+            var candidates = await _dbContext.UserProjectAssignments.Include(x => x.UserProfile).Where(upa => upa.ProjectAssignmentId == projectId).Select(x => x.UserProfile)
                 .ToListAsync();
 
             return candidates;
         }
+        public async Task<UserProfileResponse> UpdateCVUpload(CVUploadRequest request, string? userId = null)
+        {
+            //throw new NotImplementedException();
+            var auth0UserId = userId ?? _currentUser.GetUserId();
+            _logger.LogInformation("Updating profile with ID: {UserProfileId}", auth0UserId);
+
+            var userProfile = await _dbContext.UserProfiles.FindAsync(auth0UserId);
+
+            if (userProfile == null)
+            {
+                _logger.LogWarning("Profile with ID {ProfileId} not found", auth0UserId);
+                throw new EntityNotFoundException(nameof(Models.Entities.UserProfile), auth0UserId);
+            }
+
+
+            if (!string.IsNullOrEmpty(userProfile.CVUpload))
+            {
+                await _fileUploader.DeleteFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
+                userProfile.CVUpload = null;
+            }
+            if (request.CVUpload != null)
+            {
+                userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
+            }
+
+            userProfile.UpdatedAt = DateTime.UtcNow;
+
+            _dbContext.UserProfiles.Update(userProfile);
+            await _dbContext.SaveChangesAsync();
+
+            _logger.LogInformation("Profile updated successfully with Id: {ProfileId}", userProfile.Id);
+
+            return _mapper.Map<UserProfileResponse>(userProfile);
+
+        }
+
+        public async Task<UserProfileResponse> UpdateProfilePicture(ProfilePictureRequest request, string? userId = null)
+        {
+            var auth0UserId = userId ?? _currentUser.GetUserId();
+            _logger.LogInformation("Updating profile with ID: {UserProfileId}", auth0UserId);
+
+            var userProfile = await _dbContext.UserProfiles.FindAsync(auth0UserId);
+
+            if (userProfile == null)
+            {
+                _logger.LogWarning("Profile with ID {ProfileId} not found", auth0UserId);
+                throw new EntityNotFoundException(nameof(Models.Entities.UserProfile), auth0UserId);
+            }
+
+
+            if (!string.IsNullOrEmpty(userProfile.ProfilePicture))
+            {
+                await _fileUploader.DeleteFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
+                userProfile.ProfilePicture = null;
+            }
+            if (request.ProfilePicture != null)
+            {
+                userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
+            }
+
+            userProfile.UpdatedAt = DateTime.UtcNow;
+
+            _dbContext.UserProfiles.Update(userProfile);
+            await _dbContext.SaveChangesAsync();
+
+            _logger.LogInformation("Profile updated successfully with Id: {ProfileId}", userProfile.Id);
+
+            return _mapper.Map<UserProfileResponse>(userProfile);
+        }
+
+
     }
 }
