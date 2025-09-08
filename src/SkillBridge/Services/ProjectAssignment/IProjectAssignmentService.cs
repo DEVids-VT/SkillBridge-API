@@ -98,4 +98,13 @@ public interface IProjectAssignmentService
     /// <param name="taskId">The ID of the task</param>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment or task is not found</exception>
     Task DeleteTaskAsync(Guid projectId, Guid taskId);
+
+    /// <summary>
+    /// Updates a specific task in a project assignment
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment</param>
+    /// <param name="taskId">The ID of the task</param>
+    /// <returns>The completed/uncompleted task</returns>
+    /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment or task is not found</exception>
+    Task<AssignmentTaskResponse> CompleteTaskAsync(Guid projectId, Guid taskId);
 }

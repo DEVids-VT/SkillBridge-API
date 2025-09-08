@@ -387,4 +387,50 @@ public class ProjectAssignmentService : IProjectAssignmentService
         
         return _mapper.Map<ProjectAssignmentResponse>(projectAssignment);
     }
+
+    /// <summary>
+    /// Completes/Uncompletes a specific task in a project assignment
+    /// </summary>
+    public async Task<AssignmentTaskResponse> CompleteTaskAsync(Guid projectId, Guid taskId)
+    {
+        var projectAssignment = await _dbContext.ProjectAssignments
+           .Include(p => p.Company)
+           .Include(p => p.ProjectSkills)
+               .ThenInclude(ps => ps.Skill)
+           .Include(p => p.Tasks.OrderBy(t => t.Sequence))
+           .FirstOrDefaultAsync(p => p.Id == projectId);
+
+        if (projectAssignment == null)
+        {
+            _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} not found", projectId);
+            throw new EntityNotFoundException("ProjectAssignment", projectId);
+        }
+
+        var task = projectAssignment.Tasks.FirstOrDefault(t => t.Id == taskId);
+
+        if (task == null)
+        {
+            _logger.LogWarning("Task with ID {TaskId} not found in project assignment ID: {ProjectAssignmentId}",
+                taskId, projectId);
+            throw new EntityNotFoundException("AssignmentTask", taskId);
+        }
+
+        if (task.IsCompleted == false)
+        {
+            task.IsCompleted = true;
+        }
+        else if (task.IsCompleted == true)
+        {
+            task.IsCompleted = false;
+        }
+        task.UpdatedAt = DateTime.UtcNow;
+
+        _dbContext.AssignmentTasks.Update(task);
+        await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Task updated successfully with ID: {TaskId} for project assignment ID: {ProjectAssignmentId}",
+           taskId, projectId);
+
+        return _mapper.Map<AssignmentTaskResponse>(task);
+    }
 }
