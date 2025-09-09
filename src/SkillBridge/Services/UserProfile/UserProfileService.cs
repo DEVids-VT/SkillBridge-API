@@ -6,6 +6,7 @@ using SkillBridge.Data;
 using SkillBridge.Infrastructure.Exceptions;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
+using SkillBridge.Models.Entities;
 using SkillBridge.Services.Company;
 using SkillBridge.Services.CurrentUser;
 using SkillBridge.Services.File;
@@ -39,6 +40,39 @@ namespace SkillBridge.Services.UserProfile
             _fileUploader = fileUploader;
         }
 
+        public async Task<UserProfileResponse> CreateAsync(CreateUserProfileRequest request, string? userId = null)
+        {
+            var auth0UserId = userId ?? _currentUser.GetUserId();
+            _logger.LogInformation("Retrieving profile with ID: {UserProfileId}", auth0UserId);
+
+            if (await _dbContext.UserProfiles.FindAsync(auth0UserId) == null)
+            {
+                var userProfile = _mapper.Map<Models.Entities.UserProfile>(request);
+
+                if (request.CVUpload != null)
+                    userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
+                else
+                    userProfile.CVUpload = string.Empty;
+
+                if (request.ProfilePicture != null)
+                    userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
+                else
+                    userProfile.ProfilePicture = string.Empty;
+
+                userProfile.Id = auth0UserId;
+
+                await _dbContext.UserProfiles.AddAsync(userProfile);
+                await _dbContext.SaveChangesAsync();
+
+                _logger.LogInformation("Created new UserProfile with ID: {UserProfileId}", auth0UserId);
+
+                return _mapper.Map<UserProfileResponse>(userProfile);
+            }
+
+            _logger.LogWarning("Profile with ID {UserProfileId} already exists", auth0UserId);
+            throw new InvalidOperationException($"A profile with ID '{auth0UserId}' already exists and cannot be created again.");
+        }
+
         public async Task<UserProfileResponse> DeleteAsync(string? userId = null)
         {
             var auth0UserId = userId ?? _currentUser.GetUserId();
@@ -60,8 +94,10 @@ namespace SkillBridge.Services.UserProfile
             await _dbContext.SaveChangesAsync();
 
             // Delete files and images
-            await _fileUploader.DeleteFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
-            await _fileUploader.DeleteFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
+            if (profilePicture != null)
+                await _fileUploader.DeleteFileAsync(profilePicture, Models.Enums.FileType.Image);
+            if (cvUrl != null)
+                await _fileUploader.DeleteFileAsync(cvUrl, Models.Enums.FileType.CV);
 
             _logger.LogInformation("Profile deleted successfully: {UserProfileId}", auth0UserId);
 
@@ -86,8 +122,10 @@ namespace SkillBridge.Services.UserProfile
             var response = _mapper.Map<UserProfileResponse>(userProfile);
 
             // Adding valid Urls to the files and images
-            response.ProfilePicture = await _fileUploader.GetFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
-            response.CVUpload = await _fileUploader.GetFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
+            if (!string.IsNullOrEmpty(userProfile.ProfilePicture))
+                response.ProfilePicture = await _fileUploader.GetFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
+            if (!string.IsNullOrEmpty(userProfile.CVUpload))
+                response.CVUpload = await _fileUploader.GetFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
 
             return response;
         }
@@ -114,8 +152,10 @@ namespace SkillBridge.Services.UserProfile
             var response = _mapper.Map<UserProfileResponse>(userProfile);
 
             // Adding valid Urls to the files and images
-            response.ProfilePicture = await _fileUploader.GetFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
-            response.CVUpload = await _fileUploader.GetFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
+            if (!string.IsNullOrEmpty(userProfile.ProfilePicture))
+                response.ProfilePicture = await _fileUploader.GetFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
+            if (!string.IsNullOrEmpty(userProfile.CVUpload))
+                response.CVUpload = await _fileUploader.GetFileAsync(userProfile.CVUpload, Models.Enums.FileType.CV);
 
             return response;
         }

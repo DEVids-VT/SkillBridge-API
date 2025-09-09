@@ -74,5 +74,15 @@ namespace SkillBridge.Controllers
 
             return NoContent();
         }
+
+        [Authorize(Policy = "Candidate")]
+        [HttpPost("{userId?}")]
+        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromRoute] string? userId, [FromBody] CreateUserProfileRequest request)
+        {
+            var company = await _userProfileService.CreateAsync(request, userId);
+            return CreatedAtAction(nameof(GetMyProfile), new { userId = company.Id }, company);
+        }
     }
 }

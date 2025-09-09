@@ -1,21 +1,17 @@
-﻿using System;
-using System.Linq;
-using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using SkillBridge.Infrastructure.Validation;
+﻿using FluentValidation;
 using SkillBridge.Models.Request;
 
 namespace SkillBridge.Infrastructure.Validation.Validators
 {
     /// <summary>
-    /// Validator for updating user profiles.
+    /// Validator for creating user profiles.
     /// </summary>
-    public class UpdateUserProfileRequestValidator : AbstractValidator<UpdateUserProfileRequest>
+    public class CreateUserProfileRequestValidator : AbstractValidator<CreateUserProfileRequest>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="UpdateUserProfileRequestValidator"/> class.
+        /// Initializes a new instance of the <see cref="CreateUserProfileRequestValidator"/> class.
         /// </summary>
-        public UpdateUserProfileRequestValidator()
+        public CreateUserProfileRequestValidator()
         {
             // Profile picture (optional)
             When(x => x.ProfilePicture != null, () =>
