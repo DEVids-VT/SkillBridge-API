@@ -112,7 +112,7 @@ namespace SkillBridge.Services.GenerateAssignment
         }
     }
 
-    class DescriptionModel
+    public class DescriptionModel
     {
         public string Description { get; set; } = default!;
     }
