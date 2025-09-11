@@ -18,7 +18,6 @@ namespace SkillBridge.Services.UserProfile
         private readonly ICurrentUser _currentUser;
         private readonly IMapper _mapper;
         private readonly ILogger<UserProfileService> _logger;
-        private readonly ManagementApiClient _managementApiClient;
         private readonly IFileUploader _fileUploader;
         /// <summary>
         /// Initializes a new instance of the <see cref="UserProfileService"/> class.
@@ -28,14 +27,13 @@ namespace SkillBridge.Services.UserProfile
             ICurrentUser current,
             IMapper mapper,
             ILogger<UserProfileService> logger,
-            ManagementApiClient managementApiClient,
-            IFileUploader fileUploader)
+            IFileUploader fileUploader
+            )
         {
             _dbContext = dbContext;
             _currentUser = current;
             _mapper = mapper;
             _logger = logger;
-            _managementApiClient = managementApiClient;
             _fileUploader = fileUploader;
         }
 

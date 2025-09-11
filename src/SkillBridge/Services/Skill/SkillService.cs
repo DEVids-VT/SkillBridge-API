@@ -170,7 +170,9 @@ public class SkillService : ISkillService
         {
             return new List<Guid>();
         }
-            
+
+        skillNames = skillNames.Where(name => name != null).ToList();
+
         _logger.LogInformation("Getting or creating {SkillCount} skills by name", skillNames.Count);
         
         var normalizedNames = skillNames.Select(name => name.Trim()).Where(name => !string.IsNullOrEmpty(name)).Distinct().ToList();
