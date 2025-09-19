@@ -1,3 +1,4 @@
+using Auth0.ManagementApi.Paging;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -6,7 +7,9 @@ using SkillBridge.Infrastructure.Exceptions;
 using SkillBridge.Models.Entities;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
+using SkillBridge.Models.Specifications;
 using SkillBridge.Services.Skill;
+using System.Threading;
 
 namespace SkillBridge.Services.ProjectAssignment;
 
@@ -386,5 +389,41 @@ public class ProjectAssignmentService : IProjectAssignmentService
         }
         
         return _mapper.Map<ProjectAssignmentResponse>(projectAssignment);
+    }
+
+    /// <summary>
+    /// Searches project assignments based on a specification with pagination
+    /// </summary>
+
+    // TODO: Implement pagination for search results AND in the Intreface IProjectAssignmentService
+    // public async Task<PagedList<ProjectAssignmentResponse>>
+    public async Task<IEnumerable<ProjectAssignmentResponse>> SearchProjectAssignmentsAsync(Specification<Models.Entities.ProjectAssignment> specification,
+        int pageNumber, 
+        int pageSize, 
+        CancellationToken cancellationToken = default)
+    {
+        var query = _dbContext.ProjectAssignments
+            .Include(p => p.Company)
+            .Include(p => p.ProjectSkills)
+                .ThenInclude(ps => ps.Skill)
+            .Where(specification);
+
+        /* var totalCount = await query.CountAsync(cancellationToken);
+
+         var data = await query
+             .Skip((pageNumber - 1) * pageSize)
+             .Take(pageSize)
+             .ToListAsync(cancellationToken);
+
+         var mapped = _mapper.Map<List<ProjectAssignmentResponse>>(data);
+
+         var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+         return new PagedList<ProjectAssignmentResponse>(mapped, pageNumber, pageSize, totalPages, totalCount);*/
+
+        // Delete this when pagination is implemented
+        var results = await query.ToListAsync();
+        return results.Select(p => _mapper.Map<ProjectAssignmentResponse>(p));
+
     }
 }

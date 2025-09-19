@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using SkillBridge.Infrastructure.Exceptions;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
+using SkillBridge.Models.Specifications;
 using SkillBridge.Services.ProjectAssignment;
 
 namespace SkillBridge.Controllers;
@@ -190,5 +192,28 @@ public class ProjectAssignmentsController : ControllerBase
     {
         await _projectAssignmentService.DeleteTaskAsync(projectId, taskId);
         return NoContent();
+    }
+
+    [HttpGet("search")]
+    // When pagination is implemented:
+    // public async Task<IPage<OrganizationDto>> SearchOrganizations(
+    public async Task<IEnumerable<ProjectAssignmentResponse>> SearchOrganizations(
+    [FromQuery] SearchProjectAssignmentRequest request,
+    int pageNumber = 1,
+    int pageSize = 10,
+    CancellationToken cancellationToken = default)
+    {
+        var specification = new ProjectAssignmentTitleSpecification(request.Title)
+            .And(new ProjectAssignmentLevelSpecification(request.Level))
+            .And(new ProjectAssignmentDeadlineAfterSpecification(request.DeadlineAfter))
+            .And(new ProjectAssignmentCompanyNameSpecification(request.CompanyName))
+            .And(new ProjectAssignmentCompanySectorSpecification(request.CompanySector))
+            .And(new ProjectAssignmentSkillsSpecification(request.ProjectSkills));
+
+        var result = await _projectAssignmentService.SearchProjectAssignmentsAsync(
+            specification, pageNumber, pageSize, cancellationToken);
+
+        //return result.ToPage();
+        return result;
     }
 }
