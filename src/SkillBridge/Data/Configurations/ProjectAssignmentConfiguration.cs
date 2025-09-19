@@ -27,25 +27,25 @@ public class ProjectAssignmentConfiguration : IEntityTypeConfiguration<ProjectAs
             .HasColumnName("title")
             .IsRequired()
             .HasMaxLength(ValidationConstants.ProjectAssignment.TitleMaxLength);
-            
+
         builder.Property(e => e.Description)
             .HasColumnName("description")
-            .HasMaxLength(ValidationConstants.ProjectAssignment.DescriptionMaxLength);
-            
+            .HasColumnType("text");
+
         builder.Property(e => e.Summary)
             .HasColumnName("summary")
             .IsRequired()
-            .HasMaxLength(ValidationConstants.ProjectAssignment.SummaryMaxLength);
+            .HasColumnType("text");
 
         builder.Property(e => e.LearningBenefits)
             .HasColumnName("learning_benefits")
             .IsRequired()
-            .HasMaxLength(ValidationConstants.ProjectAssignment.LearningBenefitsMaxLength);
+            .HasColumnType("text");
 
         builder.Property(e => e.SuggestedApproach)
             .HasColumnName("suggested_approach")
             .IsRequired()
-            .HasMaxLength(ValidationConstants.ProjectAssignment.SuggestedApproachMaxLength);
+            .HasColumnType("text");
 
         builder.Property(e => e.Level)
             .HasColumnName("level")

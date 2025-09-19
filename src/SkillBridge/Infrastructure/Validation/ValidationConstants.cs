@@ -37,7 +37,7 @@ public static class ValidationConstants
         /// <summary>
         /// Maximum length for the Description property
         /// </summary>
-        public const int DescriptionMaxLength = 2000;
+        public const int DescriptionMaxLength = 20000;
         
         /// <summary>
         /// Maximum length for the Summary property
