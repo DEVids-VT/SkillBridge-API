@@ -65,7 +65,7 @@ public class ProjectAssignmentsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<ProjectAssignmentResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(
     [Range(1, int.MaxValue)] int pageIndex = 1,
-    [Range(1, int.MaxValue)] int pageSize = 2,
+    [Range(1, int.MaxValue)] int pageSize = 20,
     CancellationToken ct = default)
     {
         var paged = await _projectAssignmentService.GetAllAsync(pageIndex, pageSize, ct); // IPagedList<T>
