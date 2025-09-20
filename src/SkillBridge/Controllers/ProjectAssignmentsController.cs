@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkillBridge.Infrastructure.Exceptions;
+using SkillBridge.Infrastructure.Pagination.Extensions;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 using SkillBridge.Services.ProjectAssignment;
+using System.ComponentModel.DataAnnotations;
 
 namespace SkillBridge.Controllers;
 
@@ -61,11 +63,16 @@ public class ProjectAssignmentsController : ControllerBase
     /// <returns>A list of all project assignments</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ProjectAssignmentResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+    [Range(1, int.MaxValue)] int pageIndex = 1,
+    [Range(1, int.MaxValue)] int pageSize = 2,
+    CancellationToken ct = default)
     {
-        var projectAssignments = await _projectAssignmentService.GetAllAsync();
-        return Ok(projectAssignments);
+        var paged = await _projectAssignmentService.GetAllAsync(pageIndex, pageSize, ct); // IPagedList<T>
+        var page = paged.ToPage(); // IPage<T> (array body), still carries meta for the filter
+        return Ok(page);
     }
+
 
     /// <summary>
     /// Gets all project assignments for a specific company

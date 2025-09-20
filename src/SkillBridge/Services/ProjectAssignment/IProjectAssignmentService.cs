@@ -1,3 +1,4 @@
+using SkillBridge.Infrastructure.Pagination.Abstractions;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 
@@ -24,13 +25,14 @@ public interface IProjectAssignmentService
     /// <returns>The project assignment if found</returns>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
     Task<ProjectAssignmentResponse> GetByIdAsync(Guid id);
-    
+
     /// <summary>
     /// Gets all project assignments
     /// </summary>
     /// <returns>A list of all project assignments</returns>
-    Task<IEnumerable<ProjectAssignmentResponse>> GetAllAsync();
-    
+    //Task<IEnumerable<ProjectAssignmentResponse>> GetAllAsync(int pageIndex, int pageSize, CancellationToken ct = default);
+    Task<IPagedList<ProjectAssignmentResponse>> GetAllAsync(int pageIndex, int pageSize, CancellationToken ct = default);
+
     /// <summary>
     /// Gets all project assignments for a specific company
     /// </summary>
