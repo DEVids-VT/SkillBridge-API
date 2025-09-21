@@ -210,7 +210,7 @@ public class ProjectAssignmentsController : ControllerBase
             .And(new ProjectAssignmentCompanySectorSpecification(request.CompanySector))
             .And(new ProjectAssignmentSkillsSpecification(request.ProjectSkills));
 
-        var result = await _projectAssignmentService.SearchProjectAssignmentsAsync(
+        var result = await _projectAssignmentService.SearchAsync(
             specification, pageNumber, pageSize, cancellationToken);
 
         //return result.ToPage();

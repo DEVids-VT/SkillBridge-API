@@ -397,7 +397,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
 
     // TODO: Implement pagination for search results AND in the Intreface IProjectAssignmentService
     // public async Task<PagedList<ProjectAssignmentResponse>>
-    public async Task<IEnumerable<ProjectAssignmentResponse>> SearchProjectAssignmentsAsync(Specification<Models.Entities.ProjectAssignment> specification,
+    public async Task<IEnumerable<ProjectAssignmentResponse>> SearchAsync(Specification<Models.Entities.ProjectAssignment> specification,
         int pageNumber, 
         int pageSize, 
         CancellationToken cancellationToken = default)

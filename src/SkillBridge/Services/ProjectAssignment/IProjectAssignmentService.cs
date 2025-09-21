@@ -105,8 +105,8 @@ public interface IProjectAssignmentService
     /// </summary>
 
     // Change when PagedList is implemented
-    // public async Task<PagedList<ProjectAssignmentResponse>> SearchProjectAssignmentsAsync
-    Task<IEnumerable<ProjectAssignmentResponse>> SearchProjectAssignmentsAsync(Specification<Models.Entities.ProjectAssignment> specification,
+    // public async Task<PagedList<ProjectAssignmentResponse>> SearchAsync
+    Task<IEnumerable<ProjectAssignmentResponse>> SearchAsync(Specification<Models.Entities.ProjectAssignment> specification,
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);
