@@ -34,9 +34,9 @@ namespace SkillBridge.Controllers
         [Authorize]
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get([FromRoute] string? userId)
+        public async Task<IActionResult> GetMyProfile([FromRoute] string? userId)
         {
-            var userProfile = await _userProfileService.GetAsync(userId);
+            var userProfile = await _userProfileService.GetMyProfileAsync(userId);
 
             return Ok(userProfile);
         }
@@ -52,35 +52,27 @@ namespace SkillBridge.Controllers
         [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Update([FromRoute] string? userId,[FromBody] UpdateUserProfileRequest request)
+        public async Task<IActionResult> Update([FromRoute] string? userId,[FromForm] UpdateUserProfileRequest request)
         {
             var userProfile = await _userProfileService.UpdateAsync(request, userId);
 
             return Ok(userProfile);
         }
 
-
-
+        /// <summary>
+        /// Deletes a userProfile
+        /// </summary>
+        /// <param name="id">The userProfile ID</param>
+        /// <returns>No content if deleted successfully</returns>
         [Authorize(Policy = "Candidate")]
-        [HttpPatch("{userId?}/cv")]
-        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CVUploadAsync([FromRoute] string? userId, [FromForm] CVUploadRequest request)
+        public async Task<IActionResult> Delete(string? id)
         {
-            var userProfile = await _userProfileService.UpdateCVUpload(request, userId);
-            return Ok(userProfile);
-        }
+            await _userProfileService.DeleteAsync(id);
 
-        [Authorize(Policy = "Candidate")]
-        [HttpPatch("{userId?}/profile-picture")]
-        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ProfilePictureAsync([FromRoute] string? userId, [FromForm] ProfilePictureRequest request)
-        {
-            var userProfile = await _userProfileService.UpdateProfilePicture(request, userId);
-            return Ok(userProfile);
+            return NoContent();
         }
 
         [Authorize(Policy = "Candidate")]

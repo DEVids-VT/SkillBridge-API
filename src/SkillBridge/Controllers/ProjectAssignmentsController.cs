@@ -216,19 +216,4 @@ public class ProjectAssignmentsController : ControllerBase
         //return result.ToPage();
         return result;
     }
-    /// <summary>
-    /// Complete a specific task in a project assignment
-    /// </summary>
-    /// <param name="projectId">The ID of the project assignment</param>
-    /// <param name="taskId">The ID of the task</param>
-    /// <returns>The completed/uncompleted task</returns>
-    [Authorize(Policy = "Candidate")]
-    [HttpPatch("{projectId}/tasks/{taskId}/complete")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CompleteTask(Guid projectId, Guid taskId)
-    {
-        var stats = await _projectAssignmentService.CompleteTaskAsync(projectId, taskId);
-        return Ok(stats);
-    }
 }

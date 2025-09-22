@@ -221,12 +221,14 @@ namespace SkillBridge.Data.Migrations
                         .HasColumnName("deadline");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
                         .HasColumnName("description");
 
                     b.Property<string>("LearningBenefits")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("learning_benefits");
 
                     b.Property<int>("Level")
@@ -239,12 +241,14 @@ namespace SkillBridge.Data.Migrations
 
                     b.Property<string>("SuggestedApproach")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("suggested_approach");
 
                     b.Property<string>("Summary")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("summary");
 
                     b.Property<string>("Title")

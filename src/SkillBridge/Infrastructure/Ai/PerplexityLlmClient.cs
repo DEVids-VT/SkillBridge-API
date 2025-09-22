@@ -30,7 +30,6 @@ namespace SkillBridge.Infrastructure.Ai
             _apiKey = settings.ApiKey;
             _endpoint = settings.Endpoint;
             _httpClient = new HttpClient();
-            _httpClient.Timeout = Timeout.InfiniteTimeSpan;
         }
 
         public async Task<TResponse> GenerateAsync<TResponse>(Prompt<TResponse> promptModel) where TResponse : class
@@ -53,15 +52,14 @@ namespace SkillBridge.Infrastructure.Ai
             request.Headers.Add("Authorization", $"Bearer {_apiKey}");
             request.Content = jsonContent;
 
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Perplexity API returned error: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
+            }
             try
             {
-                var response = await _httpClient.SendAsync(request);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception($"Perplexity API returned error: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
-                }
-           
                 var responseJson = await response.Content.ReadAsStringAsync();
                 var apiResponse = JsonConvert.DeserializeObject<dynamic>(responseJson);
 
