@@ -73,7 +73,7 @@ public static class ValidationConstants
         /// <summary>
         /// Maximum length for the LogoUrl property
         /// </summary>
-        public const int LogoUrlMaxLength = 500;
+        //public const int LogoUrlMaxLength = 500;
         
         /// <summary>
         /// Maximum length for the BannerUrl property
@@ -139,6 +139,11 @@ public static class ValidationConstants
         /// Minimum valid year for YearEstablished
         /// </summary>
         public const int YearEstablishedMinimum = 1800;
+
+        public const long CompanyLogoMaxBytes = 5L * 1024 * 1024;  // 5 MB
+
+        public static readonly string[] AllowedImageTypes = { "image/jpeg", "image/png" };
+        public static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png" };
     }
     
     /// <summary>

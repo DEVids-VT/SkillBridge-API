@@ -24,12 +24,6 @@ public class UpdateCompanyRequestValidator : AbstractValidator<UpdateCompanyRequ
             .MaximumLength(ValidationConstants.Company.AboutMaxLength)
             .WithMessage($"About text cannot exceed {ValidationConstants.Company.AboutMaxLength} characters");
 
-        RuleFor(x => x.LogoUrl)
-            .MaximumLength(ValidationConstants.Company.LogoUrlMaxLength)
-            .WithMessage($"Logo URL cannot exceed {ValidationConstants.Company.LogoUrlMaxLength} characters")
-            .Must(BeAValidUrl).When(x => !string.IsNullOrEmpty(x.LogoUrl))
-            .WithMessage("Logo URL must be a valid URL");
-
         RuleFor(x => x.BannerUrl)
             .MaximumLength(ValidationConstants.Company.BannerUrlMaxLength)
             .WithMessage($"Banner URL cannot exceed {ValidationConstants.Company.BannerUrlMaxLength} characters")
