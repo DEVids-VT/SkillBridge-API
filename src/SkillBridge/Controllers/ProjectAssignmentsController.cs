@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SkillBridge.Infrastructure.Exceptions;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
+using SkillBridge.Models.Specifications;
 using SkillBridge.Services.ProjectAssignment;
 
 namespace SkillBridge.Controllers;
@@ -206,5 +207,28 @@ public class ProjectAssignmentsController : ControllerBase
     {
         var stats = await _projectAssignmentService.CompleteTaskAsync(projectId, taskId);
         return Ok(stats);
+    }
+
+    [HttpGet("search")]
+    // When pagination is implemented:
+    // public async Task<IPage<OrganizationDto>> SearchOrganizations(
+    public async Task<IEnumerable<ProjectAssignmentResponse>> Search(
+    [FromQuery] SearchProjectAssignmentRequest request,
+    int pageNumber = 1,
+    int pageSize = 10,
+    CancellationToken cancellationToken = default)
+    {
+        var specification = new ProjectAssignmentTitleSpecification(request.Title)
+            .And(new ProjectAssignmentLevelSpecification(request.Level))
+            .And(new ProjectAssignmentDeadlineAfterSpecification(request.DeadlineAfter))
+            .And(new ProjectAssignmentCompanyNameSpecification(request.CompanyName))
+            .And(new ProjectAssignmentCompanySectorSpecification(request.CompanySector))
+            .And(new ProjectAssignmentSkillsSpecification(request.ProjectSkills));
+
+        var result = await _projectAssignmentService.SearchAsync(
+            specification, pageNumber, pageSize, cancellationToken);
+
+        //return result.ToPage();
+        return result;
     }
 }
