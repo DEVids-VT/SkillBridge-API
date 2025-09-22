@@ -48,7 +48,7 @@ public class UpdateProjectAssignmentRequest
     public ProjectAssignmentStatus Status { get; set; }
     
     /// <summary>
-    /// Gets or sets the skill IDs associated with this project assignment
+    /// Gets or sets the skill names associated with this project assignment
     /// </summary>
-    public List<Guid> SkillIds { get; set; } = new List<Guid>();
+    public List<string> Skills { get; set; } = new List<string>();
 }
