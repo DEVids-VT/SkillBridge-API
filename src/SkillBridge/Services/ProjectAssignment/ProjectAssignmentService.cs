@@ -176,19 +176,19 @@ public class ProjectAssignmentService : IProjectAssignmentService
         _mapper.Map(request, projectAssignment);
         projectAssignment.UpdatedAt = DateTime.UtcNow;
         
-        // Validate skills using SkillService
-        List<Guid> validatedSkillIds = new();
-        if (request.SkillIds.Any())
+        // Get or create skills by names using SkillService
+        List<Guid> skillIds = new();
+        if (request.Skills.Any())
         {
-            validatedSkillIds = await _skillService.ValidateSkillsExistAsync(request.SkillIds);
+            skillIds = await _skillService.GetOrCreateSkillsByNameAsync(request.Skills);
         }
         
         // Update skills - remove existing and add new ones
         _dbContext.ProjectSkills.RemoveRange(projectAssignment.ProjectSkills);
         
-        if (validatedSkillIds.Any())
+        if (skillIds.Any())
         {
-            var projectSkills = validatedSkillIds.Select(skillId => new ProjectSkill
+            var projectSkills = skillIds.Select(skillId => new ProjectSkill
             {
                 ProjectAssignmentId = projectAssignment.Id,
                 SkillId = skillId
