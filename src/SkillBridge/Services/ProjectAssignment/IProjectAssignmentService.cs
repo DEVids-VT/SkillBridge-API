@@ -1,6 +1,7 @@
 using SkillBridge.Infrastructure.Pagination.Abstractions;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
+using SkillBridge.Models.Specifications;
 
 namespace SkillBridge.Services.ProjectAssignment;
 
@@ -17,7 +18,7 @@ public interface IProjectAssignmentService
     /// <returns>The created project assignment</returns>
     /// <exception cref="ArgumentException">Thrown when company or skills don't exist</exception>
     Task<ProjectAssignmentResponse> CreateAsync(Guid companyId, CreateProjectAssignmentRequest request);
-    
+
     /// <summary>
     /// Gets a project assignment by ID
     /// </summary>
@@ -39,7 +40,7 @@ public interface IProjectAssignmentService
     /// <param name="companyId">The company ID</param>
     /// <returns>A list of project assignments for the company</returns>
     Task<IEnumerable<ProjectAssignmentResponse>> GetByCompanyIdAsync(Guid companyId);
-    
+
     /// <summary>
     /// Updates a project assignment
     /// </summary>
@@ -49,14 +50,14 @@ public interface IProjectAssignmentService
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
     /// <exception cref="ArgumentException">Thrown when skills don't exist</exception>
     Task<ProjectAssignmentResponse> UpdateAsync(Guid id, UpdateProjectAssignmentRequest request);
-    
+
     /// <summary>
     /// Deletes a project assignment
     /// </summary>
     /// <param name="id">The project assignment ID</param>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
     Task DeleteAsync(Guid id);
-    
+
     /// <summary>
     /// Creates a new task for a project assignment
     /// </summary>
@@ -65,7 +66,7 @@ public interface IProjectAssignmentService
     /// <returns>The created task</returns>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
     Task<AssignmentTaskResponse> CreateTaskAsync(Guid projectId, CreateAssignmentTaskRequest request);
-    
+
     /// <summary>
     /// Gets all tasks for a project assignment
     /// </summary>
@@ -73,7 +74,7 @@ public interface IProjectAssignmentService
     /// <returns>A list of tasks for the project assignment</returns>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment is not found</exception>
     Task<IEnumerable<AssignmentTaskResponse>> GetTasksAsync(Guid projectId);
-    
+
     /// <summary>
     /// Gets a specific task from a project assignment
     /// </summary>
@@ -82,7 +83,7 @@ public interface IProjectAssignmentService
     /// <returns>The task if found</returns>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment or task is not found</exception>
     Task<AssignmentTaskResponse> GetTaskByIdAsync(Guid projectId, Guid taskId);
-    
+
     /// <summary>
     /// Updates a specific task in a project assignment
     /// </summary>
@@ -92,7 +93,7 @@ public interface IProjectAssignmentService
     /// <returns>The updated task</returns>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment or task is not found</exception>
     Task<AssignmentTaskResponse> UpdateTaskAsync(Guid projectId, Guid taskId, UpdateAssignmentTaskRequest request);
-    
+
     /// <summary>
     /// Deletes a specific task from a project assignment
     /// </summary>
@@ -109,4 +110,18 @@ public interface IProjectAssignmentService
     /// <returns>The completed/uncompleted task</returns>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when project assignment or task is not found</exception>
     Task<AssignmentTaskResponse> CompleteTaskAsync(Guid projectId, Guid taskId);
+
+    /// <summary>
+    /// Searches project assignments using the provided specification with pagination
+    /// </summary>
+    /// <param name="specification">The filtering and search specification</param>
+    /// <param name="pageNumber">The page number for pagination</param>
+    /// <param name="pageSize">The page size for pagination</param>
+    /// <param name="cancellationToken">The cancellation token</param>
+    /// <returns>A paginated list of project assignments matching the specification</returns>
+    // Task<PagedList<ProjectAssignmentResponse>>
+    Task<IEnumerable<ProjectAssignmentResponse>> SearchAsync(Specification<Models.Entities.ProjectAssignment> specification,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }
