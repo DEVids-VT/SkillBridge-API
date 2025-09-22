@@ -174,5 +174,39 @@ public static class ValidationConstants
         public static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png" };
         public static readonly string[] AllowedCvTypes = { "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
         public static readonly string[] AllowedCvExtensions = { ".pdf", ".doc", ".docx" };
+
+        public static bool IsValidGitHubConnection(string value)
+        {
+            var trimmed = value.Trim();
+
+            if (IsValidGitHubUsername(trimmed))
+                return true;
+
+            if (Uri.TryCreate(trimmed, UriKind.Absolute, out var uri)
+                && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp)
+                && string.Equals(uri.Host, "github.com", StringComparison.OrdinalIgnoreCase))
+            {
+                var username = uri.AbsolutePath
+                    .Split('/', StringSplitOptions.RemoveEmptyEntries)
+                    .FirstOrDefault();
+
+                return !string.IsNullOrEmpty(username) && IsValidGitHubUsername(username);
+            }
+
+            return false;
+        }
+
+        public static bool IsValidGitHubUsername(string candidate)
+        {
+            if (string.IsNullOrWhiteSpace(candidate)) return false;
+            if (candidate.Length < 1 || candidate.Length > 39) return false;
+            if (candidate.StartsWith("-") || candidate.EndsWith("-")) return false;
+            if (candidate.Contains("--")) return false;
+
+            return candidate.All(ch => char.IsLetterOrDigit(ch) || ch == '-');
+        }
+
+        public static long BytesToMb(long bytes) =>
+            (bytes + (1024 * 1024 - 1)) / (1024 * 1024); // ceil to MB
     }
 }
