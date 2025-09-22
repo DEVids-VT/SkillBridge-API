@@ -15,7 +15,7 @@
             {
                 context.HttpContext.Response.Headers.AddPaginationHeader(
                     page.CurrentPage,
-                    page.PageSize, 
+                    page.PageSize,
                     page.TotalCount);
             }
 
