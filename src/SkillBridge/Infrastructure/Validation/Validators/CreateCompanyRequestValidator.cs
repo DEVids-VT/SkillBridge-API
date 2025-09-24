@@ -25,10 +25,10 @@ public class CreateCompanyRequestValidator : AbstractValidator<CreateCompanyRequ
             .WithMessage($"About text cannot exceed {ValidationConstants.Company.AboutMaxLength} characters");
 
         RuleFor(x => x.LogoUrl)
-            .MaximumLength(ValidationConstants.Company.LogoUrlMaxLength)
-            .WithMessage($"Logo URL cannot exceed {ValidationConstants.Company.LogoUrlMaxLength} characters")
-            .Must(BeAValidUrl).When(x => !string.IsNullOrEmpty(x.LogoUrl))
-            .WithMessage("Logo URL must be a valid URL");
+            .Must(file => file == null || file.Length <= ValidationConstants.Company.CompanyLogoMaxBytes)
+            .WithMessage($"Logo file cannot exceed {ValidationConstants.Company.CompanyLogoMaxBytes / 1024 / 1024} MB")
+            .When(x => x.LogoUrl != null);
+
 
         RuleFor(x => x.BannerUrl)
             .MaximumLength(ValidationConstants.Company.BannerUrlMaxLength)

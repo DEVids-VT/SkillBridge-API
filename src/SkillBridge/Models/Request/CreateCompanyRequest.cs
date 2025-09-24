@@ -18,7 +18,7 @@ public class CreateCompanyRequest
     /// <summary>
     /// Gets or sets the URL to the company logo
     /// </summary>
-    public string? LogoUrl { get; set; }
+    public IFormFile? LogoUrl { get; set; }
     
     /// <summary>
     /// Gets or sets the URL to the company banner

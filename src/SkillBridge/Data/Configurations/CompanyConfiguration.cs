@@ -32,10 +32,9 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
             .HasColumnName("about")
             .IsRequired()
             .HasMaxLength(ValidationConstants.Company.AboutMaxLength);
-            
+
         builder.Property(e => e.LogoUrl)
-            .HasColumnName("logo_url")
-            .HasMaxLength(ValidationConstants.Company.LogoUrlMaxLength);
+            .HasColumnName("logo_url");
             
         builder.Property(e => e.BannerUrl)
             .HasColumnName("banner_url")
