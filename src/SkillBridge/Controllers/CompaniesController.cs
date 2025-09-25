@@ -108,4 +108,16 @@ public class CompaniesController : ControllerBase
         await _companyService.DeleteAsync(id);
         return NoContent();
     }
+
+
+    [Authorize(Policy = "Company")]
+    [HttpPatch("{id?}/companyLogo")]
+    [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateCompanyLogo(Guid id, [FromForm] UpdateCompanyLogoRequest request)
+    {
+        var company = await _companyService.UpdateCompanyLogoAsync(id, request);
+        return Ok(company);
+    }
 }

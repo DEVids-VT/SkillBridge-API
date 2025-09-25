@@ -31,6 +31,7 @@ using SkillBridge.Services.UserProfile;
 using Microsoft.Extensions.DependencyInjection;
 using SkillBridge.Services.File;
 using SkillBridge.Infrastructure.SupabaseDb;
+using SkillBridge.Infrastructure.Pagination.Headers;
 
 namespace SkillBridge.Infrastructure.Extensions;
 
@@ -186,7 +187,10 @@ public static class ServiceCollectionExtensions
         {
             o.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser()
                 .Build()));
+
+            o.Filters.Add<PaginationHeadersFilter>();
         });
+
 
         // Add validation
         services.AddFluentValidationAutoValidation();

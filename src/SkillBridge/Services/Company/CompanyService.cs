@@ -7,6 +7,7 @@ using SkillBridge.Models.Entities;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 using SkillBridge.Services.CurrentUser;
+using SkillBridge.Services.File;
 
 namespace SkillBridge.Services.Company;
 
@@ -19,6 +20,7 @@ public class CompanyService : ICompanyService
     private readonly IMapper _mapper;
     private readonly ILogger<CompanyService> _logger;
     private readonly ICurrentUser _currentUser;
+    private readonly IFileUploader _fileUploader;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CompanyService"/> class.
@@ -27,12 +29,14 @@ public class CompanyService : ICompanyService
         AppDbContext dbContext, 
         IMapper mapper, 
         ILogger<CompanyService> logger,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        IFileUploader fileUploader)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _logger = logger;
         _currentUser = currentUser;
+        _fileUploader = fileUploader;
     }
 
     /// <summary>
@@ -159,5 +163,39 @@ public class CompanyService : ICompanyService
         await _dbContext.SaveChangesAsync();
         
         _logger.LogInformation("Company deleted successfully: {CompanyId}", id);
+    }
+
+    public async Task<CompanyResponse> UpdateCompanyLogoAsync(Guid id, UpdateCompanyLogoRequest request)
+    {
+        //var auth0UserId = id ?? _currentUser.GetUserId();
+        _logger.LogInformation("Updating profile with ID: {UserProfileId}", id);
+
+        var companyProfile = await _dbContext.Companies.FindAsync(id);
+
+        if (companyProfile == null)
+        {
+            _logger.LogWarning("Profile with ID {ProfileId} not found", id);
+            throw new EntityNotFoundException(nameof(Models.Entities.Company), id);
+        }
+
+
+        if (!string.IsNullOrEmpty(companyProfile.LogoUrl))
+        {
+            await _fileUploader.DeleteFileAsync(companyProfile.LogoUrl, Models.Enums.FileType.Image);
+            companyProfile.LogoUrl = null;
+        }
+        if (request.LogoUrl != null)
+        {
+            companyProfile.LogoUrl = await _fileUploader.UploadFileAsync(request.LogoUrl, Models.Enums.FileType.Image);
+        }
+
+        companyProfile.UpdatedAt = DateTime.UtcNow;
+
+        _dbContext.Companies.Update(companyProfile);
+        await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Profile updated successfully with Id: {ProfileId}", companyProfile.Id);
+
+        return _mapper.Map<CompanyResponse>(companyProfile);
     }
 }

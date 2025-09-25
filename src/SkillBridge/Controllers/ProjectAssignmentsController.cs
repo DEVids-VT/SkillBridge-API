@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkillBridge.Infrastructure.Exceptions;
+using SkillBridge.Infrastructure.Pagination.Extensions;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
+using SkillBridge.Models.Specifications;
 using SkillBridge.Services.ProjectAssignment;
+using System.ComponentModel.DataAnnotations;
 
 namespace SkillBridge.Controllers;
 
@@ -61,11 +64,16 @@ public class ProjectAssignmentsController : ControllerBase
     /// <returns>A list of all project assignments</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<ProjectAssignmentResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+    [Range(1, int.MaxValue)] int pageIndex = 1,
+    [Range(1, int.MaxValue)] int pageSize = 20,
+    CancellationToken ct = default)
     {
-        var projectAssignments = await _projectAssignmentService.GetAllAsync();
-        return Ok(projectAssignments);
+        var paged = await _projectAssignmentService.GetAllAsync(pageIndex, pageSize, ct); // IPagedList<T>
+        var page = paged.ToPage(); // IPage<T> (array body), still carries meta for the filter
+        return Ok(page);
     }
+
 
     /// <summary>
     /// Gets all project assignments for a specific company
@@ -206,5 +214,28 @@ public class ProjectAssignmentsController : ControllerBase
     {
         var stats = await _projectAssignmentService.CompleteTaskAsync(projectId, taskId);
         return Ok(stats);
+    }
+
+    [HttpGet("search")]
+    // When pagination is implemented:
+    // public async Task<IPage<OrganizationDto>> SearchOrganizations(
+    public async Task<IEnumerable<ProjectAssignmentResponse>> Search(
+    [FromQuery] SearchProjectAssignmentRequest request,
+    int pageNumber = 1,
+    int pageSize = 10,
+    CancellationToken cancellationToken = default)
+    {
+        var specification = new ProjectAssignmentTitleSpecification(request.Title)
+            .And(new ProjectAssignmentLevelSpecification(request.Level))
+            .And(new ProjectAssignmentDeadlineAfterSpecification(request.DeadlineAfter))
+            .And(new ProjectAssignmentCompanyNameSpecification(request.CompanyName))
+            .And(new ProjectAssignmentCompanySectorSpecification(request.CompanySector))
+            .And(new ProjectAssignmentSkillsSpecification(request.ProjectSkills));
+
+        var result = await _projectAssignmentService.SearchAsync(
+            specification, pageNumber, pageSize, cancellationToken);
+
+        //return result.ToPage();
+        return result;
     }
 }

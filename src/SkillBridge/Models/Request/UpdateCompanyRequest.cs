@@ -16,11 +16,6 @@ public class UpdateCompanyRequest
     public string? About { get; set; }
     
     /// <summary>
-    /// Gets or sets the URL to the company logo
-    /// </summary>
-    public string? LogoUrl { get; set; }
-    
-    /// <summary>
     /// Gets or sets the URL to the company banner
     /// </summary>
     public string? BannerUrl { get; set; }
