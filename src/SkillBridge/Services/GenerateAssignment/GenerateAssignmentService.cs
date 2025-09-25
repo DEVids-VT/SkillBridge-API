@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+﻿using Auth0.ManagementApi.Models.Prompts;
 using SkillBridge.Infrastructure.Ai;
 using SkillBridge.Models.Entities;
 using SkillBridge.Models.Enums;
@@ -10,6 +6,11 @@ using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 using SkillBridge.Services.ProjectAssignment;
 using SkillBridge.Services.Skill;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace SkillBridge.Services.GenerateAssignment
 {
@@ -19,17 +20,33 @@ namespace SkillBridge.Services.GenerateAssignment
         private readonly IPromptBuilder _promptBuilder;
         private readonly IProjectAssignmentService _projectAssignmentService;
         private readonly ISkillService _skillService;
+        private readonly IAgentClient _agentClient;
 
         public GenerateAssignmentService(
             ILlmClient llmClient,
             IPromptBuilder promptBuilder,
             IProjectAssignmentService projectAssignmentService,
-            ISkillService skillService)
+            ISkillService skillService,
+            IAgentClient agentClient)
         {
             _llmClient = llmClient ?? throw new ArgumentNullException(nameof(llmClient));
             _promptBuilder = promptBuilder ?? throw new ArgumentNullException(nameof(promptBuilder));
             _projectAssignmentService = projectAssignmentService ?? throw new ArgumentNullException(nameof(projectAssignmentService));
             _skillService = skillService ?? throw new ArgumentNullException(nameof(skillService));
+            _agentClient = agentClient ?? throw new ArgumentNullException(nameof(agentClient));
+        }
+
+        /// <summary>
+        /// Generates and saves a project assignment for a company using external agent
+        /// </summary>
+        /// <param name="companyId">The ID of the company creating the assignment</param>
+        /// <param name="candidate">The candidate requirements</param>
+        /// <returns>The saved project assignment response</returns>
+        public async Task<ProjectAssignmentResponse> ExternalGenerate(Guid companyId, CandidateRequirementsRequest candidate)
+        {
+            var result = await _agentClient.GenerateAssignment(companyId, candidate);
+
+            return result;
         }
 
         /// <summary>
@@ -38,7 +55,7 @@ namespace SkillBridge.Services.GenerateAssignment
         /// <param name="companyId">The ID of the company creating the assignment</param>
         /// <param name="candidate">The candidate requirements</param>
         /// <returns>The saved project assignment response</returns>
-        public async Task<ProjectAssignmentResponse> GenerateAssignmentAsync(Guid companyId, CandidateRequirementsRequest candidate)
+        public async Task<ProjectAssignmentResponse> Generate(Guid companyId, CandidateRequirementsRequest candidate)
         {
             var prompt = _promptBuilder.BuildFromFile<Models.Entities.ProjectAssignment>("AssignmentGenerationPrompt.md", candidate);
             
@@ -46,7 +63,7 @@ namespace SkillBridge.Services.GenerateAssignment
             var result = await _llmClient.GenerateAsync(prompt);
 
             var descriptionPrompt = _promptBuilder.BuildFromFile<DescriptionModel>("AssignmentDescriptionGenerationPrompt.md", result);
-            var description = await _llmClient.GenerateAsync(descriptionPrompt);
+            //var description = await _llmClient.GenerateAsync(descriptionPrompt);
 
             if (result == null)
                 throw new Exception("Failed to generate assignment from AI.");
@@ -96,7 +113,7 @@ namespace SkillBridge.Services.GenerateAssignment
             var createRequest = new CreateProjectAssignmentRequest
             {
                 Title = result.Title,
-                Description = description.Description,
+                Description = result.Description,
                 Summary = result.Summary,
                 LearningBenefits = result.LearningBenefits,
                 SuggestedApproach = result.SuggestedApproach,

@@ -245,4 +245,50 @@ public static class ServiceCollectionExtensions
        
         return services;
     }
+
+    /// <summary>
+    /// Adds Make.com integration services to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection AddMakeCom(this IServiceCollection services, IConfiguration configuration)
+    {
+        var settings = configuration.GetSection("MakeComSettings").Get<MakeComSettings>()
+            ?? throw new InvalidOperationException("MakeComSettings are not configured");
+
+        services.Configure<MakeComSettings>(configuration.GetSection("MakeComSettings"));
+
+        // Register HttpClient for MakeComClient with proper configuration
+        services.AddHttpClient<MakeComClient>(client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(5); // Set reasonable timeout for Make.com scenarios
+            client.DefaultRequestHeaders.Add("User-Agent", "SkillBridge-API/1.0");
+        });
+
+        // Register IAgentClient implementation
+        services.AddScoped<IAgentClient, MakeComClient>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddN8N(this IServiceCollection services, IConfiguration configuration)
+    {
+        var settings = configuration.GetSection("N8NSettings").Get<N8NSettings>()
+            ?? throw new InvalidOperationException("N8NSettings are not configured");
+
+        services.Configure<N8NSettings>(configuration.GetSection("N8NSettings"));
+
+        // Register HttpClient for with proper configuration
+        services.AddHttpClient<N8NClient>(client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(5); // Set reasonable timeout for scenarios
+            client.DefaultRequestHeaders.Add("User-Agent", "SkillBridge-API/1.0");
+        });
+
+        // Register IAgentClient implementation
+        services.AddScoped<IAgentClient, N8NClient>();
+
+        return services;
+    }
 }

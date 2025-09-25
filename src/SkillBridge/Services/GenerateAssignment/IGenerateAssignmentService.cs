@@ -11,6 +11,14 @@ namespace SkillBridge.Services.GenerateAssignment
         /// <param name="companyId">The ID of the company creating the assignment</param>
         /// <param name="candidate">The candidate requirements</param>
         /// <returns>The saved project assignment response</returns>
-        Task<ProjectAssignmentResponse> GenerateAssignmentAsync(Guid companyId, CandidateRequirementsRequest candidate);
+        Task<ProjectAssignmentResponse> Generate(Guid companyId, CandidateRequirementsRequest candidate);
+
+        /// <summary>
+        /// Requests an external agent to generate a project assignment for a company
+        /// </summary>
+        /// <param name="companyId">The ID of the company creating the assignment</param>
+        /// <param name="candidate">The candidate requirements</param>
+        /// <returns>The saved project assignment response</returns>
+        Task<ProjectAssignmentResponse> ExternalGenerate(Guid companyId, CandidateRequirementsRequest candidate);
     }
 }
