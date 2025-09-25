@@ -48,9 +48,9 @@ public class CreateProjectAssignmentRequest
     public ProjectAssignmentStatus Status { get; set; } = ProjectAssignmentStatus.Draft;
     
     /// <summary>
-    /// Gets or sets the skill IDs associated with this project assignment
+    /// Gets or sets the skill names associated with this project assignment
     /// </summary>
-    public List<Guid> SkillIds { get; set; } = new List<Guid>();
+    public List<string> Skills { get; set; } = new List<string>();
     
     /// <summary>
     /// Gets or sets the tasks associated with this project assignment
