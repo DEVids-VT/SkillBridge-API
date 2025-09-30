@@ -45,8 +45,8 @@ namespace SkillBridge.Services.GenerateAssignment
             // Generate assignment using LLM client
             var result = await _llmClient.GenerateAsync(prompt);
 
-            var descriptionPrompt = _promptBuilder.BuildFromFile<DescriptionModel>("AssignmentDescriptionGenerationPrompt.md", result);
-            var description = await _llmClient.GenerateAsync(descriptionPrompt);
+           // var descriptionPrompt = _promptBuilder.BuildFromFile<DescriptionModel>("AssignmentDescriptionGenerationPrompt.md", result);
+            //var description = await _llmClient.GenerateAsync(descriptionPrompt);
 
             if (result == null)
                 throw new Exception("Failed to generate assignment from AI.");
@@ -96,7 +96,7 @@ namespace SkillBridge.Services.GenerateAssignment
             var createRequest = new CreateProjectAssignmentRequest
             {
                 Title = result.Title,
-                Description = description.Description,
+                Description = result.Description,
                 Summary = result.Summary,
                 LearningBenefits = result.LearningBenefits,
                 SuggestedApproach = result.SuggestedApproach,
