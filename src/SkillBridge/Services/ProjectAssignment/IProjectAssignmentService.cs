@@ -124,4 +124,6 @@ public interface IProjectAssignmentService
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    Task<List<Models.Entities.UserProfile>> GetByAssigmentId(Guid id);
 }
