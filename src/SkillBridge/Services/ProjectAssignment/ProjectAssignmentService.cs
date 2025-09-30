@@ -52,12 +52,12 @@ public class ProjectAssignmentService : IProjectAssignmentService
             _logger.LogWarning("Company with ID {CompanyId} not found", companyId);
             throw new EntityNotFoundException("Company", companyId);
         }
-
-        // Validate skills using SkillService
-        List<Guid> validatedSkillIds = new();
-        if (request.SkillIds.Any())
+        
+        // Get or create skills by names using SkillService
+        List<Guid> skillIds = new();
+        if (request.Skills.Any())
         {
-            validatedSkillIds = await _skillService.ValidateSkillsExistAsync(request.SkillIds);
+            skillIds = await _skillService.GetOrCreateSkillsByNameAsync(request.Skills);
         }
 
         // Create the project assignment with skills
@@ -65,9 +65,9 @@ public class ProjectAssignmentService : IProjectAssignmentService
         projectAssignment.CompanyId = companyId;
 
         // Prepare project skills if any skills are specified
-        if (validatedSkillIds.Any())
+        if (skillIds.Any())
         {
-            projectAssignment.ProjectSkills = validatedSkillIds.Select(skillId => new ProjectSkill
+            projectAssignment.ProjectSkills = skillIds.Select(skillId => new ProjectSkill
             {
                 SkillId = skillId
             }).ToList();
