@@ -44,32 +44,31 @@ namespace SkillBridge.Services.UserProfile
             var auth0UserId = userId ?? _currentUser.GetUserId();
             _logger.LogInformation("Retrieving profile with ID: {UserProfileId}", auth0UserId);
 
-            if (await _dbContext.UserProfiles.FindAsync(auth0UserId) == null)
+            if (await _dbContext.UserProfiles.FindAsync(auth0UserId) != null)
             {
-                var userProfile = _mapper.Map<Models.Entities.UserProfile>(request);
-
-                if (request.CVUpload != null)
-                    userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
-                else
-                    userProfile.CVUpload = string.Empty;
-
-                if (request.ProfilePicture != null)
-                    userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
-                else
-                    userProfile.ProfilePicture = string.Empty;
-
-                userProfile.Id = auth0UserId;
-
-                await _dbContext.UserProfiles.AddAsync(userProfile);
-                await _dbContext.SaveChangesAsync();
-
-                _logger.LogInformation("Created new UserProfile with ID: {UserProfileId}", auth0UserId);
-
-                return _mapper.Map<UserProfileResponse>(userProfile);
+                _logger.LogWarning("Profile with ID {UserProfileId} already exists", auth0UserId);
+                throw new InvalidOperationException($"A profile with ID '{auth0UserId}' already exists and cannot be created again.");
             }
+            var userProfile = _mapper.Map<Models.Entities.UserProfile>(request);
 
-            _logger.LogWarning("Profile with ID {UserProfileId} already exists", auth0UserId);
-            throw new InvalidOperationException($"A profile with ID '{auth0UserId}' already exists and cannot be created again.");
+            if (request.CVUpload != null)
+                userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
+            else
+                userProfile.CVUpload = string.Empty;
+
+            if (request.ProfilePicture != null)
+                userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
+            else
+                userProfile.ProfilePicture = string.Empty;
+
+            userProfile.Id = auth0UserId;
+
+            await _dbContext.UserProfiles.AddAsync(userProfile);
+            await _dbContext.SaveChangesAsync();
+
+            _logger.LogInformation("Created new UserProfile with ID: {UserProfileId}", auth0UserId);
+
+            return _mapper.Map<UserProfileResponse>(userProfile);
         }
 
         public async Task<UserProfileResponse> GetMyProfileAsync(string? userId = null)
