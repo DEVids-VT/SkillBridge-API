@@ -209,4 +209,14 @@ public static class ValidationConstants
         public static long BytesToMb(long bytes) =>
             (bytes + (1024 * 1024 - 1)) / (1024 * 1024); // ceil to MB
     }
+
+    public class UserProjectAssignment
+    {
+        public const int SubmissionRepositoryUrlMaxLength = UserProfile.GitHubConnectionMaxLength;
+
+        public static bool IsValidSubmissionRepositoryUrl(string value) =>
+            UserProfile.IsValidGitHubConnection(value);
+
+        public static int SubmissionNotesMaxLength = 1000;
+    }
 }
