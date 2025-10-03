@@ -38,7 +38,7 @@ public class CreateProjectAssignmentRequestValidator : AbstractValidator<CreateP
             .MaximumLength(ValidationConstants.ProjectAssignment.SuggestedApproachMaxLength)
             .WithMessage($"Suggested approach cannot exceed {ValidationConstants.ProjectAssignment.SuggestedApproachMaxLength} characters");
 
-        RuleFor(x => x.Duratoin)
+        RuleFor(x => x.Duration)
             .NotEmpty().WithMessage("Duration is required")
             .GreaterThan(TimeSpan.Zero).WithMessage("Duration must be greater than zero")
             .LessThanOrEqualTo(TimeSpan.FromDays(30)).WithMessage("Duration cannot exceed 30 days");

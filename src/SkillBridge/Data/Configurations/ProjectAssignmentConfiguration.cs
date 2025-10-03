@@ -79,7 +79,7 @@ public class ProjectAssignmentConfiguration : IEntityTypeConfiguration<ProjectAs
         // Create indexes for common queries
         builder.HasIndex(e => e.Status);
         builder.HasIndex(e => e.CompanyId);
-        builder.HasIndex(e => e.Duration);
+        //builder.HasIndex(e => e.Duration);
         builder.HasIndex(e => e.Level);
     }
 }

@@ -47,7 +47,7 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the deadline for the project assignment
         /// </summary>
-        public TimeSpan Duration { get; set; } = TimeSpan.FromDays(14);
+        public TimeSpan Duration { get; set; }
 
         /// <summary>
         /// Gets or sets the status of the project assignment
