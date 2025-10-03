@@ -77,7 +77,7 @@ namespace SkillBridge.Services.GenerateAssignment
                 LearningBenefits = result.LearningBenefits,
                 SuggestedApproach = result.SuggestedApproach,
                 Level = result.Level,
-                Deadline = DateTime.UtcNow.AddDays(14), // Default deadline if not provided by AI
+                Duratoin = TimeSpan.FromDays(14), // Default deadline if not provided by AI
                 Status = ProjectAssignmentStatus.Draft,
                 Skills = skillNames,
                 Tasks = tasks

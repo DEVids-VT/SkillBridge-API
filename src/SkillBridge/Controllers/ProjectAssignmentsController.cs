@@ -227,7 +227,6 @@ public class ProjectAssignmentsController : ControllerBase
     {
         var specification = new ProjectAssignmentTitleSpecification(request.Title)
             .And(new ProjectAssignmentLevelSpecification(request.Level))
-            .And(new ProjectAssignmentDeadlineAfterSpecification(request.DeadlineAfter))
             .And(new ProjectAssignmentCompanyNameSpecification(request.CompanyName))
             .And(new ProjectAssignmentCompanySectorSpecification(request.CompanySector))
             .And(new ProjectAssignmentSkillsSpecification(request.ProjectSkills));

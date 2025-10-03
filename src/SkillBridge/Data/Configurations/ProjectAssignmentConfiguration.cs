@@ -51,8 +51,8 @@ public class ProjectAssignmentConfiguration : IEntityTypeConfiguration<ProjectAs
             .HasColumnName("level")
             .IsRequired();
             
-        builder.Property(e => e.Deadline)
-            .HasColumnName("deadline")
+        builder.Property(e => e.Duration)
+            .HasColumnName("duration")
             .IsRequired();
             
         builder.Property(e => e.Status)
@@ -79,7 +79,7 @@ public class ProjectAssignmentConfiguration : IEntityTypeConfiguration<ProjectAs
         // Create indexes for common queries
         builder.HasIndex(e => e.Status);
         builder.HasIndex(e => e.CompanyId);
-        builder.HasIndex(e => e.Deadline);
+        builder.HasIndex(e => e.Duration);
         builder.HasIndex(e => e.Level);
     }
 }

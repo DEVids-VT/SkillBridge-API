@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SkillBridge.Data;
 using SkillBridge.Infrastructure.Exceptions;
+using SkillBridge.Models.Entities;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 
@@ -84,7 +85,8 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
             UserProfileId = userId,
             ProjectAssignmentId = request.ProjectAssignmentId,
             ClaimedAt = DateTime.UtcNow,
-            IsCompleted = false
+            IsCompleted = false,
+            Deadline = DateTime.UtcNow + projectAssignment.Duration,
         };
         
         // Save to database
@@ -100,7 +102,8 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
             ProjectAssignment = _mapper.Map<ProjectAssignmentResponse>(projectAssignment),
             ClaimedAt = userProjectAssignment.ClaimedAt,
             IsCompleted = userProjectAssignment.IsCompleted,
-            CompletedAt = userProjectAssignment.CompletedAt
+            CompletedAt = userProjectAssignment.CompletedAt,
+            Deadline = userProjectAssignment.Deadline
         };
         
         return response;
