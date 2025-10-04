@@ -66,13 +66,13 @@ public class UserProjectAssignmentsController : ControllerBase
     /// </summary>
     /// <param name="request">The completion request containing project assignment details</param>
     /// <returns>The updated user project assignment</returns>
-    [HttpPost("complete/{userId?}")]
+    [HttpPost("complete")]
     [ProducesResponseType(typeof(UserProjectAssignmentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CompleteProject([FromBody] CompleteUserProjectAssignmentRequest request, [FromQuery] string? userId)
+    public async Task<IActionResult> CompleteProject([FromBody] CompleteUserProjectAssignmentRequest request)
     {
-        //var userId = _currentUser.GetUserId();
+        var userId = _currentUser.GetUserId();
 
         var result = await _userProjectAssignmentService.CompleteProjectAsync(userId, request);
         return Ok(result);
