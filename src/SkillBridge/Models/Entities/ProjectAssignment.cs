@@ -47,6 +47,7 @@ namespace SkillBridge.Models.Entities
         /// <summary>
         /// Gets or sets the deadline for the project assignment
         /// </summary>
+        [JsonSchemaIgnore]
         public TimeSpan Duration { get; set; }
 
         /// <summary>
