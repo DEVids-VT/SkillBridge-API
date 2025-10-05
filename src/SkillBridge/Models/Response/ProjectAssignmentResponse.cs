@@ -45,7 +45,7 @@ public class ProjectAssignmentResponse
     /// <summary>
     /// Gets or sets the deadline for the project assignment
     /// </summary>
-    public DateTime Deadline { get; set; }
+    public TimeSpan Duration { get; set; }
     
     /// <summary>
     /// Gets or sets the status of the project assignment

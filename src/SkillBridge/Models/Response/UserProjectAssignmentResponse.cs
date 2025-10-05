@@ -27,4 +27,6 @@ public class UserProjectAssignmentResponse
     /// Gets or sets the date when the project was completed by the user
     /// </summary>
     public DateTime? CompletedAt { get; set; }
+     
+    public DateTime Deadline { get; set; }
 }
