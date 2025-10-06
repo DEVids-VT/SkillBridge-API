@@ -52,4 +52,5 @@ public interface ICompanyService
     /// <param name="id">The company ID</param>
     /// <exception cref="SkillBridge.Infrastructure.Exceptions.EntityNotFoundException">Thrown when company is not found</exception>
     Task DeleteAsync(Guid id);
+    Task<CompanyResponse> UpdateCompanyLogoAsync(Guid id, UpdateCompanyLogoRequest request);
 }

@@ -38,7 +38,7 @@ public class UpdateProjectAssignmentRequestValidator : AbstractValidator<UpdateP
             .MaximumLength(ValidationConstants.ProjectAssignment.SuggestedApproachMaxLength)
             .WithMessage($"Suggested approach cannot exceed {ValidationConstants.ProjectAssignment.SuggestedApproachMaxLength} characters");
 
-        RuleFor(x => x.Deadline)
-            .NotEmpty().WithMessage("Deadline is required");
+        RuleFor(x => x.Duration)
+            .NotEmpty().WithMessage("Duration is required");
     }
 }

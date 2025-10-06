@@ -1,7 +1,8 @@
+using NJsonSchema;
+using NJsonSchema.Generation;
+using Stripe.Apps;
 using System;
 using System.Text;
-using NJsonSchema;
-using Stripe.Apps;
 
 namespace SkillBridge.Infrastructure.Ai
 {
@@ -19,7 +20,7 @@ namespace SkillBridge.Infrastructure.Ai
         /// Gets the content that will be processed using the system prompt
         /// </summary>
         public string Content { get; }
-        
+
         /// <summary>
         /// Creates a new instance of the <see cref="Prompt"/> class
         /// </summary>
@@ -36,5 +37,6 @@ namespace SkillBridge.Infrastructure.Ai
             sb.AppendLine(response);
             SystemPrompt = sb.ToString();
         }
+
     }
 }

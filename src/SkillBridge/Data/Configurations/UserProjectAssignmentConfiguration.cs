@@ -51,7 +51,7 @@ public class UserProjectAssignmentConfiguration : IEntityTypeConfiguration<UserP
             
         builder.Property(e => e.CompletedAt)
             .HasColumnName("completed_at");
-            
+
         // Indexes
         builder.HasIndex(e => e.UserProfileId);
         builder.HasIndex(e => e.ProjectAssignmentId);
