@@ -41,6 +41,11 @@ public class UserProjectAssignment
     /// Gets or sets the completion status of the user's project assignment
     /// </summary>
     public bool IsCompleted { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the deadline date for the project assignment
+    /// </summary>
+    public DateTime? Deadline { get; set; }
     
     /// <summary>
     /// Gets or sets the date when the user completed the project assignment

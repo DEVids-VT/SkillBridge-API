@@ -29,6 +29,11 @@ public class UserProjectAssignmentResponse
     public DateTime? CompletedAt { get; set; }
 
     /// <summary>
+    /// Gets or sets the deadline date for the project assignment
+    /// </summary>
+    public DateTime? Deadline { get; set; }
+
+    /// <summary>
     /// Gets or sets the URL of the submission repository containing the completed work.
     /// </summary>
     public string? SubmissionRepositoryUrl { get; set; }
