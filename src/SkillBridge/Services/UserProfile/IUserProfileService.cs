@@ -8,7 +8,6 @@ namespace SkillBridge.Services.UserProfile
     {
         Task<UserProfileResponse> GetAsync(string? userId);
         Task<UserProfileResponse> UpdateAsync(UpdateUserProfileRequest request,string? userId);
-        Task<List<Models.Entities.UserProfile>> GetByAssigmentId(Guid id);
         Task<UserProfileResponse> UpdateProfilePicture(ProfilePictureRequest request, string? userId);
         Task<UserProfileResponse> UpdateCVUpload(CVUploadRequest request, string? userId);
     }

@@ -95,13 +95,6 @@ namespace SkillBridge.Services.UserProfile
             return _mapper.Map<UserProfileResponse>(userProfile);
         }
 
-        public async Task<List<Models.Entities.UserProfile>> GetByAssigmentId(Guid projectId)
-        {
-            var candidates = await _dbContext.UserProjectAssignments.Include(x => x.UserProfile).Where(upa => upa.ProjectAssignmentId == projectId).Select(x => x.UserProfile)
-                .ToListAsync();
-
-            return candidates;
-        }
         public async Task<UserProfileResponse> UpdateCVUpload(CVUploadRequest request, string? userId = null)
         {
             //throw new NotImplementedException();
@@ -171,7 +164,6 @@ namespace SkillBridge.Services.UserProfile
 
             return _mapper.Map<UserProfileResponse>(userProfile);
         }
-
-
     }
 }
+ 

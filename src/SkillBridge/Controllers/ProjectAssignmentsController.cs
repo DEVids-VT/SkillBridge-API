@@ -6,6 +6,7 @@ using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 using SkillBridge.Models.Specifications;
 using SkillBridge.Services.ProjectAssignment;
+using SkillBridge.Services.UserProfile;
 using System.ComponentModel.DataAnnotations;
 
 namespace SkillBridge.Controllers;
@@ -236,5 +237,22 @@ public class ProjectAssignmentsController : ControllerBase
 
         //return result.ToPage();
         return result;
+    }
+
+    /// <summary>
+    /// Gets all user candidates assigned to a given project assignment.
+    /// </summary>
+    /// <param name="projectId">The ID of the project assignment.</param>
+    /// <returns>
+    /// A list of user profiles assigned to the project.
+    [Authorize(Policy = "Company")]
+    [HttpGet("project-assignments/{projectId}/candidates")]
+    [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAssigmnentCandidatesAsync(Guid projectId)
+    {
+        var task = await _projectAssignmentService.GetByAssigmentId(projectId);
+        return Ok(task);
     }
 }
