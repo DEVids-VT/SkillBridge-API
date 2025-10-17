@@ -9,7 +9,9 @@ using SkillBridge.Models.Entities;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 using SkillBridge.Models.Specifications;
+using SkillBridge.Services.CurrentUser;
 using SkillBridge.Services.Skill;
+using static SkillBridge.Infrastructure.Validation.ValidationConstants;
 
 namespace SkillBridge.Services.ProjectAssignment;
 
@@ -22,6 +24,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
     private readonly IMapper _mapper;
     private readonly ILogger<ProjectAssignmentService> _logger;
     private readonly ISkillService _skillService;
+    private readonly ICurrentUser _currentUser;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProjectAssignmentService"/> class.
@@ -30,12 +33,14 @@ public class ProjectAssignmentService : IProjectAssignmentService
         AppDbContext dbContext,
         IMapper mapper,
         ILogger<ProjectAssignmentService> logger,
-        ISkillService skillService)
+        ISkillService skillService,
+        ICurrentUser current)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _logger = logger;
         _skillService = skillService;
+        _currentUser = current;
     }
 
     /// <summary>
@@ -52,7 +57,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
             _logger.LogWarning("Company with ID {CompanyId} not found", companyId);
             throw new EntityNotFoundException("Company", companyId);
         }
-        
+
         // Get or create skills by names using SkillService
         List<Guid> skillIds = new();
         if (request.Skills.Any())
@@ -67,7 +72,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
         // Prepare project skills if any skills are specified
         if (skillIds.Any())
         {
-            projectAssignment.ProjectSkills = skillIds.Select(skillId => new ProjectSkill
+            projectAssignment.ProjectSkills = skillIds.Select(skillId => new Models.Entities.ProjectSkill
             {
                 SkillId = skillId
             }).ToList();
@@ -80,7 +85,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
 
             projectAssignment.Tasks = request.Tasks.Select(taskRequest =>
             {
-                var task = _mapper.Map<AssignmentTask>(taskRequest);
+                var task = _mapper.Map<Models.Entities.AssignmentTask>(taskRequest);
                 // No need to set ProjectAssignmentId as EF Core will handle this
                 return task;
             }).ToList();
@@ -199,7 +204,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
         // Update basic properties
         _mapper.Map(request, projectAssignment);
         projectAssignment.UpdatedAt = DateTime.UtcNow;
-        
+
         // Get or create skills by names using SkillService
         List<Guid> skillIds = new();
         if (request.Skills.Any())
@@ -209,10 +214,10 @@ public class ProjectAssignmentService : IProjectAssignmentService
 
         // Update skills - remove existing and add new ones
         _dbContext.ProjectSkills.RemoveRange(projectAssignment.ProjectSkills);
-        
+
         if (skillIds.Any())
         {
-            var projectSkills = skillIds.Select(skillId => new ProjectSkill
+            var projectSkills = skillIds.Select(skillId => new Models.Entities.ProjectSkill
             {
                 ProjectAssignmentId = projectAssignment.Id,
                 SkillId = skillId
@@ -274,7 +279,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
         }
 
         // Create the task
-        var task = _mapper.Map<AssignmentTask>(request);
+        var task = _mapper.Map<Models.Entities.AssignmentTask>(request);
         task.ProjectAssignmentId = projectId;
 
         // Save the task
@@ -439,14 +444,47 @@ public class ProjectAssignmentService : IProjectAssignmentService
             throw new EntityNotFoundException("AssignmentTask", taskId);
         }
 
-        if (task.IsCompleted == false)
+        var auth0UserId = _currentUser.GetUserId();
+        _logger.LogInformation("Updating profile with ID: {UserProfileId}", auth0UserId);
+
+        var userAssignmentTask = await _dbContext.UserAssignmentTasks
+            .FirstOrDefaultAsync(uat => uat.ProjectAssignmentId == projectId
+                && uat.AssignmentTaskId == taskId
+                && uat.UserProfileId == auth0UserId);
+
+
+
+        //if (userAssignmentTask.IsCompleted == false)
+        //{
+        //    userAssignmentTask.IsCompleted = true;
+        //}
+        //else if (userAssignmentTask.IsCompleted == true)
+        //{
+        //    userAssignmentTask.IsCompleted = false;
+        //}
+
+        if (userAssignmentTask is null)
         {
-            task.IsCompleted = true;
+            // Optional: verify the user is assigned to this project before creating the row
+            var isAssigned = await _dbContext.UserProjectAssignments
+                .AnyAsync(a => a.UserProfileId == auth0UserId && a.ProjectAssignmentId == projectId);
+            if (!isAssigned)
+                throw new InvalidOperationException("User is not assigned to this project.");
+
+            userAssignmentTask = new UserAssignmentTask
+            {
+                UserProfileId = auth0UserId,
+                ProjectAssignmentId = projectId,
+                AssignmentTaskId = taskId,
+                IsCompleted = true   // first toggle sets it completed
+            };
+            _dbContext.UserAssignmentTasks.Add(userAssignmentTask);
         }
-        else if (task.IsCompleted == true)
+        else
         {
-            task.IsCompleted = false;
+            userAssignmentTask.IsCompleted = !userAssignmentTask.IsCompleted; // toggle
         }
+
         task.UpdatedAt = DateTime.UtcNow;
 
         _dbContext.AssignmentTasks.Update(task);
@@ -455,7 +493,10 @@ public class ProjectAssignmentService : IProjectAssignmentService
         _logger.LogInformation("Task updated successfully with ID: {TaskId} for project assignment ID: {ProjectAssignmentId}",
            taskId, projectId);
 
-        return _mapper.Map<AssignmentTaskResponse>(task);
+        var response = _mapper.Map<AssignmentTaskResponse>(task);
+        response.IsCompleted = userAssignmentTask.IsCompleted;
+
+        return response;
     }
 
     /// <summary>

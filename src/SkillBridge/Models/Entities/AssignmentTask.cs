@@ -24,10 +24,7 @@ namespace SkillBridge.Models.Entities
         /// </summary>
         public string? Description { get; set; }
 
-        /// <summary>
-        /// Gets or sets whether the task is completed
-        /// </summary>
-        public bool IsCompleted { get; set; } = false;
+       
 
         /// <summary>
         /// Gets or sets the sequence number of the task (for ordering)
@@ -57,5 +54,10 @@ namespace SkillBridge.Models.Entities
         /// </summary>
         [JsonSchemaIgnore]
         public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the collection of tasks belonging to this project assignment
+        /// </summary>
+        public ICollection<UserAssignmentTask> UserAssignmentTasks { get; set; } = new List<UserAssignmentTask>();
     }
 }

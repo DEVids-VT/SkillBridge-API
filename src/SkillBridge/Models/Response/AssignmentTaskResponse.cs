@@ -1,3 +1,5 @@
+using SkillBridge.Models.Entities;
+
 namespace SkillBridge.Models.Response;
 
 /// <summary>
@@ -24,6 +26,7 @@ public class AssignmentTaskResponse
     /// Gets or sets whether the task is completed
     /// </summary>
     public bool IsCompleted { get; set; }
+        
     
     /// <summary>
     /// Gets or sets the sequence number of the task (for ordering)
