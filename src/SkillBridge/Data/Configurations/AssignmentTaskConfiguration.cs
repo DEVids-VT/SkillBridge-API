@@ -32,10 +32,6 @@ public class AssignmentTaskConfiguration : IEntityTypeConfiguration<AssignmentTa
             .HasColumnName("description")
             .HasMaxLength(ValidationConstants.AssignmentTask.DescriptionMaxLength);
             
-        builder.Property(e => e.IsCompleted)
-            .HasColumnName("is_completed")
-            .IsRequired();
-            
         builder.Property(e => e.Sequence)
             .HasColumnName("sequence")
             .IsRequired();
@@ -56,10 +52,14 @@ public class AssignmentTaskConfiguration : IEntityTypeConfiguration<AssignmentTa
               .WithMany(p => p.Tasks)
               .HasForeignKey(e => e.ProjectAssignmentId)
               .OnDelete(DeleteBehavior.Cascade);
-        
+
+        builder.HasMany(e => e.UserAssignmentTasks)
+               .WithOne(uat => uat.AssignmentTask)
+               .HasForeignKey(uat => uat.AssignmentTaskId)
+               .OnDelete(DeleteBehavior.Cascade);
+
         // Create indexes for common queries
         builder.HasIndex(e => e.ProjectAssignmentId);
         builder.HasIndex(e => e.Sequence);
-        builder.HasIndex(e => e.IsCompleted);
     }
 }

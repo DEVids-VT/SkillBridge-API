@@ -52,6 +52,24 @@ public class UserProjectAssignmentConfiguration : IEntityTypeConfiguration<UserP
         builder.Property(e => e.CompletedAt)
             .HasColumnName("completed_at");
 
+        builder.Property(e => e.Deadline)
+            .HasColumnName("deadline")
+            .IsRequired();
+
+        builder.Property(e => e.TotalTasks)
+            .HasColumnName("total_tasks")
+            .IsRequired();
+
+        builder.Property(e => e.CompletedTasks)
+            .HasColumnName("completed_tasks")
+            .IsRequired();
+
+        builder.HasMany(e => e.UserAssignmentTasks)
+               .WithOne(uat => uat.UserProjectAssignment)
+               .HasForeignKey(uat => new { uat.UserProfileId, uat.ProjectAssignmentId })
+               .HasPrincipalKey(e => new { e.UserProfileId, e.ProjectAssignmentId })
+               .OnDelete(DeleteBehavior.Cascade);
+
         // Indexes
         builder.HasIndex(e => e.UserProfileId);
         builder.HasIndex(e => e.ProjectAssignmentId);

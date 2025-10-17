@@ -2,21 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SkillBridge.Data;
 
 #nullable disable
 
-namespace SkillBridge.Data.Migrations
+namespace SkillBridge.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250905085120_DescriptionChange")]
-    partial class DescriptionChange
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,10 +38,6 @@ namespace SkillBridge.Data.Migrations
                         .HasColumnType("character varying(2000)")
                         .HasColumnName("description");
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_completed");
-
                     b.Property<Guid>("ProjectAssignmentId")
                         .HasColumnType("uuid")
                         .HasColumnName("project_assignment_id");
@@ -64,8 +57,6 @@ namespace SkillBridge.Data.Migrations
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("IsCompleted");
 
                     b.HasIndex("ProjectAssignmentId");
 
@@ -150,8 +141,7 @@ namespace SkillBridge.Data.Migrations
                         .HasColumnName("head_office_location");
 
                     b.Property<string>("LogoUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
+                        .HasColumnType("text")
                         .HasColumnName("logo_url");
 
                     b.Property<string>("Name")
@@ -219,19 +209,17 @@ namespace SkillBridge.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime>("Deadline")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deadline");
-
                     b.Property<string>("Description")
-                        .HasMaxLength(20000)
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<TimeSpan>("Duration")
+                        .HasColumnType("interval")
+                        .HasColumnName("duration");
+
                     b.Property<string>("LearningBenefits")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
+                        .HasColumnType("text")
                         .HasColumnName("learning_benefits");
 
                     b.Property<int>("Level")
@@ -244,14 +232,12 @@ namespace SkillBridge.Data.Migrations
 
                     b.Property<string>("SuggestedApproach")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
+                        .HasColumnType("text")
                         .HasColumnName("suggested_approach");
 
                     b.Property<string>("Summary")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
+                        .HasColumnType("text")
                         .HasColumnName("summary");
 
                     b.Property<string>("Title")
@@ -267,8 +253,6 @@ namespace SkillBridge.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
-
-                    b.HasIndex("Deadline");
 
                     b.HasIndex("Level");
 
@@ -320,6 +304,37 @@ namespace SkillBridge.Data.Migrations
                     b.ToTable("skills", (string)null);
                 });
 
+            modelBuilder.Entity("SkillBridge.Models.Entities.UserAssignmentTask", b =>
+                {
+                    b.Property<string>("UserProfileId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_profile_id");
+
+                    b.Property<Guid>("ProjectAssignmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("project_assignment_id");
+
+                    b.Property<Guid>("AssignmentTaskId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assignment_task_id");
+
+                    b.Property<bool>("IsCompleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_completed");
+
+                    b.HasKey("UserProfileId", "ProjectAssignmentId", "AssignmentTaskId");
+
+                    b.HasIndex("AssignmentTaskId")
+                        .HasDatabaseName("ix_user_assignment_tasks_assignment_task_id");
+
+                    b.HasIndex("UserProfileId", "ProjectAssignmentId")
+                        .HasDatabaseName("ix_user_assignment_tasks_user_project");
+
+                    b.ToTable("user_assignment_tasks", (string)null);
+                });
+
             modelBuilder.Entity("SkillBridge.Models.Entities.UserProfile", b =>
                 {
                     b.Property<string>("Id")
@@ -369,9 +384,21 @@ namespace SkillBridge.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("completed_at");
 
+                    b.Property<int>("CompletedTasks")
+                        .HasColumnType("integer")
+                        .HasColumnName("completed_tasks");
+
+                    b.Property<DateTime>("Deadline")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deadline");
+
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_completed");
+
+                    b.Property<int>("TotalTasks")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_tasks");
 
                     b.HasKey("UserProfileId", "ProjectAssignmentId");
 
@@ -423,6 +450,25 @@ namespace SkillBridge.Data.Migrations
                     b.Navigation("Skill");
                 });
 
+            modelBuilder.Entity("SkillBridge.Models.Entities.UserAssignmentTask", b =>
+                {
+                    b.HasOne("SkillBridge.Models.Entities.AssignmentTask", "AssignmentTask")
+                        .WithMany("UserAssignmentTasks")
+                        .HasForeignKey("AssignmentTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SkillBridge.Models.Entities.UserProjectAssignment", "UserProjectAssignment")
+                        .WithMany("UserAssignmentTasks")
+                        .HasForeignKey("UserProfileId", "ProjectAssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignmentTask");
+
+                    b.Navigation("UserProjectAssignment");
+                });
+
             modelBuilder.Entity("SkillBridge.Models.Entities.UserProjectAssignment", b =>
                 {
                     b.HasOne("SkillBridge.Models.Entities.ProjectAssignment", "ProjectAssignment")
@@ -440,6 +486,11 @@ namespace SkillBridge.Data.Migrations
                     b.Navigation("ProjectAssignment");
 
                     b.Navigation("UserProfile");
+                });
+
+            modelBuilder.Entity("SkillBridge.Models.Entities.AssignmentTask", b =>
+                {
+                    b.Navigation("UserAssignmentTasks");
                 });
 
             modelBuilder.Entity("SkillBridge.Models.Entities.Company", b =>
@@ -464,6 +515,11 @@ namespace SkillBridge.Data.Migrations
             modelBuilder.Entity("SkillBridge.Models.Entities.UserProfile", b =>
                 {
                     b.Navigation("UserProjectAssignments");
+                });
+
+            modelBuilder.Entity("SkillBridge.Models.Entities.UserProjectAssignment", b =>
+                {
+                    b.Navigation("UserAssignmentTasks");
                 });
 #pragma warning restore 612, 618
         }
