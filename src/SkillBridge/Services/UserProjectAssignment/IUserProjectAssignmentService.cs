@@ -22,12 +22,12 @@ public interface IUserProjectAssignmentService
     /// <param name="userId">The ID of the user</param>
     /// <returns>A list of project assignments claimed by the user</returns>
     Task<IEnumerable<UserProjectAssignmentResponse>> GetUserProjectsAsync(string userId);
-    
+
     /// <summary>
     /// Marks a project assignment as completed by a user
     /// </summary>
     /// <param name="userId">The ID of the user</param>
-    /// <param name="projectAssignmentId">The ID of the project assignment</param>
+    /// <param name="request">The complete project request</param>
     /// <returns>The updated user project assignment</returns>
-    Task<UserProjectAssignmentResponse> CompleteProjectAsync(string userId, Guid projectAssignmentId);
+    Task<UserProjectAssignmentResponse> CompleteProjectAsync(string userId, CompleteUserProjectAssignmentRequest request);
 }

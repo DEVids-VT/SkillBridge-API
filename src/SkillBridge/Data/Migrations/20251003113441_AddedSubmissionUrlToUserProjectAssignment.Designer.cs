@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-
+using SkillBridge.Data;
 
 #nullable disable
 
 namespace SkillBridge.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251003113441_AddedSubmissionUrlToUserProjectAssignment")]
+    partial class AddedSubmissionUrlToUserProjectAssignment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,7 +150,8 @@ namespace SkillBridge.Data.Migrations
                         .HasColumnName("head_office_location");
 
                     b.Property<string>("LogoUrl")
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("logo_url");
 
                     b.Property<string>("Name")
@@ -215,13 +219,13 @@ namespace SkillBridge.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<DateTime>("Deadline")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deadline");
+
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
-
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("interval")
-                        .HasColumnName("Duration");
 
                     b.Property<string>("LearningBenefits")
                         .IsRequired()
@@ -260,7 +264,7 @@ namespace SkillBridge.Data.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("Duration");
+                    b.HasIndex("Deadline");
 
                     b.HasIndex("Level");
 
@@ -360,10 +364,6 @@ namespace SkillBridge.Data.Migrations
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("completed_at");
-
-                    b.Property<DateTime>("Deadline")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deadline");
 
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("boolean")

@@ -148,10 +148,10 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
     /// <summary>
     /// Marks a project assignment as completed by a user
     /// </summary>
-    public async Task<UserProjectAssignmentResponse> CompleteProjectAsync(string userId, Guid projectAssignmentId)
+    public async Task<UserProjectAssignmentResponse> CompleteProjectAsync(string userId, CompleteUserProjectAssignmentRequest request)
     {
         _logger.LogInformation("User {UserId} marking project assignment {ProjectAssignmentId} as completed",
-            userId, projectAssignmentId);
+            userId, request.ProjectAssignmentId);
         
         // Find the user project assignment
         var userProjectAssignment = await _dbContext.UserProjectAssignments
@@ -164,44 +164,59 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
                 .ThenInclude(pa => pa.Tasks)
             .FirstOrDefaultAsync(upa => 
                 upa.UserProfileId == userId && 
-                upa.ProjectAssignmentId == projectAssignmentId);
+                upa.ProjectAssignmentId == request.ProjectAssignmentId);
                 
         if (userProjectAssignment == null)
         {
             _logger.LogWarning(
                 "User project assignment not found for user {UserId} and project {ProjectAssignmentId}",
-                userId, projectAssignmentId);
+                userId, request.ProjectAssignmentId);
             throw new EntityNotFoundException(
                 "UserProjectAssignment", 
-                $"User: {userId}, Project: {projectAssignmentId}");
+                $"User: {userId}, Project: {request.ProjectAssignmentId}");
         }
         
         if (userProjectAssignment.IsCompleted)
         {
             _logger.LogWarning(
                 "Project assignment {ProjectAssignmentId} already marked as completed by user {UserId}",
-                projectAssignmentId, userId);
+                request.ProjectAssignmentId, userId);
             throw new InvalidOperationException("This project assignment is already marked as completed");
         }
         
         // Mark as completed
         userProjectAssignment.IsCompleted = true;
         userProjectAssignment.CompletedAt = DateTime.UtcNow;
-        
+
+        // Optionally set submission details
+        if (!string.IsNullOrWhiteSpace(request.SubmissionRepositoryUrl))
+        {
+            userProjectAssignment.SubmissionRepositoryUrl = request.SubmissionRepositoryUrl;
+            userProjectAssignment.SubmittedAt = DateTime.UtcNow;
+        }
+        if (!string.IsNullOrEmpty(request.SubmissionNotes))
+        {
+            userProjectAssignment.SubmissionNotes = request.SubmissionNotes;
+        }
+
+
         // Save changes
         await _dbContext.SaveChangesAsync();
         
         _logger.LogInformation(
             "User {UserId} successfully marked project assignment {ProjectAssignmentId} as completed",
-            userId, projectAssignmentId);
-        
+            userId, request.ProjectAssignmentId);
+
         // Build response
         var response = new UserProjectAssignmentResponse
         {
             ProjectAssignment = _mapper.Map<ProjectAssignmentResponse>(userProjectAssignment.ProjectAssignment),
             ClaimedAt = userProjectAssignment.ClaimedAt,
             IsCompleted = userProjectAssignment.IsCompleted,
-            CompletedAt = userProjectAssignment.CompletedAt
+            CompletedAt = userProjectAssignment.CompletedAt,
+            SubmissionRepositoryUrl = userProjectAssignment.SubmissionRepositoryUrl,
+            SubmissionNotes = userProjectAssignment.SubmissionNotes,
+            SubmittedAt = userProjectAssignment.SubmittedAt
         };
         
         return response;

@@ -39,7 +39,39 @@ namespace SkillBridge.Services.UserProfile
             _fileUploader = fileUploader;
         }
 
-        public async Task<UserProfileResponse> GetAsync(string? userId = null)
+        public async Task<UserProfileResponse> CreateAsync(CreateUserProfileRequest request, string? userId = null)
+        {
+            var auth0UserId = userId ?? _currentUser.GetUserId();
+            _logger.LogInformation("Retrieving profile with ID: {UserProfileId}", auth0UserId);
+
+            if (await _dbContext.UserProfiles.FindAsync(auth0UserId) != null)
+            {
+                _logger.LogWarning("Profile with ID {UserProfileId} already exists", auth0UserId);
+                throw new InvalidOperationException($"A profile with ID '{auth0UserId}' already exists and cannot be created again.");
+            }
+            var userProfile = _mapper.Map<Models.Entities.UserProfile>(request);
+
+            if (request.CVUpload != null)
+                userProfile.CVUpload = await _fileUploader.UploadFileAsync(request.CVUpload, Models.Enums.FileType.CV);
+            else
+                userProfile.CVUpload = string.Empty;
+
+            if (request.ProfilePicture != null)
+                userProfile.ProfilePicture = await _fileUploader.UploadFileAsync(request.ProfilePicture, Models.Enums.FileType.Image);
+            else
+                userProfile.ProfilePicture = string.Empty;
+
+            userProfile.Id = auth0UserId;
+
+            await _dbContext.UserProfiles.AddAsync(userProfile);
+            await _dbContext.SaveChangesAsync();
+
+            _logger.LogInformation("Created new UserProfile with ID: {UserProfileId}", auth0UserId);
+
+            return _mapper.Map<UserProfileResponse>(userProfile);
+        }
+
+        public async Task<UserProfileResponse> GetMyProfileAsync(string? userId = null)
         {
             // If userId is not provided, use the current user's ID
             var auth0UserId = userId ?? _currentUser.GetUserId();
@@ -55,10 +87,12 @@ namespace SkillBridge.Services.UserProfile
                 throw new EntityNotFoundException("Profile", $"for user {auth0UserId}",
                     $"No profile found for user ID {auth0UserId}");
             }
-            _logger.LogInformation("Profile with Id found: {ProfileId}", userProfile.Id);
+            var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
+            _logger.LogInformation("Profile found: {ProfileName}", username);
 
             var response = _mapper.Map<UserProfileResponse>(userProfile);
 
+            // Adding valid Urls to the files and images
             if (!string.IsNullOrEmpty(userProfile.ProfilePicture))
                 response.ProfilePicture = await _fileUploader.GetFileAsync(userProfile.ProfilePicture, Models.Enums.FileType.Image);
             if (!string.IsNullOrEmpty(userProfile.CVUpload))

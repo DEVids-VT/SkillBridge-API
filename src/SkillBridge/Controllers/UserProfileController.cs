@@ -25,21 +25,6 @@ namespace SkillBridge.Controllers
             _userProfileService = userProfileService;
             _currentUser = currentUser;
         }
-        /// <summary>
-        /// Gets a userProfile by ID
-        /// </summary>
-        /// <param name="id">The userProfile ID</param>
-        /// <returns>The userProfile if found</returns>
-        [HttpGet("{userId?}")]
-        [Authorize]
-        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get([FromRoute] string? userId)
-        {
-            var userProfile = await _userProfileService.GetAsync(userId);
-
-            return Ok(userProfile);
-        }
 
 
         /// Updates a userProfile
@@ -83,5 +68,30 @@ namespace SkillBridge.Controllers
             return Ok(userProfile);
         }
 
+        [Authorize(Policy = "Candidate")]
+        [HttpPost("{userId?}")]
+        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromRoute] string? userId, [FromBody] CreateUserProfileRequest request)
+        {
+            var company = await _userProfileService.CreateAsync(request, userId);
+            return CreatedAtAction(nameof(GetMyProfile), new { userId = company.Id }, company);
+        }
+
+        /// <summary>
+        /// Gets a userProfile by ID
+        /// </summary>
+        /// <param name="id">The userProfile ID</param>
+        /// <returns>The userProfile if found</returns>
+        [HttpGet("{userId?}")]
+        [Authorize]
+        [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMyProfile([FromRoute] string? userId)
+        {
+            var userProfile = await _userProfileService.GetMyProfileAsync(userId);
+
+            return Ok(userProfile);
+        }
     }
 }

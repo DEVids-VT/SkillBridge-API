@@ -41,7 +41,7 @@ public class UserProjectAssignmentsController : ControllerBase
     public async Task<IActionResult> ClaimProject([FromBody] ClaimProjectRequest request)
     {
         var userId = _currentUser.GetUserId();
-        
+
         var result = await _userProjectAssignmentService.ClaimProjectAsync(userId, request);
         return Ok(result);
     }
@@ -56,7 +56,7 @@ public class UserProjectAssignmentsController : ControllerBase
     public async Task<IActionResult> GetUserProjects()
     {
         var userId = _currentUser.GetUserId();
-        
+
         var result = await _userProjectAssignmentService.GetUserProjectsAsync(userId);
         return Ok(result);
     }
@@ -64,17 +64,17 @@ public class UserProjectAssignmentsController : ControllerBase
     /// <summary>
     /// Marks a project assignment as completed by the current user
     /// </summary>
-    /// <param name="projectId">The ID of the project assignment</param>
+    /// <param name="request">The completion request containing project assignment details</param>
     /// <returns>The updated user project assignment</returns>
-    [HttpPost("{projectId}/complete")]
+    [HttpPost("complete/{projectAssignmentId}")]
     [ProducesResponseType(typeof(UserProjectAssignmentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CompleteProject(Guid projectId)
+    public async Task<IActionResult> CompleteProject([FromBody] CompleteUserProjectAssignmentRequest request, Guid projectAssignmentId)
     {
         var userId = _currentUser.GetUserId();
-        
-        var result = await _userProjectAssignmentService.CompleteProjectAsync(userId, projectId);
+        request.ProjectAssignmentId = projectAssignmentId;
+        var result = await _userProjectAssignmentService.CompleteProjectAsync(userId, request);
         return Ok(result);
     }
 }

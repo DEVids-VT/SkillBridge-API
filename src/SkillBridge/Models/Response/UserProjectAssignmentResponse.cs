@@ -27,6 +27,24 @@ public class UserProjectAssignmentResponse
     /// Gets or sets the date when the project was completed by the user
     /// </summary>
     public DateTime? CompletedAt { get; set; }
-     
-    public DateTime Deadline { get; set; }
+
+    /// <summary>
+    /// Gets or sets the deadline date for the project assignment
+    /// </summary>
+    public DateTime? Deadline { get; set; }
+
+    /// <summary>
+    /// Gets or sets the URL of the submission repository containing the completed work.
+    /// </summary>
+    public string? SubmissionRepositoryUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets optional notes or comments related to the submission.
+    /// </summary>
+    public string? SubmissionNotes { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date when the project submission URL was added.
+    /// </summary>
+    public DateTime? SubmittedAt { get; set; }
 }

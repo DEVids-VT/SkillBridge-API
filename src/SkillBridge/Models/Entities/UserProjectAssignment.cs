@@ -41,11 +41,29 @@ public class UserProjectAssignment
     /// Gets or sets the completion status of the user's project assignment
     /// </summary>
     public bool IsCompleted { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the deadline date for the project assignment
+    /// </summary>
+    public DateTime? Deadline { get; set; }
     
     /// <summary>
     /// Gets or sets the date when the user completed the project assignment
     /// </summary>
     public DateTime? CompletedAt { get; set; }
 
-    public DateTime Deadline { get; set; }
+    /// <summary>
+    /// Gets or sets the GitHub repository URL for the submitted project work
+    /// </summary>
+    public string? SubmissionRepositoryUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the date when the project was submitted
+    /// </summary>
+    public DateTime? SubmittedAt { get; set; }
+
+    /// <summary>
+    /// Gets or sets additional notes or comments from the user about their submission
+    /// </summary>
+    public string? SubmissionNotes { get; set; }
 }
