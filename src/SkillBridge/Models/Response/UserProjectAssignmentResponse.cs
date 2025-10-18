@@ -29,4 +29,11 @@ public class UserProjectAssignmentResponse
     public DateTime? CompletedAt { get; set; }
      
     public DateTime Deadline { get; set; }
+
+    public int TotalTasks { get; set; }
+
+    public int CompletedTasks { get; set; }
+
+    public double CompletionPercentage 
+        => TotalTasks == 0 ? 0 : (double)CompletedTasks / TotalTasks * 100;
 }

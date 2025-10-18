@@ -2,7 +2,7 @@
 
 namespace SkillBridge.Models.Entities
 {
-    public class UserAssignmentTask
+    public class UserProjectAssignmentTask
     {
         [JsonSchemaIgnore] public Guid AssignmentTaskId { get; set; }
         [JsonSchemaIgnore] public AssignmentTask? AssignmentTask { get; set; }

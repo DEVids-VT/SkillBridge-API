@@ -80,6 +80,9 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
             ClaimedAt = DateTime.UtcNow,
             IsCompleted = false,
             Deadline = DateTime.UtcNow + projectAssignment.Duration,
+            TotalTasks = projectAssignment.Tasks.Count,
+            CompletedTasks = 0
+
         };
         
         // Save to database

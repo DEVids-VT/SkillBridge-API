@@ -45,7 +45,7 @@ public class AppDbContext : DbContext
     public DbSet<UserProjectAssignment> UserProjectAssignments { get; set; } = null!;
 
 
-    public DbSet<UserAssignmentTask> UserAssignmentTasks { get; set; } = null!;
+    public DbSet<UserProjectAssignmentTask> UserAssignmentTasks { get; set; } = null!;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppDbContext"/> class.

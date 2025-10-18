@@ -4,9 +4,9 @@ using SkillBridge.Models.Entities;
 
 namespace SkillBridge.Data.Configurations
 {
-    public class UserAssignmentTaskConfiguration : IEntityTypeConfiguration<UserAssignmentTask>
+    public class UserAssignmentTaskConfiguration : IEntityTypeConfiguration<UserProjectAssignmentTask>
     {
-        public void Configure(EntityTypeBuilder<UserAssignmentTask> builder)
+        public void Configure(EntityTypeBuilder<UserProjectAssignmentTask> builder)
         {
             builder.ToTable("user_assignment_tasks");
 

@@ -56,5 +56,5 @@ public class UserProjectAssignment
     /// <summary>
     /// Gets or sets the collection of tasks belonging to this project assignment
     /// </summary>
-    public ICollection<UserAssignmentTask> UserAssignmentTasks { get; set; } = new List<UserAssignmentTask>();
+    public ICollection<UserProjectAssignmentTask> UserAssignmentTasks { get; set; } = new List<UserProjectAssignmentTask>();
 }

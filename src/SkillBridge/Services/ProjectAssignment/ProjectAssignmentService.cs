@@ -454,15 +454,6 @@ public class ProjectAssignmentService : IProjectAssignmentService
 
 
 
-        //if (userAssignmentTask.IsCompleted == false)
-        //{
-        //    userAssignmentTask.IsCompleted = true;
-        //}
-        //else if (userAssignmentTask.IsCompleted == true)
-        //{
-        //    userAssignmentTask.IsCompleted = false;
-        //}
-
         if (userAssignmentTask is null)
         {
             // Optional: verify the user is assigned to this project before creating the row
@@ -471,7 +462,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
             if (!isAssigned)
                 throw new InvalidOperationException("User is not assigned to this project.");
 
-            userAssignmentTask = new UserAssignmentTask
+            userAssignmentTask = new UserProjectAssignmentTask
             {
                 UserProfileId = auth0UserId,
                 ProjectAssignmentId = projectId,
@@ -483,6 +474,7 @@ public class ProjectAssignmentService : IProjectAssignmentService
         else
         {
             userAssignmentTask.IsCompleted = !userAssignmentTask.IsCompleted; // toggle
+
         }
 
         task.UpdatedAt = DateTime.UtcNow;
