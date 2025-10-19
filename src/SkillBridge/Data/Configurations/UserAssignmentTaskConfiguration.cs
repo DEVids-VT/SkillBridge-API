@@ -29,13 +29,13 @@ namespace SkillBridge.Data.Configurations
 
             // Relationships
             builder.HasOne(e => e.UserProjectAssignment)
-                   .WithMany(upa => upa.UserAssignmentTasks)
+                   .WithMany(upa => upa.UserProjectAssignmentTasks)
                    .HasForeignKey(e => new { e.UserProfileId, e.ProjectAssignmentId })
                    .HasPrincipalKey(upa => new { upa.UserProfileId, upa.ProjectAssignmentId })
                    .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(e => e.AssignmentTask)
-                   .WithMany(t => t.UserAssignmentTasks)
+                   .WithMany(t => t.UserProjectAssignmentTasks)
                    .HasForeignKey(e => e.AssignmentTaskId)
                    .OnDelete(DeleteBehavior.Cascade);
 

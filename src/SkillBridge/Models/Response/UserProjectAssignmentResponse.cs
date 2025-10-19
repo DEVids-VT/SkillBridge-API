@@ -30,10 +30,10 @@ public class UserProjectAssignmentResponse
      
     public DateTime Deadline { get; set; }
 
-    public int TotalTasks { get; set; }
+    public int TotalTasks => ProjectAssignment.Tasks.Count; 
 
     public int CompletedTasks { get; set; }
 
-    public double CompletionPercentage 
-        => TotalTasks == 0 ? 0 : (double)CompletedTasks / TotalTasks * 100;
+    public double CompletionPercentage =>
+    TotalTasks == 0 ? 0 : Math.Round((double)CompletedTasks / TotalTasks * 100, 2);
 }

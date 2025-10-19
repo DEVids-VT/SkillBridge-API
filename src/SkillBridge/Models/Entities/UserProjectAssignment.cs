@@ -49,12 +49,8 @@ public class UserProjectAssignment
 
     public DateTime Deadline { get; set; }
 
-    public int TotalTasks { get; set; }
-
-    public int CompletedTasks { get; set; }
-
     /// <summary>
-    /// Gets or sets the collection of tasks belonging to this project assignment
+    /// Gets or sets the collection of tasks belonging to this user project assignment
     /// </summary>
-    public ICollection<UserProjectAssignmentTask> UserAssignmentTasks { get; set; } = new List<UserProjectAssignmentTask>();
+    public ICollection<UserProjectAssignmentTask> UserProjectAssignmentTasks { get; set; } = new List<UserProjectAssignmentTask>();
 }

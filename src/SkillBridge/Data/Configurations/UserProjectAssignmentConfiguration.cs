@@ -56,15 +56,7 @@ public class UserProjectAssignmentConfiguration : IEntityTypeConfiguration<UserP
             .HasColumnName("deadline")
             .IsRequired();
 
-        builder.Property(e => e.TotalTasks)
-            .HasColumnName("total_tasks")
-            .IsRequired();
-
-        builder.Property(e => e.CompletedTasks)
-            .HasColumnName("completed_tasks")
-            .IsRequired();
-
-        builder.HasMany(e => e.UserAssignmentTasks)
+        builder.HasMany(e => e.UserProjectAssignmentTasks)
                .WithOne(uat => uat.UserProjectAssignment)
                .HasForeignKey(uat => new { uat.UserProfileId, uat.ProjectAssignmentId })
                .HasPrincipalKey(e => new { e.UserProfileId, e.ProjectAssignmentId })

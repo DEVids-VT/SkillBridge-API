@@ -53,7 +53,7 @@ public class AssignmentTaskConfiguration : IEntityTypeConfiguration<AssignmentTa
               .HasForeignKey(e => e.ProjectAssignmentId)
               .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(e => e.UserAssignmentTasks)
+        builder.HasMany(e => e.UserProjectAssignmentTasks)
                .WithOne(uat => uat.AssignmentTask)
                .HasForeignKey(uat => uat.AssignmentTaskId)
                .OnDelete(DeleteBehavior.Cascade);

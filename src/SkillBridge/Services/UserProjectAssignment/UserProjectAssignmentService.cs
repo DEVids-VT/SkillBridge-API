@@ -36,9 +36,9 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
     /// </summary>
     public async Task<UserProjectAssignmentResponse> ClaimProjectAsync(string userId, ClaimProjectRequest request)
     {
-        _logger.LogInformation("User {UserId} claiming project assignment {ProjectAssignmentId}", 
+        _logger.LogInformation("User {UserId} claiming project assignment {ProjectAssignmentId}",
             userId, request.ProjectAssignmentId);
-        
+
         // Verify user profile exists
         var userExists = await _dbContext.UserProfiles.AnyAsync(u => u.Id == userId);
         if (!userExists)
@@ -46,7 +46,7 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
             _logger.LogWarning("User profile with ID {UserId} not found", userId);
             throw new EntityNotFoundException("UserProfile", userId);
         }
-        
+
         // Verify project assignment exists and is published
         var projectAssignment = await _dbContext.ProjectAssignments
             .Include(p => p.Company)
@@ -54,24 +54,24 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
                 .ThenInclude(ps => ps.Skill)
             .Include(p => p.Tasks)
             .FirstOrDefaultAsync(p => p.Id == request.ProjectAssignmentId);
-            
+
         if (projectAssignment == null)
         {
             _logger.LogWarning("Project assignment with ID {ProjectAssignmentId} not found", request.ProjectAssignmentId);
             throw new EntityNotFoundException("ProjectAssignment", request.ProjectAssignmentId);
         }
-                
+
         // Check if the user has already claimed this project
         var existingClaim = await _dbContext.UserProjectAssignments
             .FirstOrDefaultAsync(up => up.UserProfileId == userId && up.ProjectAssignmentId == request.ProjectAssignmentId);
-            
+
         if (existingClaim != null)
         {
             _logger.LogWarning("User {UserId} has already claimed project assignment {ProjectAssignmentId}",
                 userId, request.ProjectAssignmentId);
             throw new InvalidOperationException("You have already claimed this project assignment");
         }
-        
+
         // Create new user project assignment
         var userProjectAssignment = new Models.Entities.UserProjectAssignment
         {
@@ -80,18 +80,15 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
             ClaimedAt = DateTime.UtcNow,
             IsCompleted = false,
             Deadline = DateTime.UtcNow + projectAssignment.Duration,
-            TotalTasks = projectAssignment.Tasks.Count,
-            CompletedTasks = 0
-
         };
-        
+
         // Save to database
         await _dbContext.UserProjectAssignments.AddAsync(userProjectAssignment);
         await _dbContext.SaveChangesAsync();
-        
+
         _logger.LogInformation("User {UserId} successfully claimed project assignment {ProjectAssignmentId}",
             userId, request.ProjectAssignmentId);
-        
+
         // Build the response
         var response = new UserProjectAssignmentResponse
         {
@@ -101,7 +98,7 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
             CompletedAt = userProjectAssignment.CompletedAt,
             Deadline = userProjectAssignment.Deadline
         };
-        
+
         return response;
     }
 
@@ -111,7 +108,7 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
     public async Task<IEnumerable<UserProjectAssignmentResponse>> GetUserProjectsAsync(string userId)
     {
         _logger.LogInformation("Getting all project assignments claimed by user {UserId}", userId);
-        
+
         // Verify user profile exists
         var userExists = await _dbContext.UserProfiles.AnyAsync(u => u.Id == userId);
         if (!userExists)
@@ -119,7 +116,7 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
             _logger.LogWarning("User profile with ID {UserId} not found", userId);
             throw new EntityNotFoundException("UserProfile", userId);
         }
-        
+
         // Get all user project assignments with related data
         var userProjectAssignments = await _dbContext.UserProjectAssignments
             .Where(upa => upa.UserProfileId == userId)
@@ -129,22 +126,24 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
                 .ThenInclude(pa => pa.ProjectSkills)
                     .ThenInclude(ps => ps.Skill)
             .Include(upa => upa.ProjectAssignment)
-                .ThenInclude(pa => pa.Tasks)
+                .ThenInclude(pa => pa.Tasks).
+                Include(upa => upa.UserProjectAssignmentTasks)
             .OrderByDescending(upa => upa.ClaimedAt)
             .ToListAsync();
-            
+
         _logger.LogInformation("Found {Count} project assignments claimed by user {UserId}",
             userProjectAssignments.Count, userId);
-        
+
         // Map to response model
         var response = userProjectAssignments.Select(upa => new UserProjectAssignmentResponse
         {
             ProjectAssignment = _mapper.Map<ProjectAssignmentResponse>(upa.ProjectAssignment),
             ClaimedAt = upa.ClaimedAt,
             IsCompleted = upa.IsCompleted,
-            CompletedAt = upa.CompletedAt
+            CompletedAt = upa.CompletedAt,
+            CompletedTasks = upa.UserProjectAssignmentTasks.Count(x => x.IsCompleted),
         });
-        
+
         return response;
     }
 
@@ -155,7 +154,7 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
     {
         _logger.LogInformation("User {UserId} marking project assignment {ProjectAssignmentId} as completed",
             userId, projectAssignmentId);
-        
+
         // Find the user project assignment
         var userProjectAssignment = await _dbContext.UserProjectAssignments
             .Include(upa => upa.ProjectAssignment)
@@ -165,20 +164,20 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
                     .ThenInclude(ps => ps.Skill)
             .Include(upa => upa.ProjectAssignment)
                 .ThenInclude(pa => pa.Tasks)
-            .FirstOrDefaultAsync(upa => 
-                upa.UserProfileId == userId && 
+            .FirstOrDefaultAsync(upa =>
+                upa.UserProfileId == userId &&
                 upa.ProjectAssignmentId == projectAssignmentId);
-                
+
         if (userProjectAssignment == null)
         {
             _logger.LogWarning(
                 "User project assignment not found for user {UserId} and project {ProjectAssignmentId}",
                 userId, projectAssignmentId);
             throw new EntityNotFoundException(
-                "UserProjectAssignment", 
+                "UserProjectAssignment",
                 $"User: {userId}, Project: {projectAssignmentId}");
         }
-        
+
         if (userProjectAssignment.IsCompleted)
         {
             _logger.LogWarning(
@@ -186,18 +185,18 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
                 projectAssignmentId, userId);
             throw new InvalidOperationException("This project assignment is already marked as completed");
         }
-        
+
         // Mark as completed
         userProjectAssignment.IsCompleted = true;
         userProjectAssignment.CompletedAt = DateTime.UtcNow;
-        
+
         // Save changes
         await _dbContext.SaveChangesAsync();
-        
+
         _logger.LogInformation(
             "User {UserId} successfully marked project assignment {ProjectAssignmentId} as completed",
             userId, projectAssignmentId);
-        
+
         // Build response
         var response = new UserProjectAssignmentResponse
         {
@@ -206,7 +205,7 @@ public class UserProjectAssignmentService : IUserProjectAssignmentService
             IsCompleted = userProjectAssignment.IsCompleted,
             CompletedAt = userProjectAssignment.CompletedAt
         };
-        
+
         return response;
     }
 }
