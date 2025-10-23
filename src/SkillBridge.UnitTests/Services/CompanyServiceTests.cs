@@ -15,6 +15,8 @@ using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 using SkillBridge.Services.Company;
 using SkillBridge.Services.CurrentUser;
+using SkillBridge.Services.File;
+using Xunit;
 
 namespace SkillBridge.UnitTests.Services;
 
@@ -25,6 +27,7 @@ public class CompanyServiceTests
     private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<ILogger<CompanyService>> _mockLogger;
     private readonly Mock<ICurrentUser> _mockCurrentUser;
+    private readonly Mock<IFileUploader> _mockFileUploader;
     private readonly CompanyService _companyService;
 
     public CompanyServiceTests()
@@ -34,10 +37,16 @@ public class CompanyServiceTests
         _mockMapper = new Mock<IMapper>();
         _mockLogger = new Mock<ILogger<CompanyService>>();
         _mockCurrentUser = new Mock<ICurrentUser>();
+        _mockFileUploader = new Mock<IFileUploader>();
 
         _mockDbContext.Setup(x => x.Companies).Returns(_mockCompanyDbSet.Object);
         
-        _companyService = new CompanyService(_mockDbContext.Object, _mockMapper.Object, _mockLogger.Object, _mockCurrentUser.Object);
+        _companyService = new CompanyService(
+            _mockDbContext.Object, 
+            _mockMapper.Object, 
+            _mockLogger.Object, 
+            _mockCurrentUser.Object,
+            _mockFileUploader.Object);
     }
 
     #region CreateAsync Tests

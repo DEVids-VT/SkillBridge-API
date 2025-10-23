@@ -15,6 +15,7 @@ using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 using SkillBridge.Services.ProjectAssignment;
 using SkillBridge.Services.Skill;
+using Xunit;
 
 namespace SkillBridge.UnitTests.Services;
 
@@ -58,7 +59,7 @@ public class ProjectAssignmentServiceTests
 
         var validatedSkillIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
 
-        _mockSkillService.Setup(x => x.ValidateSkillsExistAsync(request.SkillIds)).ReturnsAsync(validatedSkillIds);
+        _mockSkillService.Setup(x => x.GetOrCreateSkillsByNameAsync(request.Skills)).ReturnsAsync(validatedSkillIds);
         _mockMapper.Setup(x => x.Map<ProjectAssignment>(request)).Returns(projectAssignmentEntity);
 
         var projectAssignments = new List<ProjectAssignment> { projectAssignmentEntity };
@@ -75,7 +76,7 @@ public class ProjectAssignmentServiceTests
         Assert.Equal(expectedResponse.Id, result.Id);
         Assert.Equal(expectedResponse.Title, result.Title);
 
-        _mockSkillService.Verify(x => x.ValidateSkillsExistAsync(request.SkillIds), Times.Once);
+        _mockSkillService.Verify(x => x.GetOrCreateSkillsByNameAsync(request.Skills), Times.Once);
         _mockMapper.Verify(x => x.Map<ProjectAssignment>(request), Times.Once);
     }
 
@@ -152,6 +153,8 @@ public class ProjectAssignmentServiceTests
     public async Task GetAllAsync_ReturnsAllProjectAssignments()
     {
         // Arrange
+        var pageIndex = 1;
+        var pageSize = 10;
         var projectAssignments = new List<ProjectAssignment>
         {
             CreateProjectAssignmentEntity(),
@@ -166,11 +169,13 @@ public class ProjectAssignmentServiceTests
             .Returns((ProjectAssignment pa) => new ProjectAssignmentResponse { Id = pa.Id, Title = pa.Title });
 
         // Act
-        var result = await _projectAssignmentService.GetAllAsync();
+        var result = await _projectAssignmentService.GetAllAsync(pageIndex, pageSize);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(3, result.Count());
+        Assert.Equal(3, result.Items.Count());
+        Assert.Equal(pageIndex, result.PageIndex);
+        Assert.Equal(pageSize, result.PageSize);
     }
 
     #endregion
@@ -221,7 +226,7 @@ public class ProjectAssignmentServiceTests
         _mockDbContext.Setup(x => x.ProjectAssignments).Returns(mockProjectAssignmentDbSet.Object);
 
         var validatedSkillIds = new List<Guid> { Guid.NewGuid() };
-        _mockSkillService.Setup(x => x.ValidateSkillsExistAsync(request.SkillIds)).ReturnsAsync(validatedSkillIds);
+        _mockSkillService.Setup(x => x.GetOrCreateSkillsByNameAsync(request.Skills)).ReturnsAsync(validatedSkillIds);
         _mockMapper.Setup(x => x.Map<ProjectAssignmentResponse>(It.IsAny<ProjectAssignment>())).Returns(expectedResponse);
 
         var projectSkills = new List<ProjectSkill>();
@@ -234,7 +239,7 @@ public class ProjectAssignmentServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(expectedResponse.Id, result.Id);
-        _mockSkillService.Verify(x => x.ValidateSkillsExistAsync(request.SkillIds), Times.Once);
+        _mockSkillService.Verify(x => x.GetOrCreateSkillsByNameAsync(request.Skills), Times.Once);
     }
 
     [Fact]
@@ -668,9 +673,9 @@ public class ProjectAssignmentServiceTests
             LearningBenefits = "Test Learning Benefits",
             SuggestedApproach = "Test Approach",
             Level = ProjectAssignmentLevel.Intermediate,
-            Deadline = DateTime.UtcNow.AddDays(30),
+            Duration = TimeSpan.FromDays(3),
             Status = ProjectAssignmentStatus.Published,
-            SkillIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() },
+            Skills = new List<string> {"skill1", "skill2" },
             Tasks = new List<CreateAssignmentTaskRequest>
             {
                 new() { Title = "Task 1", Description = "Task 1 Description", Sequence = 1 },
@@ -689,9 +694,9 @@ public class ProjectAssignmentServiceTests
             LearningBenefits = "Updated Learning Benefits",
             SuggestedApproach = "Updated Approach",
             Level = ProjectAssignmentLevel.Advanced,
-            Deadline = DateTime.UtcNow.AddDays(60),
+            Duration = TimeSpan.FromDays(3),
             Status = ProjectAssignmentStatus.Published,
-            SkillIds = new List<Guid> { Guid.NewGuid() }
+            Skills = new List<string> { "skill1", "skillupdated" },
         };
     }
 
