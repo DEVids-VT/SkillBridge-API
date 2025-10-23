@@ -85,8 +85,6 @@ namespace SkillBridge.Services.UserProfile
                 throw new EntityNotFoundException("Profile", $"for user {auth0UserId}",
                     $"No profile found for user ID {auth0UserId}");
             }
-            var username = (await _managementApiClient.Users.GetAsync(userProfile.Id)).UserName;
-            _logger.LogInformation("Profile found: {ProfileName}", username);
 
             var response = _mapper.Map<UserProfileResponse>(userProfile);
 
