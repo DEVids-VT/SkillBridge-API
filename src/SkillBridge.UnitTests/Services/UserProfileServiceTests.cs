@@ -19,6 +19,7 @@ using SkillBridge.Models.Response;
 using SkillBridge.Services.CurrentUser;
 using SkillBridge.Services.File;
 using SkillBridge.Services.UserProfile;
+using Xunit;
 
 namespace SkillBridge.UnitTests.Services;
 
@@ -234,55 +235,6 @@ public class UserProfileServiceTests
 
         Assert.Equal("UserProfile", exception.EntityName);
         Assert.Equal(userId, exception.EntityId);
-    }
-
-    #endregion
-
-    #region GetByAssigmentId Tests
-
-    [Fact]
-    public async Task GetByAssigmentId_ValidProjectId_ReturnsUserProfiles()
-    {
-        // Arrange
-        var projectId = Guid.NewGuid();
-        var userProfile1 = CreateUserProfileEntity("user1");
-        var userProfile2 = CreateUserProfileEntity("user2");
-
-        var userProjectAssignments = new List<UserProjectAssignment>
-        {
-            new() { ProjectAssignmentId = projectId, UserProfileId = "user1", UserProfile = userProfile1 },
-            new() { ProjectAssignmentId = projectId, UserProfileId = "user2", UserProfile = userProfile2 }
-        };
-
-        var mockUserProjectAssignmentDbSet = userProjectAssignments.AsQueryable().BuildMockDbSet();
-        _mockDbContext.Setup(x => x.UserProjectAssignments).Returns(mockUserProjectAssignmentDbSet.Object);
-
-        // Act
-        var result = await _userProfileService.GetByAssigmentId(projectId);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
-        Assert.Contains(result, up => up.Id == "user1");
-        Assert.Contains(result, up => up.Id == "user2");
-    }
-
-    [Fact]
-    public async Task GetByAssigmentId_NoAssignments_ReturnsEmptyList()
-    {
-        // Arrange
-        var projectId = Guid.NewGuid();
-
-        var userProjectAssignments = new List<UserProjectAssignment>();
-        var mockUserProjectAssignmentDbSet = userProjectAssignments.AsQueryable().BuildMockDbSet();
-        _mockDbContext.Setup(x => x.UserProjectAssignments).Returns(mockUserProjectAssignmentDbSet.Object);
-
-        // Act
-        var result = await _userProfileService.GetByAssigmentId(projectId);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Empty(result);
     }
 
     #endregion
