@@ -10,7 +10,7 @@ using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 using SkillBridge.Services.GenerateAssignment;
 using SkillBridge.Services.ProjectAssignment;
-using SkillBridge.Services.Skill;
+using Xunit;
 
 namespace SkillBridge.UnitTests.Services;
 
@@ -19,7 +19,6 @@ public class GenerateAssignmentServiceTests
     private readonly Mock<ILlmClient> _mockLlmClient;
     private readonly Mock<IPromptBuilder> _mockPromptBuilder;
     private readonly Mock<IProjectAssignmentService> _mockProjectAssignmentService;
-    private readonly Mock<ISkillService> _mockSkillService;
     private readonly GenerateAssignmentService _generateAssignmentService;
 
     public GenerateAssignmentServiceTests()
@@ -27,13 +26,11 @@ public class GenerateAssignmentServiceTests
         _mockLlmClient = new Mock<ILlmClient>();
         _mockPromptBuilder = new Mock<IPromptBuilder>();
         _mockProjectAssignmentService = new Mock<IProjectAssignmentService>();
-        _mockSkillService = new Mock<ISkillService>();
 
         _generateAssignmentService = new GenerateAssignmentService(
             _mockLlmClient.Object,
             _mockPromptBuilder.Object,
-            _mockProjectAssignmentService.Object,
-            _mockSkillService.Object);
+            _mockProjectAssignmentService.Object);
     }
 
     #region GenerateAssignmentAsync Tests
@@ -46,17 +43,9 @@ public class GenerateAssignmentServiceTests
         var candidate = CreateCandidateRequirementsRequest();
         
         var generatedAssignment = CreateProjectAssignment();
-        var descriptionModel = new DescriptionModel { Description = "Generated description" };
         
         var assignmentPrompt = new Prompt<ProjectAssignment>("system prompt", "content");
-        var descriptionPrompt = new Prompt<DescriptionModel>("description prompt", "content");
         
-        var existingSkills = new List<SkillResponse>
-        {
-            new() { Id = Guid.NewGuid(), Name = "C#" },
-            new() { Id = Guid.NewGuid(), Name = "JavaScript" }
-        };
-
         var expectedResponse = new ProjectAssignmentResponse
         {
             Id = Guid.NewGuid(),
@@ -67,13 +56,8 @@ public class GenerateAssignmentServiceTests
         // Setup mocks
         _mockPromptBuilder.Setup(x => x.BuildFromFile<ProjectAssignment>("AssignmentGenerationPrompt.md", candidate))
             .Returns(assignmentPrompt);
-        _mockPromptBuilder.Setup(x => x.BuildFromFile<DescriptionModel>("AssignmentDescriptionGenerationPrompt.md", generatedAssignment))
-            .Returns(descriptionPrompt);
         
         _mockLlmClient.Setup(x => x.GenerateAsync(assignmentPrompt)).ReturnsAsync(generatedAssignment);
-        _mockLlmClient.Setup(x => x.GenerateAsync(descriptionPrompt)).ReturnsAsync(descriptionModel);
-        
-        _mockSkillService.Setup(x => x.GetAllAsync()).ReturnsAsync(existingSkills);
         
         _mockProjectAssignmentService.Setup(x => x.CreateAsync(companyId, It.IsAny<CreateProjectAssignmentRequest>()))
             .ReturnsAsync(expectedResponse);
@@ -87,9 +71,21 @@ public class GenerateAssignmentServiceTests
         Assert.Equal(expectedResponse.Title, result.Title);
 
         _mockLlmClient.Verify(x => x.GenerateAsync(assignmentPrompt), Times.Once);
-        _mockLlmClient.Verify(x => x.GenerateAsync(descriptionPrompt), Times.Once);
-        _mockSkillService.Verify(x => x.GetAllAsync(), Times.Once);
         _mockProjectAssignmentService.Verify(x => x.CreateAsync(companyId, It.IsAny<CreateProjectAssignmentRequest>()), Times.Once);
+        
+        // Verify that the CreateProjectAssignmentRequest is properly constructed
+        _mockProjectAssignmentService.Verify(x => x.CreateAsync(companyId, It.Is<CreateProjectAssignmentRequest>(req =>
+            req.Title == generatedAssignment.Title &&
+            req.Summary == generatedAssignment.Summary &&
+            req.LearningBenefits == generatedAssignment.LearningBenefits &&
+            req.SuggestedApproach == generatedAssignment.SuggestedApproach &&
+            req.Level == generatedAssignment.Level &&
+            req.Status == ProjectAssignmentStatus.Draft &&
+            req.Skills.Count == 2 &&
+            req.Skills.Contains("C#") &&
+            req.Skills.Contains("JavaScript") &&
+            req.Tasks.Count == 2
+        )), Times.Once);
     }
 
     [Fact]
@@ -112,38 +108,22 @@ public class GenerateAssignmentServiceTests
     }
 
     [Fact]
-    public async Task GenerateAssignmentAsync_CreatesNewSkillsForUnknownCompetencies()
+    public async Task GenerateAssignmentAsync_WithTasks_CreatesTasksInCorrectSequence()
     {
         // Arrange
         var companyId = Guid.NewGuid();
         var candidate = CreateCandidateRequirementsRequest();
-        candidate.RequiredCompetencies.Add(new CompetencyRequirement { Name = "New Skill", Description = "New skill description" });
         
         var generatedAssignment = CreateProjectAssignment();
-        var descriptionModel = new DescriptionModel { Description = "Generated description" };
-        
         var assignmentPrompt = new Prompt<ProjectAssignment>("system prompt", "content");
-        var descriptionPrompt = new Prompt<DescriptionModel>("description prompt", "content");
         
-        var existingSkills = new List<SkillResponse>
-        {
-            new() { Id = Guid.NewGuid(), Name = "C#" }
-        };
-
-        var newSkill = new SkillResponse { Id = Guid.NewGuid(), Name = "New Skill" };
         var expectedResponse = new ProjectAssignmentResponse { Id = Guid.NewGuid() };
 
         // Setup mocks
         _mockPromptBuilder.Setup(x => x.BuildFromFile<ProjectAssignment>("AssignmentGenerationPrompt.md", candidate))
             .Returns(assignmentPrompt);
-        _mockPromptBuilder.Setup(x => x.BuildFromFile<DescriptionModel>("AssignmentDescriptionGenerationPrompt.md", generatedAssignment))
-            .Returns(descriptionPrompt);
         
         _mockLlmClient.Setup(x => x.GenerateAsync(assignmentPrompt)).ReturnsAsync(generatedAssignment);
-        _mockLlmClient.Setup(x => x.GenerateAsync(descriptionPrompt)).ReturnsAsync(descriptionModel);
-        
-        _mockSkillService.Setup(x => x.GetAllAsync()).ReturnsAsync(existingSkills);
-        _mockSkillService.Setup(x => x.CreateAsync(It.IsAny<CreateSkillRequest>())).ReturnsAsync(newSkill);
         
         _mockProjectAssignmentService.Setup(x => x.CreateAsync(companyId, It.IsAny<CreateProjectAssignmentRequest>()))
             .ReturnsAsync(expectedResponse);
@@ -153,7 +133,51 @@ public class GenerateAssignmentServiceTests
 
         // Assert
         Assert.NotNull(result);
-        _mockSkillService.Verify(x => x.CreateAsync(It.Is<CreateSkillRequest>(req => req.Name == "New Skill")), Times.Once);
+        
+        // Verify that tasks are created with correct sequence
+        _mockProjectAssignmentService.Verify(x => x.CreateAsync(companyId, It.Is<CreateProjectAssignmentRequest>(req =>
+            req.Tasks.Count == 2 &&
+            req.Tasks[0].Title == "Task 1" &&
+            req.Tasks[0].Sequence == 1 &&
+            req.Tasks[0].IsCompleted == false &&
+            req.Tasks[1].Title == "Task 2" &&
+            req.Tasks[1].Sequence == 2 &&
+            req.Tasks[1].IsCompleted == false
+        )), Times.Once);
+    }
+
+    [Fact]
+    public async Task GenerateAssignmentAsync_WithoutTasks_CreatesEmptyTasksList()
+    {
+        // Arrange
+        var companyId = Guid.NewGuid();
+        var candidate = CreateCandidateRequirementsRequest();
+        
+        var generatedAssignment = CreateProjectAssignment();
+        generatedAssignment.Tasks = new List<AssignmentTask>(); // Empty tasks
+        
+        var assignmentPrompt = new Prompt<ProjectAssignment>("system prompt", "content");
+        var expectedResponse = new ProjectAssignmentResponse { Id = Guid.NewGuid() };
+
+        // Setup mocks
+        _mockPromptBuilder.Setup(x => x.BuildFromFile<ProjectAssignment>("AssignmentGenerationPrompt.md", candidate))
+            .Returns(assignmentPrompt);
+        
+        _mockLlmClient.Setup(x => x.GenerateAsync(assignmentPrompt)).ReturnsAsync(generatedAssignment);
+        
+        _mockProjectAssignmentService.Setup(x => x.CreateAsync(companyId, It.IsAny<CreateProjectAssignmentRequest>()))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _generateAssignmentService.GenerateAssignmentAsync(companyId, candidate);
+
+        // Assert
+        Assert.NotNull(result);
+        
+        // Verify that empty tasks list is handled correctly
+        _mockProjectAssignmentService.Verify(x => x.CreateAsync(companyId, It.Is<CreateProjectAssignmentRequest>(req =>
+            req.Tasks.Count == 0
+        )), Times.Once);
     }
 
     #endregion
