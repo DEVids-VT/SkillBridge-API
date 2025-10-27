@@ -120,7 +120,7 @@ public interface IProjectAssignmentService
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns>A paginated list of project assignments matching the specification</returns>
     // Task<PagedList<ProjectAssignmentResponse>>
-    Task<IEnumerable<ProjectAssignmentResponse>> SearchAsync(Specification<Models.Entities.ProjectAssignment> specification,
+    Task<IPagedList<ProjectAssignmentResponse>> SearchAsync(Specification<Models.Entities.ProjectAssignment> specification,
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default);

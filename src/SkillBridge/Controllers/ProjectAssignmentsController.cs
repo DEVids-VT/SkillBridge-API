@@ -235,8 +235,7 @@ public class ProjectAssignmentsController : ControllerBase
         var result = await _projectAssignmentService.SearchAsync(
             specification, pageNumber, pageSize, cancellationToken);
 
-        //return result.ToPage();
-        return result;
+        return result.ToPage();
     }
 
     /// <summary>

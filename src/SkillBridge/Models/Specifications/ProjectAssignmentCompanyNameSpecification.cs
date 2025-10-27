@@ -13,6 +13,6 @@ namespace SkillBridge.Models.Specifications
         protected override bool Include => companyName != null;
 
         public override Expression<Func<ProjectAssignment, bool>> ToExpression()
-            => ex => ex.Company != null && ex.Company.Name == companyName;
+            => ex => ex.Company != null && ex.Company.Name.ToLower().Contains(companyName!.ToLower());
     }
 }

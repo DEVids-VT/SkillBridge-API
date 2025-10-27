@@ -462,9 +462,8 @@ public class ProjectAssignmentService : IProjectAssignmentService
     /// Searches project assignments based on a specification with pagination
     /// </summary>
 
-    // TODO: Implement pagination for search results AND in the Intreface IProjectAssignmentService
-    // public async Task<PagedList<ProjectAssignmentResponse>>
-    public async Task<IEnumerable<ProjectAssignmentResponse>> SearchAsync(Specification<Models.Entities.ProjectAssignment> specification,
+
+    public async Task<IPagedList<ProjectAssignmentResponse>> SearchAsync(Specification<Models.Entities.ProjectAssignment> specification,
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken = default)
@@ -475,23 +474,25 @@ public class ProjectAssignmentService : IProjectAssignmentService
                 .ThenInclude(ps => ps.Skill)
             .Where(specification);
 
-        /* var totalCount = await query.CountAsync(cancellationToken);
+        var totalCount = await query.CountAsync(cancellationToken);
+        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-         var data = await query
-             .Skip((pageNumber - 1) * pageSize)
-             .Take(pageSize)
-             .ToListAsync(cancellationToken);
+        if (totalPages == 0)
+            pageNumber = 1;
+        else if (pageNumber > totalPages)
+            pageNumber = totalPages;
+        else if (pageNumber < 1)
+            pageNumber = 1;
 
-         var mapped = _mapper.Map<List<ProjectAssignmentResponse>>(data);
+        var data = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
 
-         var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        var mapped = _mapper.Map<List<ProjectAssignmentResponse>>(data);
 
-         return new PagedList<ProjectAssignmentResponse>(mapped, pageNumber, pageSize, totalPages, totalCount);*/
 
-        // Delete this when pagination is implemented
-        var results = await query.ToListAsync();
-        return results.Select(p => _mapper.Map<ProjectAssignmentResponse>(p));
-
+        return new PagedList<ProjectAssignmentResponse>(mapped, pageNumber, pageSize, totalPages, totalCount);
     }
     public async Task<List<Models.Entities.UserProfile>> GetByAssigmentId(Guid projectId)
     {
