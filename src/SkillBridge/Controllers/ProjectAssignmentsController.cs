@@ -227,10 +227,9 @@ public class ProjectAssignmentsController : ControllerBase
     CancellationToken cancellationToken = default)
     {
         var specification = new ProjectAssignmentTitleSpecification(request.Title)
-            .And(new ProjectAssignmentLevelSpecification(request.Level))
-            .And(new ProjectAssignmentCompanyNameSpecification(request.CompanyName))
-            .And(new ProjectAssignmentCompanySectorSpecification(request.CompanySector))
-            .And(new ProjectAssignmentSkillsSpecification(request.ProjectSkills));
+                .And(new ProjectAssignmentLevelSpecification(request.Level))
+                .And(new ProjectAssignmentCompanyNameSpecification(request.CompanyName))
+                .And(new ProjectAssignmentCompanySectorSpecification(request.CompanySector));
 
         var result = await _projectAssignmentService.SearchAsync(
             specification, pageNumber, pageSize, cancellationToken);

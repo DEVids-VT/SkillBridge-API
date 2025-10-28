@@ -50,6 +50,7 @@ public class AppDbContext : DbContext
     /// <param name="options">The options for this context.</param>
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
+        
     }
 
     /// <summary>
