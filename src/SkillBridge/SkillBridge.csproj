@@ -35,4 +35,8 @@
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SkillBridge.UnitTests\Controllers\ProjectAssignmentControllerTests\" />
+  </ItemGroup>
+
 </Project>
