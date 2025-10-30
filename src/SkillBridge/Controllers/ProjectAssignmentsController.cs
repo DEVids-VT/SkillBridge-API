@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkillBridge.Infrastructure.Exceptions;
+using SkillBridge.Infrastructure.Pagination.Abstractions;
 using SkillBridge.Infrastructure.Pagination.Extensions;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
@@ -220,7 +221,7 @@ public class ProjectAssignmentsController : ControllerBase
     [HttpGet("search")]
     // When pagination is implemented:
     // public async Task<IPage<OrganizationDto>> SearchOrganizations(
-    public async Task<IEnumerable<ProjectAssignmentResponse>> Search(
+    public async Task<IPage<ProjectAssignmentResponse>> Search(
     [FromQuery] SearchProjectAssignmentRequest request,
     int pageNumber = 1,
     int pageSize = 10,
