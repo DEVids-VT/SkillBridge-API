@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using MyTested.AspNetCore.Mvc;
 using SkillBridge.Controllers;
@@ -8,17 +7,10 @@ using SkillBridge.Models.Enums;
 using SkillBridge.Models.Request;
 using SkillBridge.Models.Response;
 using SkillBridge.Services.ProjectAssignment;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit;
-using EntitiesProjectAssignment = SkillBridge.Models.Entities.ProjectAssignment;
 using SpecOfProject = SkillBridge.Models.Specifications.Specification<SkillBridge.Models.Entities.ProjectAssignment>;
 // Aliases to avoid type/name conflicts and to be explicit in mocks
-using TestHttpMethod = MyTested.AspNetCore.Mvc.HttpMethod;
 
-namespace SkillBridge.Tests.Controllers
+namespace SkillBridge.UnitTests.Controllers.ProjectAssignmentControllerTests
 {
     [Collection("App")]
     public class ProjectAssignmentsControllerTests

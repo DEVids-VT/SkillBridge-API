@@ -1,9 +1,11 @@
 ﻿// TestsBootstrapper.cs
+
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Moq;
 using MyTested.AspNetCore.Mvc;
 using SkillBridge.Services.ProjectAssignment;
+
+namespace SkillBridge.UnitTests.Controllers.ProjectAssignmentControllerTests;
 
 public sealed class TestsBootstrapper
 {
