@@ -33,7 +33,7 @@ public class CompaniesController : ControllerBase
     /// </summary>
     /// <param name="request">The company creation request</param>
     /// <returns>The created company</returns>
-    //[Authorize(Policy = "CompanyScope")]
+    [Authorize(Policy = "CompanyScope")]
     [HttpPost]
     [ProducesResponseType(typeof(CompanyResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
